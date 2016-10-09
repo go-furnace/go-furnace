@@ -3,8 +3,10 @@ import:
 - package: github.com/Skarlso/go_aws_mine
   subpackages:
   - aws
+  - cfg
 - package: github.com/aws/aws-sdk-go
   version: v1.4.15
   subpackages:
   - aws
   - aws/session
+  - service/ec2
