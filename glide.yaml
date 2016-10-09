@@ -1,2 +1,10 @@
 package: github.com/skarlso/go_aws_mine
-import: []
+import:
+- package: github.com/Skarlso/go_aws_mine
+  subpackages:
+  - aws
+- package: github.com/aws/aws-sdk-go
+  version: v1.4.15
+  subpackages:
+  - aws
+  - aws/session

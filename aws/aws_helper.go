@@ -9,6 +9,6 @@ import (
 
 // TestAWS testing AWS configuration.
 func TestAWS() {
-  sess := session.New(&aws.Config{Region: aws.String("us-west-2")})
+  sess := session.New(&aws.Config{Region: aws.String("eu-central-1")})
   fmt.Println(sess)
 }

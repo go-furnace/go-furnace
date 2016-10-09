@@ -1,9 +1,9 @@
 package main
 
 import (
-  "fmt"
+  "github.com/Skarlso/go_aws_mine/aws"
 )
 
 func main() {
-  fmt.Println("Test")
+  aws.TestAWS()
 }
