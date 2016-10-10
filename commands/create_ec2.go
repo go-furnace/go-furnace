@@ -18,7 +18,7 @@ func (c *CreateEC2) Execute() {
 
 // ArgumentDescription describes the arguments for this command.
 func (c *CreateEC2) ArgumentDescription() string {
-	return "[create-ec2]"
+	return ""
 }
 
 // Description is the description of this command.

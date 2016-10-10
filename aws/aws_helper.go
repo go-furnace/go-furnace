@@ -12,8 +12,9 @@ import (
 func CreateEC2() {
 	log.Println("Creating ec2 session.")
 	sess := session.New(&aws.Config{Region: aws.String("eu-central-1")})
-	svc := ec2.New(sess, nil)
-	resp, err := svc.DescribeInstances(nil)
+	ec2Client := ec2.New(sess, nil)
+	// ec2Client.RunInstances(nil)
+	resp, err := ec2Client.DescribeInstances(nil)
 	if err != nil {
 		panic(err)
 	}
