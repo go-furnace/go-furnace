@@ -14,12 +14,12 @@ type Configuration struct {
 
 // Monitoring monitoring
 type Monitoring struct {
-  Enable string `json:"enabled"`
+  Enable bool `json:"enabled"`
 }
 
 // EC2Config EC2 configuration
 type EC2Config struct {
-  DryRun string `json:"dry_run"`
+  DryRun bool `json:"dry_run"`
   ImageID string `json:"image_id"`
   KeyName string `json:"key_name"`
   MinCount int `json:"min_count"`
@@ -49,7 +49,7 @@ type SecurityGroup struct {
 
 // LoadEC2Configuration Loads the configuration file.
 func LoadEC2Configuration() {
-  dat, err := ioutil.ReadFile("ec2_conf.json")
+  dat, err := ioutil.ReadFile("cfg/ec2_conf.json")
   if err != nil {
     panic(err)
   }
