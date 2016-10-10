@@ -10,3 +10,4 @@ import:
   - aws
   - aws/session
   - service/ec2
+- package: github.com/Yitsushi/go-commander
