@@ -1,9 +1,7 @@
 package commands
 
 import (
-	"log"
-
-	"github.com/Skarlso/go_aws_mine/aws"
+  "github.com/Skarlso/go_aws_mine/cfg"
 )
 
 // CreateEC2 command.
@@ -12,8 +10,7 @@ type CreateEC2 struct {
 
 // Execute defines what this command does.
 func (c *CreateEC2) Execute() {
-	aws.CreateEC2()
-	log.Println("Instance created.")
+  cfg.LoadEC2Configuration()
 }
 
 // ArgumentDescription describes the arguments for this command.

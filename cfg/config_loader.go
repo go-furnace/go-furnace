@@ -1,15 +1,23 @@
 package cfg
 
+import (
+  "encoding/json"
+  "io/ioutil"
+  "log"
+)
+
 // Configuration is a Configuration object.
 type Configuration struct {
   LogLevel string
   UploadPath string
 }
 
+// Monitoring monitoring
 type Monitoring struct {
   Enable string `json:"enabled"`
 }
 
+// EC2Config EC2 configuration
 type EC2Config struct {
   DryRun string `json:"dry_run"`
   ImageID string `json:"image_id"`
@@ -39,7 +47,16 @@ type SecurityGroup struct {
   IPPermissions []IPPermission `json:"ip_permission"`
 }
 
-// LoadConfiguration Loads the configuration file.
-func LoadConfiguration() {
-
+// LoadEC2Configuration Loads the configuration file.
+func LoadEC2Configuration() {
+  dat, err := ioutil.ReadFile("ec2_conf.json")
+  if err != nil {
+    panic(err)
+  }
+  ec2Config := EC2Config{}
+  err = json.Unmarshal(dat, &ec2Config)
+  if err != nil {
+    panic(err)
+  }
+  log.Println(ec2Config)
 }
