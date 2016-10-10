@@ -12,8 +12,8 @@ type CreateEC2 struct {
 
 // Execute defines what this command does.
 func (c *CreateEC2) Execute() {
-	aws.TestAWS()
-	log.Println("AWS tested.")
+	aws.CreateEC2()
+	log.Println("Instance created.")
 }
 
 // ArgumentDescription describes the arguments for this command.
