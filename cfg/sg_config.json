@@ -1,0 +1,20 @@
+{
+  "ip_permissions": [
+    {
+      "ip_protocol": "tcp",
+      "from_port": 22,
+      "to_port": 22,
+      "ip_ranges": [{
+        "cidr_ip": "0.0.0.0/0"
+      }]
+    },
+    {
+      "ip_protocol": "tcp",
+      "from_port": 25565,
+      "to_port": 25565,
+      "ip_ranges": [{
+        "cidr_ip": "0.0.0.0/0"
+      }]
+    }
+  ]
+}
