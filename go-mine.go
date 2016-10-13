@@ -7,6 +7,6 @@ import (
 
 func main() {
 	registry := cmd.NewCommandRegistry()
-	registry.Register(commands.NewCreateEC2("WhatisAppname?"))
+	registry.Register(commands.NewCreateEC2)
 	registry.Execute()
 }
