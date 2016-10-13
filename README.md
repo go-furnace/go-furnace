@@ -1,2 +1,3 @@
-# go_aws_mine
+# Go AWS Minecraft
+
 My AWS_Minecraft project written in Go
