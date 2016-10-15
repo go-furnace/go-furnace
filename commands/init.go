@@ -1,12 +1,10 @@
 package commands
 
 import (
-	"io"
 	"log"
 	"os"
 	"os/user"
 	"path/filepath"
-	"strings"
 
 	"github.com/Skarlso/go_aws_mine/utils"
 	"github.com/Yitsushi/go-commander"
@@ -27,9 +25,7 @@ func (i *Init) Execute(opts *commander.CommandHelper) {
 	dst, err := os.Create(filepath.Join(usr.HomeDir, ".config", "go_aws_mine", "ec2_conf.json"))
 	utils.CheckError(err)
 
-	src := strings.NewReader(defaultEC2Config())
-
-	if _, err = io.Copy(dst, src); err != nil {
+	if _, err = dst.WriteString(defaultEC2Config()); err != nil {
 		utils.CheckError(err)
 	}
 
