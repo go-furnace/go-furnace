@@ -4,7 +4,13 @@ import (
   "encoding/json"
   "io/ioutil"
   "log"
+  "path/filepath"
+  "os/user"
+
+  "github.com/Skarlso/go_aws_mine/utils"
 )
+
+var configPath string
 
 // Configuration is a Configuration object.
 type Configuration struct {
@@ -47,9 +53,16 @@ type SecurityGroup struct {
   IPPermissions []IPPermission `json:"ip_permission"`
 }
 
+func init() {
+  // Get configuration path
+  usr, err := user.Current()
+  utils.CheckError(err)
+  configPath = filepath.Join(usr.HomeDir, ".config", "go_aws_mine")
+}
+
 // LoadEC2Configuration Loads the configuration file.
 func LoadEC2Configuration() {
-  dat, err := ioutil.ReadFile("cfg/ec2_conf.json")
+  dat, err := ioutil.ReadFile(filepath.Join(configPath, "ec2_conf.json"))
   if err != nil {
     panic(err)
   }

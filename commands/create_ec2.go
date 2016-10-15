@@ -24,9 +24,7 @@ func NewCreateEC2(appName string) *commander.CommandWrapper {
       LongDescription:  `Allocate a t2.large ( or whatever is configured ) instance
 on which a minecraft server will be running.`,
       Arguments:        "",
-      Examples:         []string {
-        "create-ec2",
-      },
+      Examples:         []string {},
     },
   }
 }
