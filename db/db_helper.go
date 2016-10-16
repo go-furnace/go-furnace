@@ -4,21 +4,17 @@ import (
   "database/sql"
   "log"
   "path/filepath"
-  "os/user"
 
   // It's not directly used.
   _ "github.com/mattn/go-sqlite3"
   "github.com/Skarlso/go_aws_mine/utils"
+  "github.com/Skarlso/go_aws_mine/cfg"
 )
 
 var configPath string
 
 func init() {
-  // Get configuration path
-  // TODO: Maybe I should get this from config_loader? This is now duplicated here.
-  usr, err := user.Current()
-  utils.CheckError(err)
-  configPath = filepath.Join(usr.HomeDir, ".config", "go_aws_mine")
+  configPath = cfg.ConfigPath()
 }
 
 

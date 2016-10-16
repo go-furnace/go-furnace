@@ -53,11 +53,16 @@ type SecurityGroup struct {
   IPPermissions []IPPermission `json:"ip_permission"`
 }
 
-func init() {
+// ConfigPath retrieves the main configuration path.
+func ConfigPath() string {
   // Get configuration path
   usr, err := user.Current()
   utils.CheckError(err)
-  configPath = filepath.Join(usr.HomeDir, ".config", "go_aws_mine")
+  return filepath.Join(usr.HomeDir, ".config", "go_aws_mine")
+}
+
+func init() {
+  configPath = ConfigPath()
 }
 
 // LoadEC2Configuration Loads the configuration file.
