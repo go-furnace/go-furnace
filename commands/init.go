@@ -19,53 +19,44 @@ func (i *Init) Execute(opts *commander.CommandHelper) {
 	usr, err := user.Current()
 	utils.CheckError(err)
 
-	// TODO: Make a check to skip what exists and proceed.
-	err = os.Mkdir(filepath.Join(usr.HomeDir, ".config", "go_aws_mine"), os.ModePerm)
-	utils.CheckError(err)
+	if _, err := os.Stat(filepath.Join(usr.HomeDir, ".config", "go_aws_mine")); err != nil {
+		if os.IsNotExist(err) {
+			mkdirErr := os.Mkdir(filepath.Join(usr.HomeDir, ".config", "go_aws_mine"), os.ModePerm)
+			utils.CheckError(mkdirErr)
+		}
+	}
 
-	makeDefaultEC2ConfigFile(usr)
-	log.Println("Ec2 configuration created in home.")
-
-	makeDefaultSGConfigFile(usr)
-	log.Println("SG configuration created in home.")
-
-	makeDefaultUserDataFile(usr)
-	log.Println("UserData file created in home.")
+	makeDefaultConfigurationForFile("ec2_conf.json", defaultEC2Config(), usr)
+	makeDefaultConfigurationForFile("sg_conf.json", defaultSGConfig(), usr)
+	makeDefaultConfigurationForFile("user_data.sh", defaultUserData(), usr)
+	makeDefaultConfigurationForFile("minecraft.key", "", usr)
+	log.Println("Dummy minecraft.key file created. Don't forget to fill this out!")
 
 	db.InitDb()
-	log.Println("Database created.")
 }
 
-func makeDefaultEC2ConfigFile(usr *user.User) {
-	dst, err := os.Create(filepath.Join(usr.HomeDir, ".config", "go_aws_mine", "ec2_conf.json"))
+func makeDefaultConfigurationForFile(filename, content string, usr *user.User) {
+	path := filepath.Join(usr.HomeDir, ".config", "go_aws_mine", filename)
+	if exists(path) {
+		log.Printf("File '%s' already exists. Nothing to do.", path)
+		return
+	}
+	dst, err := os.Create(path)
 	utils.CheckError(err)
 	defer dst.Close()
-	if _, err = dst.WriteString(defaultEC2Config()); err != nil {
+	if _, err = dst.WriteString(content); err != nil {
 		utils.CheckError(err)
 	}
+	log.Printf("Configuration created in home. Filename: %s\n", filename)
 }
 
-func makeDefaultSGConfigFile(usr *user.User) {
-	dst, err := os.Create(filepath.Join(usr.HomeDir, ".config", "go_aws_mine", "sg_conf.json"))
-	utils.CheckError(err)
-	defer dst.Close()
-	if _, err = dst.WriteString(defaultSGConfig()); err != nil {
-		utils.CheckError(err)
+func exists(path string) bool {
+	if _, err := os.Stat(path); err != nil {
+		if os.IsNotExist(err) {
+			return false
+		}
 	}
-}
-
-func makeDefaultUserDataFile(usr *user.User) {
-	dst, err := os.Create(filepath.Join(usr.HomeDir, ".config", "go_aws_mine", "user_data.sh"))
-	utils.CheckError(err)
-	defer dst.Close()
-	if _, err = dst.WriteString(defaultUserData()); err != nil {
-		utils.CheckError(err)
-	}
-}
-
-func makeDummyMinecraftKeyFile(usr *user.User) {
-	_, err := os.Create(filepath.Join(usr.HomeDir, ".config", "go_aws_mine", "minecraft.key"))
-	utils.CheckError(err)
+	return true
 }
 
 // NewInit initializes configuration values.
