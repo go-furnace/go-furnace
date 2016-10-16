@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/Skarlso/go_aws_mine/utils"
+	"github.com/Skarlso/go_aws_mine/db"
 	"github.com/Yitsushi/go-commander"
 )
 
@@ -18,18 +19,53 @@ func (i *Init) Execute(opts *commander.CommandHelper) {
 	usr, err := user.Current()
 	utils.CheckError(err)
 
+	// TODO: Make a check to skip what exists and proceed.
 	err = os.Mkdir(filepath.Join(usr.HomeDir, ".config", "go_aws_mine"), os.ModePerm)
 	utils.CheckError(err)
 
-	// Copy files from cfg folder to ./config/go_aws_mine.
+	makeDefaultEC2ConfigFile(usr)
+	log.Println("Ec2 configuration created in home.")
+
+	makeDefaultSGConfigFile(usr)
+	log.Println("SG configuration created in home.")
+
+	makeDefaultUserDataFile(usr)
+	log.Println("UserData file created in home.")
+
+	db.InitDb()
+	log.Println("Database created.")
+}
+
+func makeDefaultEC2ConfigFile(usr *user.User) {
 	dst, err := os.Create(filepath.Join(usr.HomeDir, ".config", "go_aws_mine", "ec2_conf.json"))
 	utils.CheckError(err)
-
+	defer dst.Close()
 	if _, err = dst.WriteString(defaultEC2Config()); err != nil {
 		utils.CheckError(err)
 	}
+}
 
-	log.Println("Ec2 configuration created in home.")
+func makeDefaultSGConfigFile(usr *user.User) {
+	dst, err := os.Create(filepath.Join(usr.HomeDir, ".config", "go_aws_mine", "sg_conf.json"))
+	utils.CheckError(err)
+	defer dst.Close()
+	if _, err = dst.WriteString(defaultSGConfig()); err != nil {
+		utils.CheckError(err)
+	}
+}
+
+func makeDefaultUserDataFile(usr *user.User) {
+	dst, err := os.Create(filepath.Join(usr.HomeDir, ".config", "go_aws_mine", "user_data.sh"))
+	utils.CheckError(err)
+	defer dst.Close()
+	if _, err = dst.WriteString(defaultUserData()); err != nil {
+		utils.CheckError(err)
+	}
+}
+
+func makeDummyMinecraftKeyFile(usr *user.User) {
+	_, err := os.Create(filepath.Join(usr.HomeDir, ".config", "go_aws_mine", "minecraft.key"))
+	utils.CheckError(err)
 }
 
 // NewInit initializes configuration values.
