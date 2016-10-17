@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/Skarlso/go_aws_mine/utils"
 	"github.com/Skarlso/go_aws_mine/db"
+	"github.com/Skarlso/go_aws_mine/utils"
 	"github.com/Yitsushi/go-commander"
 )
 
@@ -29,18 +29,18 @@ func (i *Init) Execute(opts *commander.CommandHelper) {
 
 	// // Concurrent for the lulz and profit.
 	var wg sync.WaitGroup
-	var files = map[string]func()string {
-					"ec2_conf.json": defaultEC2Config,
-					"sg_conf.json": defaultSGConfig,
-				  "user_data.sh": defaultUserData,
-					"minecraft.key": dummyMinecraftContent,
+	var files = map[string]func() string{
+		"ec2_conf.json": defaultEC2Config,
+		"sg_conf.json":  defaultSGConfig,
+		"user_data.sh":  defaultUserData,
+		"minecraft.key": dummyMinecraftContent,
 	}
 	for k, v := range files {
-					wg.Add(1)
-					go func(filename string, content func()string) {
-									defer wg.Done()
-									makeDefaultConfigurationForFile(filename, content(), usr)
-					}(k, v)
+		wg.Add(1)
+		go func(filename string, content func() string) {
+			defer wg.Done()
+			makeDefaultConfigurationForFile(filename, content(), usr)
+		}(k, v)
 	}
 	wg.Wait()
 
