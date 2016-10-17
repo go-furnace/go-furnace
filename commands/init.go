@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
+	"sync"
 
 	"github.com/Skarlso/go_aws_mine/utils"
 	"github.com/Skarlso/go_aws_mine/db"
@@ -26,11 +27,22 @@ func (i *Init) Execute(opts *commander.CommandHelper) {
 		}
 	}
 
-	makeDefaultConfigurationForFile("ec2_conf.json", defaultEC2Config(), usr)
-	makeDefaultConfigurationForFile("sg_conf.json", defaultSGConfig(), usr)
-	makeDefaultConfigurationForFile("user_data.sh", defaultUserData(), usr)
-	makeDefaultConfigurationForFile("minecraft.key", "", usr)
-	log.Println("Dummy minecraft.key file created. Don't forget to fill this out!")
+	// // Concurrent for the lulz and profit.
+	var wg sync.WaitGroup
+	var files = map[string]func()string {
+					"ec2_conf.json": defaultEC2Config,
+					"sg_conf.json": defaultSGConfig,
+				  "user_data.sh": defaultUserData,
+					"minecraft.key": dummyMinecraftContent,
+	}
+	for k, v := range files {
+					wg.Add(1)
+					go func(filename string, content func()string) {
+									defer wg.Done()
+									makeDefaultConfigurationForFile(filename, content(), usr)
+					}(k, v)
+	}
+	wg.Wait()
 
 	db.InitDb()
 }
@@ -133,4 +145,8 @@ cd tmux-2.2
 ./configure && make
 cd /home/ec2-user
 chown -R ec2-user:ec2-user tmux-2.2`
+}
+
+func dummyMinecraftContent() string {
+	return "Dummy minecraft.key file created. Don't forget to fill this out!"
 }
