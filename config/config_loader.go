@@ -1,4 +1,4 @@
-package cfg
+package config
 
 import (
 	"encoding/json"
@@ -52,8 +52,8 @@ type SecurityGroup struct {
 	IPPermissions []IPPermission `json:"ip_permission"`
 }
 
-// ConfigPath retrieves the main configuration path.
-func ConfigPath() string {
+// Path retrieves the main configuration path.
+func Path() string {
 	// Get configuration path
 	usr, err := user.Current()
 	utils.CheckError(err)
@@ -61,7 +61,7 @@ func ConfigPath() string {
 }
 
 func init() {
-	configPath = ConfigPath()
+	configPath = Path()
 }
 
 // CreateEC2Config Loads the configuration file.

@@ -4,7 +4,7 @@ import (
 	"log"
 	"path/filepath"
 
-	"github.com/Skarlso/go_aws_mine/cfg"
+	"github.com/Skarlso/go_aws_mine/config"
 	"github.com/Skarlso/go_aws_mine/utils"
 	"github.com/boltdb/bolt"
 )
@@ -15,7 +15,7 @@ const BUCKET = "instances"
 var configPath string
 
 func init() {
-	configPath = cfg.ConfigPath()
+	configPath = config.Path()
 }
 
 // InitDb initializes the database.

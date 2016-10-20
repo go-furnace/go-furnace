@@ -3,7 +3,7 @@ package commands
 import (
 	"log"
 
-	"github.com/Skarlso/go_aws_mine/cfg"
+	"github.com/Skarlso/go_aws_mine/config"
 	"github.com/Yitsushi/go-commander"
 )
 
@@ -13,7 +13,7 @@ type CreateEC2 struct {
 
 // Execute defines what this command does.
 func (c *CreateEC2) Execute(opts *commander.CommandHelper) {
-	ec2Config := cfg.CreateEC2Config()
+	ec2Config := config.CreateEC2Config()
 	log.Println(ec2Config.DryRun)
 }
 
