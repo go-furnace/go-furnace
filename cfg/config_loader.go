@@ -3,7 +3,6 @@ package cfg
 import (
 	"encoding/json"
 	"io/ioutil"
-	"log"
 	"os/user"
 	"path/filepath"
 
@@ -65,16 +64,16 @@ func init() {
 	configPath = ConfigPath()
 }
 
-// LoadEC2Configuration Loads the configuration file.
-func LoadEC2Configuration() {
+// CreateEC2Config Loads the configuration file.
+func CreateEC2Config() (ec2Config *EC2Config) {
 	dat, err := ioutil.ReadFile(filepath.Join(configPath, "ec2_conf.json"))
 	if err != nil {
-		panic(err)
+		utils.CheckError(err)
 	}
-	ec2Config := EC2Config{}
+	ec2Config = &EC2Config{}
 	err = json.Unmarshal(dat, &ec2Config)
 	if err != nil {
-		panic(err)
+		utils.CheckError(err)
 	}
-	log.Println(ec2Config)
+	return ec2Config
 }

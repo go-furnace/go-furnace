@@ -1,6 +1,8 @@
 package commands
 
 import (
+	"log"
+
 	"github.com/Skarlso/go_aws_mine/cfg"
 	"github.com/Yitsushi/go-commander"
 )
@@ -11,7 +13,9 @@ type CreateEC2 struct {
 
 // Execute defines what this command does.
 func (c *CreateEC2) Execute(opts *commander.CommandHelper) {
-	cfg.LoadEC2Configuration()
+	var ec2Config *cfg.EC2Config
+	ec2Config = cfg.CreateEC2Config()
+	log.Println(ec2Config)
 }
 
 // NewCreateEC2 Creates a new CreateEC2 command.
