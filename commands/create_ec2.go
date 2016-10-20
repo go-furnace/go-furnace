@@ -13,9 +13,8 @@ type CreateEC2 struct {
 
 // Execute defines what this command does.
 func (c *CreateEC2) Execute(opts *commander.CommandHelper) {
-	var ec2Config *cfg.EC2Config
-	ec2Config = cfg.CreateEC2Config()
-	log.Println(ec2Config)
+	ec2Config := cfg.CreateEC2Config()
+	log.Println(ec2Config.DryRun)
 }
 
 // NewCreateEC2 Creates a new CreateEC2 command.
