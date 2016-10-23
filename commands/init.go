@@ -93,7 +93,7 @@ func defaultEC2Config() string {
     "key_name": "minecraft_keys",
     "min_count": 1,
     "max_count": 1,
-    "instance_type": "t2.large",
+    "instance_type": "t2.nano",
     "monitoring": {
         "enabled": true
     }

@@ -27,8 +27,8 @@ type EC2Config struct {
 	DryRun       bool       `json:"dry_run"`
 	ImageID      string     `json:"image_id"`
 	KeyName      string     `json:"key_name"`
-	MinCount     int        `json:"min_count"`
-	MaxCount     int        `json:"max_count"`
+	MinCount     int64      `json:"min_count"`
+	MaxCount     int64      `json:"max_count"`
 	InstanceType string     `json:"instance_type"`
 	Monitoring   Monitoring `json:"monitoring"`
 }
