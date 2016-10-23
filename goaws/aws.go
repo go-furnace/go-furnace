@@ -24,8 +24,8 @@ func CreateEC2(ec2Config *config.EC2Config) {
 		KeyName:      &ec2Config.KeyName,
 		Monitoring:   &ec2.RunInstancesMonitoringEnabled{Enabled: &ec2Config.Monitoring.Enable},
 	})
-	log.Println("Instance created with id: ", *runResult.Instances[0].InstanceId)
 	errorhandler.CheckError(err)
+	log.Println("Instance created with id: ", *runResult.Instances[0].InstanceId)
 	ec2Id := aws.StringSlice([]string{*runResult.Instances[0].InstanceId})
 	err = ec2Client.WaitUntilInstanceRunning(&ec2.DescribeInstancesInput{InstanceIds: ec2Id})
 	if err != nil {
