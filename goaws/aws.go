@@ -2,6 +2,8 @@ package goaws
 
 import (
 	"log"
+	"sync"
+	"time"
 
 	"github.com/Skarlso/go_aws_mine/config"
 	"github.com/Skarlso/go_aws_mine/errorhandler"
@@ -32,13 +34,37 @@ func CreateEC2(ec2Config *config.EC2Config) {
 	errorhandler.CheckError(err)
 	log.Println("Instance created with id: ", *runResult.Instances[0].InstanceId)
 	ec2Id := aws.StringSlice([]string{*runResult.Instances[0].InstanceId})
-	err = ec2Client.WaitUntilInstanceRunning(&ec2.DescribeInstancesInput{InstanceIds: ec2Id})
-	if err != nil {
-		errorhandler.CheckError(err)
-	}
-	WaitForEC2Function(RUNNING, *runResult.Instances[0].InstanceId, func() {
-		log.Println("This is a custom function")
-	})
+
+	var wg sync.WaitGroup
+	wg.Add(1)
+	done := make(chan bool)
+	go func() {
+		defer wg.Done()
+		err = ec2Client.WaitUntilInstanceRunning(&ec2.DescribeInstancesInput{InstanceIds: ec2Id})
+		if err != nil {
+			errorhandler.CheckError(err)
+		}
+		done <- true
+	}()
+	// Extract this out into a waiter function which receives the function to wait on in a parameter
+	go func() {
+		for {
+			log.Println("Waiting for ec2 instance to start...")
+			time.Sleep(1 * time.Second)
+			select {
+			case <-done:
+				break
+			default:
+			}
+		}
+	}()
+
+	wg.Wait()
+}
+
+// TerminateEC2 terminates an EC2 instance.
+func TerminateEC2(ec2id string) {
+
 }
 
 // CheckInstanceStatus retrieves a status of a given instance id.
@@ -52,9 +78,10 @@ func CheckInstanceStatus(id string) (status string) {
 	return *resp.InstanceStatuses[0].InstanceStatus.Status
 }
 
-// WaitForEC2Function waits for an ec2 function to complete its action.
-func WaitForEC2Function(status, ec2id string, f func()) {
-	log.Println("Waiting for function to complete to status: ", status)
-	log.Printf("Status of instance with id: %s; is: %s\n", ec2id, CheckInstanceStatus(ec2id))
-	f()
-}
+//
+// // WaitForEC2Function waits for an ec2 function to complete its action.
+// func WaitForEC2Function(status, ec2id string, f func()) {
+// 	log.Println("Waiting for function to complete to status: ", status)
+// 	log.Printf("Status of instance with id: %s; is: %s\n", ec2id, CheckInstanceStatus(ec2id))
+// 	f()
+// }
