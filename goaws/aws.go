@@ -35,31 +35,13 @@ func CreateEC2(ec2Config *config.EC2Config) {
 	log.Println("Instance created with id: ", *runResult.Instances[0].InstanceId)
 	ec2Id := aws.StringSlice([]string{*runResult.Instances[0].InstanceId})
 
-	var wg sync.WaitGroup
-	wg.Add(1)
-	done := make(chan bool)
-	go func() {
-		defer wg.Done()
+	f := func() {
 		err = ec2Client.WaitUntilInstanceRunning(&ec2.DescribeInstancesInput{InstanceIds: ec2Id})
 		if err != nil {
 			errorhandler.CheckError(err)
 		}
-		done <- true
-	}()
-	// Extract this out into a waiter function which receives the function to wait on in a parameter
-	go func() {
-		for {
-			log.Println("Waiting for ec2 instance to start...")
-			time.Sleep(1 * time.Second)
-			select {
-			case <-done:
-				break
-			default:
-			}
-		}
-	}()
-
-	wg.Wait()
+	}
+	WaitForEC2Function(RUNNING, f)
 }
 
 // TerminateEC2 terminates an EC2 instance.
@@ -78,10 +60,27 @@ func CheckInstanceStatus(id string) (status string) {
 	return *resp.InstanceStatuses[0].InstanceStatus.Status
 }
 
-//
-// // WaitForEC2Function waits for an ec2 function to complete its action.
-// func WaitForEC2Function(status, ec2id string, f func()) {
-// 	log.Println("Waiting for function to complete to status: ", status)
-// 	log.Printf("Status of instance with id: %s; is: %s\n", ec2id, CheckInstanceStatus(ec2id))
-// 	f()
-// }
+// WaitForEC2Function waits for an ec2 function to complete its action.
+func WaitForEC2Function(status string, f func()) {
+	var wg sync.WaitGroup
+	wg.Add(1)
+	done := make(chan bool)
+	go func() {
+		defer wg.Done()
+		f()
+		done <- true
+	}()
+	go func() {
+		for {
+			log.Println("Waiting for ec2 instance: ", status)
+			time.Sleep(1 * time.Second)
+			select {
+			case <-done:
+				break
+			default:
+			}
+		}
+	}()
+
+	wg.Wait()
+}
