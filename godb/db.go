@@ -1,11 +1,11 @@
-package db
+package godb
 
 import (
 	"log"
 	"path/filepath"
 
 	"github.com/Skarlso/go_aws_mine/config"
-	"github.com/Skarlso/go_aws_mine/utils"
+	"github.com/Skarlso/go_aws_mine/errorhandler"
 	"github.com/boltdb/bolt"
 )
 
@@ -21,7 +21,7 @@ func init() {
 // InitDb initializes the database.
 func InitDb() {
 	db, err := bolt.Open(filepath.Join(configPath, "go_aws_main.db"), 0600, nil)
-	utils.CheckError(err)
+	errorhandler.CheckError(err)
 	defer db.Close()
 
 	err = db.Update(func(tx *bolt.Tx) error {

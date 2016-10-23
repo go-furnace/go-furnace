@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/Skarlso/go_aws_mine/db"
-	"github.com/Skarlso/go_aws_mine/utils"
+	"github.com/Skarlso/go_aws_mine/errorhandler"
+	"github.com/Skarlso/go_aws_mine/godb"
 	"github.com/Yitsushi/go-commander"
 )
 
@@ -18,12 +18,12 @@ type Init struct{}
 // Execute initializes everything.
 func (i *Init) Execute(opts *commander.CommandHelper) {
 	usr, err := user.Current()
-	utils.CheckError(err)
+	errorhandler.CheckError(err)
 
 	if _, err := os.Stat(filepath.Join(usr.HomeDir, ".config", "go_aws_mine")); err != nil {
 		if os.IsNotExist(err) {
 			mkdirErr := os.Mkdir(filepath.Join(usr.HomeDir, ".config", "go_aws_mine"), os.ModePerm)
-			utils.CheckError(mkdirErr)
+			errorhandler.CheckError(mkdirErr)
 		}
 	}
 
@@ -44,7 +44,7 @@ func (i *Init) Execute(opts *commander.CommandHelper) {
 	}
 	wg.Wait()
 
-	db.InitDb()
+	godb.InitDb()
 }
 
 func makeDefaultConfigurationForFile(filename, content string, usr *user.User) {
@@ -54,10 +54,10 @@ func makeDefaultConfigurationForFile(filename, content string, usr *user.User) {
 		return
 	}
 	dst, err := os.Create(path)
-	utils.CheckError(err)
+	errorhandler.CheckError(err)
 	defer dst.Close()
 	if _, err = dst.WriteString(content); err != nil {
-		utils.CheckError(err)
+		errorhandler.CheckError(err)
 	}
 	log.Printf("Configuration created in home. Filename: %s\n", filename)
 }

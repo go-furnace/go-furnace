@@ -6,7 +6,7 @@ import (
 	"os/user"
 	"path/filepath"
 
-	"github.com/Skarlso/go_aws_mine/utils"
+	"github.com/Skarlso/go_aws_mine/errorhandler"
 )
 
 var configPath string
@@ -56,7 +56,7 @@ type SecurityGroup struct {
 func Path() string {
 	// Get configuration path
 	usr, err := user.Current()
-	utils.CheckError(err)
+	errorhandler.CheckError(err)
 	return filepath.Join(usr.HomeDir, ".config", "go_aws_mine")
 }
 
@@ -68,12 +68,12 @@ func init() {
 func CreateEC2Config() (ec2Config *EC2Config) {
 	dat, err := ioutil.ReadFile(filepath.Join(configPath, "ec2_conf.json"))
 	if err != nil {
-		utils.CheckError(err)
+		errorhandler.CheckError(err)
 	}
 	ec2Config = &EC2Config{}
 	err = json.Unmarshal(dat, &ec2Config)
 	if err != nil {
-		utils.CheckError(err)
+		errorhandler.CheckError(err)
 	}
 	return ec2Config
 }
