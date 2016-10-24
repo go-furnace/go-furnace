@@ -30,16 +30,16 @@ func (i *Init) Execute(opts *commander.CommandHelper) {
 	// // Concurrent for the lulz and profit.
 	var wg sync.WaitGroup
 	var files = map[string]func() string{
-		"ec2_conf.json": defaultEC2Config,
-		"sg_conf.json":  defaultSGConfig,
-		"user_data.sh":  defaultUserData,
-		"minecraft.key": dummyMinecraftContent,
+		"ec2_conf.json": i.defaultEC2Config,
+		"sg_conf.json":  i.defaultSGConfig,
+		"user_data.sh":  i.defaultUserData,
+		"minecraft.key": i.dummyMinecraftContent,
 	}
 	for k, v := range files {
 		wg.Add(1)
 		go func(filename string, content func() string) {
 			defer wg.Done()
-			makeDefaultConfigurationForFile(filename, content(), usr)
+			i.makeDefaultConfigurationForFile(filename, content(), usr)
 		}(k, v)
 	}
 	wg.Wait()
@@ -47,9 +47,9 @@ func (i *Init) Execute(opts *commander.CommandHelper) {
 	godb.InitDb()
 }
 
-func makeDefaultConfigurationForFile(filename, content string, usr *user.User) {
+func (i *Init) makeDefaultConfigurationForFile(filename, content string, usr *user.User) {
 	path := filepath.Join(usr.HomeDir, ".config", "go-aws-mine", filename)
-	if exists(path) {
+	if i.exists(path) {
 		log.Printf("File '%s' already exists. Nothing to do.", path)
 		return
 	}
@@ -62,7 +62,7 @@ func makeDefaultConfigurationForFile(filename, content string, usr *user.User) {
 	log.Printf("Configuration created in home. Filename: %s\n", filename)
 }
 
-func exists(path string) bool {
+func (i *Init) exists(path string) bool {
 	if _, err := os.Stat(path); err != nil {
 		if os.IsNotExist(err) {
 			return false
@@ -86,7 +86,7 @@ This command is OS agnostic and on Windows it will create a folder under user/.c
 	}
 }
 
-func defaultEC2Config() string {
+func (i *Init) defaultEC2Config() string {
 	return `{
     "dry_run": true,
     "image_id": "ami-ea26ce85",
@@ -100,7 +100,7 @@ func defaultEC2Config() string {
 }`
 }
 
-func defaultSGConfig() string {
+func (i *Init) defaultSGConfig() string {
 	return `{
   "ip_permissions": [
     {
@@ -123,7 +123,7 @@ func defaultSGConfig() string {
 }`
 }
 
-func defaultUserData() string {
+func (i *Init) defaultUserData() string {
 	return `#!/bin/bash
 yum update -y
 yum install git -y
@@ -147,6 +147,6 @@ cd /home/ec2-user
 chown -R ec2-user:ec2-user tmux-2.2`
 }
 
-func dummyMinecraftContent() string {
+func (i *Init) dummyMinecraftContent() string {
 	return "Dummy minecraft.key file created. Don't forget to fill this out!"
 }
