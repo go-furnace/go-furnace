@@ -4,8 +4,8 @@ import (
 	"log"
 	"path/filepath"
 
-	"github.com/Skarlso/go_aws_mine/config"
-	"github.com/Skarlso/go_aws_mine/errorhandler"
+	"github.com/Skarlso/go-aws-mine/config"
+	"github.com/Skarlso/go-aws-mine/errorhandler"
 	"github.com/boltdb/bolt"
 )
 

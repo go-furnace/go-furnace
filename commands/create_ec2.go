@@ -3,8 +3,8 @@ package commands
 import (
 	"log"
 
-	"github.com/Skarlso/go_aws_mine/config"
-	"github.com/Skarlso/go_aws_mine/goaws"
+	"github.com/Skarlso/go-aws-mine/config"
+	"github.com/Skarlso/go-aws-mine/goaws"
 	"github.com/Yitsushi/go-commander"
 )
 

@@ -6,7 +6,7 @@ import (
 	"os/user"
 	"path/filepath"
 
-	"github.com/Skarlso/go_aws_mine/commands"
+	"github.com/Skarlso/go-aws-mine/commands"
 	cmd "github.com/Yitsushi/go-commander"
 )
 
@@ -17,10 +17,10 @@ func init() {
 		log.Fatal(err)
 	}
 
-	if _, err := os.Stat(filepath.Join(usr.HomeDir, ".config", "go_aws_mine")); err != nil {
+	if _, err := os.Stat(filepath.Join(usr.HomeDir, ".config", "go-aws-mine")); err != nil {
 		if os.IsNotExist(err) {
 			log.Println("==============================WARNING==============================")
-			log.Println("Config folder was not found. Please run `./go_aws_mine init` first.")
+			log.Println("Config folder was not found. Please run `./go-aws-mine init` first.")
 			log.Println("==============================WARNING==============================")
 		}
 	}

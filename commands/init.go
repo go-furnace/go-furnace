@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/Skarlso/go_aws_mine/errorhandler"
-	"github.com/Skarlso/go_aws_mine/godb"
+	"github.com/Skarlso/go-aws-mine/errorhandler"
+	"github.com/Skarlso/go-aws-mine/godb"
 	"github.com/Yitsushi/go-commander"
 )
 
@@ -20,9 +20,9 @@ func (i *Init) Execute(opts *commander.CommandHelper) {
 	usr, err := user.Current()
 	errorhandler.CheckError(err)
 
-	if _, err := os.Stat(filepath.Join(usr.HomeDir, ".config", "go_aws_mine")); err != nil {
+	if _, err := os.Stat(filepath.Join(usr.HomeDir, ".config", "go-aws-mine")); err != nil {
 		if os.IsNotExist(err) {
-			mkdirErr := os.Mkdir(filepath.Join(usr.HomeDir, ".config", "go_aws_mine"), os.ModePerm)
+			mkdirErr := os.Mkdir(filepath.Join(usr.HomeDir, ".config", "go-aws-mine"), os.ModePerm)
 			errorhandler.CheckError(mkdirErr)
 		}
 	}
@@ -48,7 +48,7 @@ func (i *Init) Execute(opts *commander.CommandHelper) {
 }
 
 func makeDefaultConfigurationForFile(filename, content string, usr *user.User) {
-	path := filepath.Join(usr.HomeDir, ".config", "go_aws_mine", filename)
+	path := filepath.Join(usr.HomeDir, ".config", "go-aws-mine", filename)
 	if exists(path) {
 		log.Printf("File '%s' already exists. Nothing to do.", path)
 		return
@@ -79,7 +79,7 @@ func NewInit(appName string) *commander.CommandWrapper {
 			Name:             "init",
 			ShortDescription: "Initialize configuration values.",
 			LongDescription: `Init initializes configurations in the users home/.config folder.
-This command is OS agnostic and on Windows it will create a folder under user/.config/go_aws_mine.`,
+This command is OS agnostic and on Windows it will create a folder under user/.config/go-aws-mine.`,
 			Arguments: "",
 			Examples:  []string{},
 		},

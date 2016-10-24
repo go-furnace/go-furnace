@@ -6,7 +6,7 @@ import (
 	"os/user"
 	"path/filepath"
 
-	"github.com/Skarlso/go_aws_mine/errorhandler"
+	"github.com/Skarlso/go-aws-mine/errorhandler"
 )
 
 var configPath string
@@ -57,7 +57,7 @@ func Path() string {
 	// Get configuration path
 	usr, err := user.Current()
 	errorhandler.CheckError(err)
-	return filepath.Join(usr.HomeDir, ".config", "go_aws_mine")
+	return filepath.Join(usr.HomeDir, ".config", "go-aws-mine")
 }
 
 func init() {

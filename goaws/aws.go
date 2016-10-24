@@ -5,8 +5,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Skarlso/go_aws_mine/config"
-	"github.com/Skarlso/go_aws_mine/errorhandler"
+	"github.com/Skarlso/go-aws-mine/config"
+	"github.com/Skarlso/go-aws-mine/errorhandler"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ec2"
