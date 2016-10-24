@@ -7,22 +7,26 @@ import (
 	"path/filepath"
 	"sync"
 
+	"github.com/Skarlso/go-aws-mine/config"
 	"github.com/Skarlso/go-aws-mine/errorhandler"
 	"github.com/Skarlso/go-aws-mine/godb"
 	"github.com/Yitsushi/go-commander"
 )
+
+var configPath string
 
 // Init is an init command
 type Init struct{}
 
 // Execute initializes everything.
 func (i *Init) Execute(opts *commander.CommandHelper) {
+	configPath = config.Path()
 	usr, err := user.Current()
 	errorhandler.CheckError(err)
 
-	if _, err := os.Stat(filepath.Join(usr.HomeDir, ".config", "go-aws-mine")); err != nil {
+	if _, err := os.Stat(configPath); err != nil {
 		if os.IsNotExist(err) {
-			mkdirErr := os.Mkdir(filepath.Join(usr.HomeDir, ".config", "go-aws-mine"), os.ModePerm)
+			mkdirErr := os.Mkdir(configPath, os.ModePerm)
 			errorhandler.CheckError(mkdirErr)
 		}
 	}
@@ -48,7 +52,7 @@ func (i *Init) Execute(opts *commander.CommandHelper) {
 }
 
 func (i *Init) makeDefaultConfigurationForFile(filename, content string, usr *user.User) {
-	path := filepath.Join(usr.HomeDir, ".config", "go-aws-mine", filename)
+	path := filepath.Join(configPath, filename)
 	if i.exists(path) {
 		log.Printf("File '%s' already exists. Nothing to do.", path)
 		return
