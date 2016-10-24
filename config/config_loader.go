@@ -64,8 +64,8 @@ func init() {
 	configPath = Path()
 }
 
-// CreateEC2Config Loads the EC2 configuration file into the representive struct.
-func CreateEC2Config() (ec2Config *EC2Config) {
+// LoadEC2Config Loads the EC2 configuration file into the representive struct.
+func LoadEC2Config() (ec2Config *EC2Config) {
 	dat, err := ioutil.ReadFile(filepath.Join(configPath, "ec2_conf.json"))
 	if err != nil {
 		errorhandler.CheckError(err)

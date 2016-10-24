@@ -31,5 +31,6 @@ func main() {
 	registry.Register(commands.NewCreateEC2)
 	registry.Register(commands.NewInit)
 	registry.Register(commands.NewEC2Status)
+	registry.Register(commands.NewTerminateEC2)
 	registry.Execute()
 }

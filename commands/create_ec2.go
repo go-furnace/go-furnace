@@ -14,7 +14,7 @@ type CreateEC2 struct {
 
 // Execute defines what this command does.
 func (c *CreateEC2) Execute(opts *commander.CommandHelper) {
-	ec2Config := config.CreateEC2Config()
+	ec2Config := config.LoadEC2Config()
 	log.Println("Using ec2 configuration: ", ec2Config)
 	goaws.CreateEC2(ec2Config)
 }

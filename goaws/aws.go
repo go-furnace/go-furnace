@@ -37,16 +37,25 @@ func CreateEC2(ec2Config *config.EC2Config) {
 
 	f := func() {
 		err = ec2Client.WaitUntilInstanceRunning(&ec2.DescribeInstancesInput{InstanceIds: ec2Id})
-		if err != nil {
-			errorhandler.CheckError(err)
-		}
+		errorhandler.CheckError(err)
 	}
 	WaitForEC2Function(RUNNING, f)
 }
 
 // TerminateEC2 terminates an EC2 instance.
 func TerminateEC2(ec2id string) {
-
+	log.Println("Terminating EC2 instance: ", ec2id)
+	sess := session.New(&aws.Config{Region: aws.String("eu-central-1")})
+	ec2Client := ec2.New(sess, nil)
+	f := func() {
+		resp, err := ec2Client.TerminateInstances(&ec2.TerminateInstancesInput{InstanceIds: aws.StringSlice([]string{ec2id})})
+		log.Printf("Statuses for instance id: %s; Previous state: %s; Current state: %s",
+			*resp.TerminatingInstances[0].InstanceId,
+			*resp.TerminatingInstances[0].PreviousState.Name,
+			*resp.TerminatingInstances[0].CurrentState.Name)
+		errorhandler.CheckError(err)
+	}
+	WaitForEC2Function("Terminated", f)
 }
 
 // CheckInstanceStatus retrieves a status of a given instance id.
