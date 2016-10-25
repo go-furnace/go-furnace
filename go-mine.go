@@ -16,7 +16,7 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
+	// TODO: Create the environment first if it doesn't exists instead of having it a command.
 	if _, err := os.Stat(filepath.Join(usr.HomeDir, ".config", "go-aws-mine")); err != nil {
 		if os.IsNotExist(err) {
 			log.Println("==============================WARNING==============================")
