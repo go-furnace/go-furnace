@@ -19,9 +19,9 @@ func init() {
 	// TODO: Create the environment first if it doesn't exists instead of having it a command.
 	if _, err := os.Stat(filepath.Join(usr.HomeDir, ".config", "go-aws-mine")); err != nil {
 		if os.IsNotExist(err) {
-			log.Println("==============================WARNING==============================")
-			log.Println("Config folder was not found. Please run `./go-aws-mine init` first.")
-			log.Println("==============================WARNING==============================")
+			// TODO: Run init here.
+			i := commands.Init{}
+			i.Execute(nil)
 		}
 	}
 }
@@ -29,7 +29,6 @@ func init() {
 func main() {
 	registry := cmd.NewCommandRegistry()
 	registry.Register(commands.NewCreateEC2)
-	registry.Register(commands.NewInit)
 	registry.Register(commands.NewEC2Status)
 	registry.Register(commands.NewTerminateEC2)
 	registry.Execute()
