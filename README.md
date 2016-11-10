@@ -1,3 +1,3 @@
 # Go AWS Minecraft
 
-My AWS_Minecraft project written in Go
+My [AWS_Minecraft](https://github.com/Skarlso/aws_minecraft) project written in Go.
