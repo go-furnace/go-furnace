@@ -6,7 +6,7 @@ import (
 	"os/user"
 	"path/filepath"
 
-	"github.com/Skarlso/go-aws-mine/commands"
+	"github.com/Skarlso/go-furnace/commands"
 	cmd "github.com/Yitsushi/go-commander"
 )
 
@@ -17,7 +17,7 @@ func init() {
 		log.Fatal(err)
 	}
 	// TODO: Create the environment first if it doesn't exists instead of having it a command.
-	if _, err := os.Stat(filepath.Join(usr.HomeDir, ".config", "go-aws-mine")); err != nil {
+	if _, err := os.Stat(filepath.Join(usr.HomeDir, ".config", "go-furnace")); err != nil {
 		if os.IsNotExist(err) {
 			// TODO: Run init here.
 			i := commands.Init{}

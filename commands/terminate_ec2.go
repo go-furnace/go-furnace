@@ -3,7 +3,7 @@ package commands
 import (
 	"log"
 
-	"github.com/Skarlso/go-aws-mine/goaws"
+	"github.com/Skarlso/go-furnace/goaws"
 	"github.com/Yitsushi/go-commander"
 )
 

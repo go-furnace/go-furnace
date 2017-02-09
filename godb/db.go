@@ -4,8 +4,8 @@ import (
 	"log"
 	"path/filepath"
 
-	"github.com/Skarlso/go-aws-mine/config"
-	"github.com/Skarlso/go-aws-mine/errorhandler"
+	"github.com/Skarlso/go-furnace/config"
+	"github.com/Skarlso/go-furnace/errorhandler"
 	"github.com/boltdb/bolt"
 )
 
@@ -20,7 +20,7 @@ func init() {
 
 // InitDb initializes the database.
 func InitDb() {
-	db, err := bolt.Open(filepath.Join(configPath, "go_aws_main.db"), 0600, nil)
+	db, err := bolt.Open(filepath.Join(configPath, "furnace_main.db"), 0600, nil)
 	errorhandler.CheckError(err)
 	defer db.Close()
 

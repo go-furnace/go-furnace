@@ -7,9 +7,9 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/Skarlso/go-aws-mine/config"
-	"github.com/Skarlso/go-aws-mine/errorhandler"
-	"github.com/Skarlso/go-aws-mine/godb"
+	"github.com/Skarlso/go-furnace/config"
+	"github.com/Skarlso/go-furnace/errorhandler"
+	"github.com/Skarlso/go-furnace/godb"
 	"github.com/Yitsushi/go-commander"
 )
 
@@ -83,7 +83,7 @@ func NewInit(appName string) *commander.CommandWrapper {
 			Name:             "init",
 			ShortDescription: "Initialize configuration values.",
 			LongDescription: `Init initializes configurations in the users home/.config folder.
-This command is OS agnostic and on Windows it will create a folder under user/.config/go-aws-mine.`,
+This command is OS agnostic and on Windows it will create a folder under user/.config/go-furnace.`,
 			Arguments: "",
 			Examples:  []string{},
 		},

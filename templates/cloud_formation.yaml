@@ -2,6 +2,7 @@ Parameters:
   KeyName:
     Description: Name of an existing EC2 KeyPair to enable SSH access to the instance
     Type: String
+    Default: UserKeyPair
 Mappings:
   # Per Region Mapping for AMIs
   RegionMap:
