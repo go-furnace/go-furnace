@@ -1,3 +1,3 @@
-# Go AWS Minecraft
+# Go Furnace
 
-My [AWS_Minecraft](https://github.com/Skarlso/aws_minecraft) project written in Go.
+Web Site hosting solution in Go.
