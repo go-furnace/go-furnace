@@ -3,10 +3,12 @@ package config
 import (
 	"encoding/json"
 	"io/ioutil"
+	"os"
 	"os/user"
 	"path/filepath"
 
 	"github.com/Skarlso/go-furnace/errorhandler"
+	goc "github.com/crewjam/go-cloudformation"
 )
 
 var configPath string
@@ -67,13 +69,19 @@ func init() {
 // LoadEC2Config Loads the EC2 configuration file into the representive struct.
 func LoadEC2Config() (ec2Config *EC2Config) {
 	dat, err := ioutil.ReadFile(filepath.Join(configPath, "ec2_conf.json"))
-	if err != nil {
-		errorhandler.CheckError(err)
-	}
+	errorhandler.CheckError(err)
 	ec2Config = &EC2Config{}
 	err = json.Unmarshal(dat, &ec2Config)
-	if err != nil {
-		errorhandler.CheckError(err)
-	}
+	errorhandler.CheckError(err)
 	return ec2Config
+}
+
+// LoadCFStackConfig Load the CF stack configuration file into a struct.
+func LoadCFStackConfig() (cfStack *goc.Template) {
+	t := goc.Template{}
+	file, err := os.Open(filepath.Join(configPath, "cloud_formation.json"))
+	errorhandler.CheckError(err)
+	err = json.NewDecoder(file).Decode(&t)
+	errorhandler.CheckError(err)
+	return &t
 }
