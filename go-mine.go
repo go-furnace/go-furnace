@@ -19,7 +19,6 @@ func init() {
 	// TODO: Create the environment first if it doesn't exists instead of having it a command.
 	if _, err := os.Stat(filepath.Join(usr.HomeDir, ".config", "go-furnace")); err != nil {
 		if os.IsNotExist(err) {
-			// TODO: Run init here.
 			i := commands.Init{}
 			i.Execute(nil)
 		}
@@ -28,9 +27,6 @@ func init() {
 
 func main() {
 	registry := cmd.NewCommandRegistry()
-	registry.Register(commands.NewCreateEC2)
-	registry.Register(commands.NewEC2Status)
-	registry.Register(commands.NewTerminateEC2)
 	registry.Register(commands.NewCreate)
 	registry.Execute()
 }

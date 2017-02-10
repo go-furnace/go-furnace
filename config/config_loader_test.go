@@ -7,6 +7,7 @@ import (
 	"testing"
 )
 
+// TestConfigPath Test configuration path loader.
 func TestConfigPath(t *testing.T) {
 	usr, _ := user.Current()
 	actualConfigPath := Path()

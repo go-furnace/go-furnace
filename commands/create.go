@@ -1,11 +1,9 @@
 package commands
 
 import (
-	"log"
-
-	"github.com/Skarlso/go-furnace/config"
-	"github.com/Yitsushi/go-commander"
-	goc "github.com/crewjam/go-cloudformation"
+    "github.com/Skarlso/go-furnace/goaws"
+    "github.com/Skarlso/go-furnace/config"
+    "github.com/Yitsushi/go-commander"
 )
 
 // Create command.
@@ -14,11 +12,8 @@ type Create struct {
 
 // Execute defines what this command does.
 func (c *Create) Execute(opts *commander.CommandHelper) {
-	var cfStack goc.Template
-	cfStack = *config.LoadCFStackConfig()
-	log.Println("Using configuration: ", cfStack.Parameters["KeyName"].Default)
-	log.Println("Stack: ", cfStack)
-	// goaws.CreateEC2(ec2Config)
+    stackConfig := config.LoadCFStackConfig()
+    goaws.CreateCF(stackConfig)
 }
 
 // NewCreate Creates a new Create command.
