@@ -11,12 +11,10 @@ import (
 )
 
 func init() {
-	// Check if configurations are in the right place. If not, prompt the user to run init.
 	usr, err := user.Current()
 	if err != nil {
 		log.Fatal(err)
 	}
-	// TODO: Create the environment first if it doesn't exists instead of having it a command.
 	if _, err := os.Stat(filepath.Join(usr.HomeDir, ".config", "go-furnace")); err != nil {
 		if os.IsNotExist(err) {
 			i := commands.Init{}
