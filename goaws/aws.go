@@ -16,16 +16,22 @@ func CreateCF(config []byte) {
 	log.Println("Creating cloud formation session.")
 	sess := session.New(&aws.Config{Region: aws.String("eu-central-1")})
 	cfClient := cloudformation.New(sess, nil)
-	params:= &cloudformation.ValidateTemplateInput{
+	validateParams := &cloudformation.ValidateTemplateInput{
 		TemplateBody: aws.String(string(config)),
 	}
 
-	template, err := cfClient.ValidateTemplate(params)
-    errorhandler.CheckError(err)
+	template, err := cfClient.ValidateTemplate(validateParams)
+	errorhandler.CheckError(err)
 	// if err != nil {
 	// 	log.Fatal("Error occurred while validating cloudformation template. Please fix the following problem(s):", err)
 	// }
-    log.Println("The following template parameters will be asked for: ", template)
+	log.Println("The following template parameters will be asked for: ", template)
+	stackInputParams := &cloudformation.CreateStackInput{
+		TemplateBody: aws.String(string(config)),
+	}
+	resp, err := cfClient.CreateStack(stackInputParams)
+	errorhandler.CheckError(err)
+	log.Println("Create stack response: ", resp.GoString())
 }
 
 // WaitForFunctionWithStatusOutput waits for an ec2 function to complete its action.
