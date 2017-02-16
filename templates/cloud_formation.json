@@ -25,7 +25,7 @@
 
   "Mappings" : {
     "RegionMap" : {
-      "eu-central-1" : { "ami" : "ami-429d5a2d" }
+      "eu-central-1" : { "ami" : "ami-af0fc0c0" }
     }
   },
 
@@ -33,7 +33,7 @@
     "WebServerGroup" : {
       "Type" : "AWS::AutoScaling::AutoScalingGroup",
       "Properties" : {
-        "AvailabilityZones" : ["eu-central-1"],
+        "AvailabilityZones" : ["eu-central-1a"],
         "LaunchConfigurationName" : { "Ref" : "LaunchConfig" },
         "MinSize" : "1",
         "MaxSize" : "1",
@@ -65,7 +65,7 @@
     "ElasticLoadBalancer" : {
       "Type" : "AWS::ElasticLoadBalancing::LoadBalancer",
       "Properties" : {
-        "AvailabilityZones" : ["eu-central-1"],
+        "AvailabilityZones" : ["eu-central-1a"],
         "CrossZone" : "false",
         "Listeners" : [ {
           "LoadBalancerPort" : "80",
@@ -74,7 +74,7 @@
         } ],
         "HealthCheck" : {
           "Target" : "HTTP:80/",
-          "HealthyThreshold" : "3",
+          "HealthyThreshold" : "2",
           "UnhealthyThreshold" : "5",
           "Interval" : "30",
           "Timeout" : "5"

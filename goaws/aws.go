@@ -27,6 +27,7 @@ func CreateCF(config []byte) {
 	// }
 	log.Println("The following template parameters will be asked for: ", template)
 	stackInputParams := &cloudformation.CreateStackInput{
+		StackName:    aws.String("FurnaceStack"),
 		TemplateBody: aws.String(string(config)),
 	}
 	resp, err := cfClient.CreateStack(stackInputParams)
