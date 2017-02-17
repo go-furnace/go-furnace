@@ -42,7 +42,7 @@ func CreateCF(config []byte) {
 
 }
 
-// WaitForFunctionWithStatusOutput waits for an ec2 function to complete its action.
+// WaitForFunctionWithStatusOutput waits for a function to complete its action.
 func WaitForFunctionWithStatusOutput(state string, f func()) {
 	var wg sync.WaitGroup
 	wg.Add(1)
