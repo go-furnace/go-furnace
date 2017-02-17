@@ -1,6 +1,7 @@
 package goaws
 
 import (
+	"fmt"
 	"log"
 	"sync"
 	"time"
@@ -38,7 +39,7 @@ func CreateCF(config []byte) {
 	})
 	descResp, err := cfClient.DescribeStacks(&cloudformation.DescribeStacksInput{StackName: aws.String("FurnaceStack")})
 	errorhandler.CheckError(err)
-	log.Println("Stack state is: ", descResp.Stacks[0].StackStatus)
+	log.Println("Stack state is: ", *descResp.Stacks[0].StackStatus)
 
 }
 
@@ -54,7 +55,8 @@ func WaitForFunctionWithStatusOutput(state string, f func()) {
 	}()
 	go func() {
 		for {
-			log.Println("Waiting for stack to be in state: ", state)
+			//Todo: Print a timestamp here.
+			fmt.Printf("\rWaiting for stack to be in state: %s", state)
 			time.Sleep(1 * time.Second)
 			select {
 			case <-done:
