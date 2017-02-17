@@ -22,9 +22,6 @@ func CreateCF(config []byte) {
 
 	template, err := cfClient.ValidateTemplate(validateParams)
 	errorhandler.CheckError(err)
-	// if err != nil {
-	// 	log.Fatal("Error occurred while validating cloudformation template. Please fix the following problem(s):", err)
-	// }
 	log.Println("The following template parameters will be asked for: ", template)
 	stackInputParams := &cloudformation.CreateStackInput{
 		StackName:    aws.String("FurnaceStack"),
@@ -32,11 +29,21 @@ func CreateCF(config []byte) {
 	}
 	resp, err := cfClient.CreateStack(stackInputParams)
 	errorhandler.CheckError(err)
+	describeStackInput := &cloudformation.DescribeStacksInput{
+		StackName: aws.String("FurnaceStack"),
+	}
 	log.Println("Create stack response: ", resp.GoString())
+	WaitForFunctionWithStatusOutput("CREATE_COMPLETE", func() {
+		cfClient.WaitUntilStackCreateComplete(describeStackInput)
+	})
+	descResp, err := cfClient.DescribeStacks(&cloudformation.DescribeStacksInput{StackName: aws.String("FurnaceStack")})
+	errorhandler.CheckError(err)
+	log.Println("Stack state is: ", descResp.Stacks[0].StackStatus)
+
 }
 
 // WaitForFunctionWithStatusOutput waits for an ec2 function to complete its action.
-func WaitForFunctionWithStatusOutput(status string, f func()) {
+func WaitForFunctionWithStatusOutput(state string, f func()) {
 	var wg sync.WaitGroup
 	wg.Add(1)
 	done := make(chan bool)
@@ -47,7 +54,7 @@ func WaitForFunctionWithStatusOutput(status string, f func()) {
 	}()
 	go func() {
 		for {
-			log.Println("Waiting for state: ", status)
+			log.Println("Waiting for stack to be in state: ", state)
 			time.Sleep(1 * time.Second)
 			select {
 			case <-done:
