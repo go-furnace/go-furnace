@@ -1,3 +1,3 @@
 # Go Furnace
 
-Web Site hosting solution in Go.
+Web Site hosting solution in Go and AWS.
