@@ -73,10 +73,10 @@
           "Protocol" : "HTTP"
         } ],
         "HealthCheck" : {
-          "Target" : "TCP:5000",
+          "Target" : "TCP:80",
           "HealthyThreshold" : "2",
           "UnhealthyThreshold" : "5",
-          "Interval" : "30",
+          "Interval" : "10",
           "Timeout" : "5"
         }
       }

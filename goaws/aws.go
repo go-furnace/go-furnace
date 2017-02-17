@@ -12,6 +12,11 @@ import (
 	"github.com/aws/aws-sdk-go/service/cloudformation"
 )
 
+var spinners = []string{`←↖↑↗→↘↓↙`, `▁▃▄▅▆▇█▇▆▅▄▃`, `┤┘┴└├┌┬┐`, `◰◳◲◱`, `◴◷◶◵`, `◐◓◑◒`, `⣾⣽⣻⢿⡿⣟⣯⣷`, `|/-\`}
+
+// This will be configurable
+var spinner = 6
+
 // CreateCF Create a cloudformation stack.
 func CreateCF(config []byte) {
 	log.Println("Creating cloud formation session.")
@@ -54,9 +59,10 @@ func WaitForFunctionWithStatusOutput(state string, f func()) {
 		done <- true
 	}()
 	go func() {
+		counter := 0
 		for {
-			//Todo: Print a timestamp here.
-			fmt.Printf("\rWaiting for stack to be in state: %s", state)
+			counter = (counter + 1) % len(spinners[spinner])
+			fmt.Printf("\r\033[36m[%s]\033[m Waiting for stack to be in state: %s", string(spinners[spinner][counter]), state)
 			time.Sleep(1 * time.Second)
 			select {
 			case <-done:
