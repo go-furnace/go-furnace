@@ -3,7 +3,7 @@
         "InstanceType": {
             "Description": "WebServer EC2 instance type",
             "Type": "String",
-            "Default": "t2.small"
+            "Default": "t2.nano"
         },
         "KeyName": {
             "Description": "Name of an existing EC2 KeyPair to enable SSH access to the instances",
@@ -89,6 +89,8 @@
                 },
                 "MinSize": "1",
                 "MaxSize": "1",
+                "HealthCheckGracePeriod" : "300",
+                "HealthCheckType" : "ELB",
                 "LoadBalancerNames": [
                     {
                         "Ref": "ElasticLoadBalancer"
@@ -107,15 +109,14 @@
                 "AutoScalingRollingUpdate": {
                     "MinInstancesInService": "1",
                     "MaxBatchSize": "1",
-                    "PauseTime": "PT15M",
-                    "WaitOnResourceSignals": "true"
+                    "PauseTime": "PT15M"
                 }
             }
         },
         "LaunchConfig": {
             "Type": "AWS::AutoScaling::LaunchConfiguration",
-            "AssociatePublicIpAddress" : true,
             "Properties": {
+                "AssociatePublicIpAddress" : true,
                 "KeyName": {
                     "Ref": "KeyName"
                 },
@@ -135,6 +136,15 @@
                 ],
                 "InstanceType": {
                     "Ref": "InstanceType"
+                },
+                "UserData" : {
+                    "Fn::Base64" : { "Fn::Join" : [ "\n", [
+                        "#!/bin/bash -v",
+                        "sudo yum -y update",
+                        "sudo yum -y install httpd",
+                        "echo '<html><body>healthy</body></html>' >> /var/www/html/healthy.html",
+                        "sudo service httpd start",
+                    ] ] }
                 }
             }
         },
@@ -167,11 +177,11 @@
                     {
                         "LoadBalancerPort": "80",
                         "InstancePort": "80",
-                        "Protocol": "TCP"
+                        "Protocol": "HTTP"
                     }
                 ],
                 "HealthCheck": {
-                    "Target": "TCP:80",
+                    "Target": "HTTP:80/healthy.html",
                     "HealthyThreshold": "2",
                     "UnhealthyThreshold": "5",
                     "Interval": "10",
