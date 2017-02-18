@@ -15,7 +15,7 @@ import (
 var spinners = []string{`←↖↑↗→↘↓↙`, `▁▃▄▅▆▇█▇▆▅▄▃`, `┤┘┴└├┌┬┐`, `◰◳◲◱`, `◴◷◶◵`, `◐◓◑◒`, `⣾⣽⣻⢿⡿⣟⣯⣷`, `|/-\`}
 
 // This will be configurable
-var spinner = 6
+var spinner = 7
 
 // CreateCF Create a cloudformation stack.
 func CreateCF(config []byte) {
@@ -44,6 +44,7 @@ func CreateCF(config []byte) {
 	})
 	descResp, err := cfClient.DescribeStacks(&cloudformation.DescribeStacksInput{StackName: aws.String("FurnaceStack")})
 	errorhandler.CheckError(err)
+	fmt.Println()
 	log.Println("Stack state is: ", *descResp.Stacks[0].StackStatus)
 
 }

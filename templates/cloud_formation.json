@@ -29,8 +29,57 @@
         }
     },
     "Resources": {
+        "VPC" : {
+            "Type" : "AWS::EC2::VPC",
+            "Properties" : {
+                "CidrBlock" : "10.100.0.0/16",
+                "Tags" : [
+                    { "Key" : "Name", "Value" : "FurnaceStack" }
+                ]
+            }
+        },
+        "InternetGateway" : {
+            "Type" : "AWS::EC2::InternetGateway"
+        },
+        "VPCGatewayAttachment" : {
+            "Type" : "AWS::EC2::VPCGatewayAttachment",
+            "Properties" : {
+                "InternetGatewayId" : { "Ref" : "InternetGateway" },
+                "VpcId" : { "Ref" : "VPC" }
+            }
+        },
+        "SubnetZone1" : {
+            "Type" : "AWS::EC2::Subnet",
+            "Properties" : {
+                "AvailabilityZone" : "eu-central-1a",
+                "CidrBlock" : "10.100.10.0/26",
+                "VpcId" : { "Ref" : "VPC" }
+            }
+        },
+        "RouteTable" : {
+            "Type" : "AWS::EC2::RouteTable",
+            "Properties" : {
+                "VpcId" : { "Ref" : "VPC" }
+            }
+        },
+        "Route" : {
+            "Type" : "AWS::EC2::Route",
+            "Properties" : {
+                "RouteTableId" : { "Ref" : "RouteTable" },
+                "DestinationCidrBlock" : "0.0.0.0/0",
+                "GatewayId" : { "Ref" : "InternetGateway" }
+            }
+        },
+        "SubnetRouteTableAssociationZone1" : {
+            "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties" : {
+            "RouteTableId" : { "Ref" : "RouteTable" },
+                "SubnetId" : { "Ref" : "SubnetZone1" }
+            }
+        },
         "AutoScalingGroup": {
             "Type": "AWS::AutoScaling::AutoScalingGroup",
+            "DependsOn" : [ "VPCGatewayAttachment" ],
             "Properties": {
                 "AvailabilityZones": [
                     "eu-central-1a"
@@ -44,6 +93,9 @@
                     {
                         "Ref": "ElasticLoadBalancer"
                     }
+                ],
+                "VPCZoneIdentifier" : [
+                    { "Ref" : "SubnetZone1" }
                 ]
             },
             "CreationPolicy": {
@@ -77,7 +129,7 @@
                 },
                 "SecurityGroups": [
                     {
-                        "Ref": "InstanceSecurityGroup"
+                        "Ref": "SecurityGroup"
                     }
                 ],
                 "InstanceType": {
@@ -88,6 +140,7 @@
         "SecurityGroupElb": {
             "Type": "AWS::EC2::SecurityGroup",
             "Properties": {
+                "VpcId" : { "Ref" : "VPC" },
                 "GroupDescription": "SecurityGroupElb",
                 "SecurityGroupIngress": [
                     {
@@ -103,9 +156,6 @@
             "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
             "Properties": {
                 "Scheme": "internet-facing",
-                "AvailabilityZones": [
-                    "eu-central-1a"
-                ],
                 "CrossZone": "false",
                 "SecurityGroups": [
                     {
@@ -116,7 +166,7 @@
                     {
                         "LoadBalancerPort": "80",
                         "InstancePort": "80",
-                        "Protocol": "HTTP"
+                        "Protocol": "TCP"
                     }
                 ],
                 "HealthCheck": {
@@ -125,46 +175,31 @@
                     "UnhealthyThreshold": "5",
                     "Interval": "10",
                     "Timeout": "5"
-                }
+                },
+                "Subnets" : [
+                    { "Ref" : "SubnetZone1" }
+                ]
             }
         },
-        "InstanceSecurityGroup": {
-            "Type": "AWS::EC2::SecurityGroup",
-            "Properties": {
-                "GroupDescription": "Enable SSH access and HTTP access on the inbound port",
-                "SecurityGroupIngress": [
+        "SecurityGroup" : {
+            "Type" : "AWS::EC2::SecurityGroup",
+            "Properties" : {
+                "VpcId" : { "Ref" : "VPC" },
+                "GroupDescription" : "SecurityGroup",
+                "SecurityGroupIngress" : [
                     {
-                        "IpProtocol": "tcp",
-                        "FromPort": "80",
-                        "ToPort": "80",
-                        "SourceSecurityGroupOwnerId": {
-                            "Fn::GetAtt": [
-                                "ElasticLoadBalancer",
-                                "SourceSecurityGroup.OwnerAlias"
-                            ]
-                        },
-                        "SourceSecurityGroupName": {
-                            "Fn::GetAtt": [
-                                "ElasticLoadBalancer",
-                                "SourceSecurityGroup.GroupName"
-                            ]
-                        }
-                    },
-                    {
-                        "IpProtocol": "tcp",
-                        "FromPort": "22",
-                        "ToPort": "22",
-                        "CidrIp": {
-                            "Ref": "SSHLocation"
-                        }
+                        "IpProtocol" : "tcp",
+                        "FromPort" : "80",
+                        "ToPort" : "80",
+                        "SourceSecurityGroupId" : { "Ref" : "SecurityGroupElb" }
                     }
                 ],
-                "SecurityGroupEgress": [
+                "SecurityGroupEgress" : [
                     {
-                        "IpProtocol": "-1",
-                        "FromPort": "-1",
-                        "ToPort": "-1",
-                        "CidrIp": "0.0.0.0/0"
+                        "IpProtocol" : "-1",
+                        "FromPort" : "-1",
+                        "ToPort" : "-1",
+                        "CidrIp" : "0.0.0.0/0"
                     }
                 ]
             }
