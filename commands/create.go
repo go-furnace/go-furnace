@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 
@@ -20,7 +21,7 @@ type Create struct {
 func (c *Create) Execute(opts *commander.CommandHelper) {
 	stackname := opts.Arg(0)
 	if len(stackname) < 1 {
-		stackname = "FurnaceStack"
+		stackname = config.STACKNAME
 	}
 
 	config := config.LoadCFStackConfig()
@@ -31,9 +32,16 @@ func (c *Create) Execute(opts *commander.CommandHelper) {
 		TemplateBody: aws.String(string(config)),
 	}
 
-	template, err := cfClient.ValidateTemplate(validateParams)
+	m := make(map[string]interface{})
+	json.Unmarshal(config, &m)
+	validResp, err := cfClient.ValidateTemplate(validateParams)
+	log.Println("Response from validate:", validResp)
 	utils.CheckError(err)
-	log.Println("The following template parameters will be asked for: ", template)
+	for k, v := range validResp.Parameters {
+		log.Println("k;v", k, *v.DefaultValue)
+	}
+	// os.Exit(1)
+
 	stackInputParams := &cloudformation.CreateStackInput{
 		StackName:    aws.String(stackname),
 		TemplateBody: aws.String(string(config)),

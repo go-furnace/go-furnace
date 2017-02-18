@@ -103,7 +103,7 @@
             "UpdatePolicy": {
                 "AutoScalingRollingUpdate": {
                     "MinInstancesInService": "1",
-                    "MaxBatchSize": "1",
+                    "MaxBatchSize": "1"
                 }
             }
         },
@@ -137,7 +137,7 @@
                         "sudo yum -y update",
                         "sudo yum -y install httpd",
                         "echo '<html><body>healthy</body></html>' >> /var/www/html/healthy.html",
-                        "sudo service httpd start",
+                        "sudo service httpd start"
                     ] ] }
                 }
             }

@@ -10,6 +10,9 @@ import (
 
 var configPath string
 
+// STACKNAME is the default name for a stack
+const STACKNAME = "FurnaceStack"
+
 // Configuration is a Configuration object.
 type Configuration struct {
 	LogLevel   string

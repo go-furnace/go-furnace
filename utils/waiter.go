@@ -4,9 +4,13 @@ import (
 	"fmt"
 	"sync"
 	"time"
+
+	"github.com/fatih/color"
 )
 
 var spinner = 7
+var yellow = color.New(color.FgYellow).SprintFunc()
+var red = color.New(color.FgRed).SprintFunc()
 
 // WaitForFunctionWithStatusOutput waits for a function to complete its action.
 func WaitForFunctionWithStatusOutput(state string, f func()) {
@@ -22,7 +26,7 @@ func WaitForFunctionWithStatusOutput(state string, f func()) {
 		counter := 0
 		for {
 			counter = (counter + 1) % len(Spinners[spinner])
-			fmt.Printf("\r\033[36m[%s]\033[m Waiting for stack to be in state: %s", string(Spinners[spinner][counter]), state)
+			fmt.Printf("\r[%s] Waiting for stack to be in state: %s", yellow(string(Spinners[spinner][counter])), red(state))
 			time.Sleep(1 * time.Second)
 			select {
 			case <-done:
