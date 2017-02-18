@@ -25,11 +25,12 @@ func InitDb() {
 	defer db.Close()
 
 	err = db.Update(func(tx *bolt.Tx) error {
-		if _, err := tx.CreateBucketIfNotExists([]byte(BUCKET)); err != nil {
-			return err
+		if _, dberr := tx.CreateBucketIfNotExists([]byte(BUCKET)); err != nil {
+			return dberr
 		}
 		return nil
 	})
+	errorhandler.CheckError(err)
 
 	log.Println("Database created.")
 }

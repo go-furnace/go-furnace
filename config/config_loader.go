@@ -29,8 +29,8 @@ func init() {
 }
 
 // LoadCFStackConfig Load the CF stack configuration file into a []byte.
-func LoadCFStackConfig() ([]byte) {
-    dat, err := ioutil.ReadFile(filepath.Join(configPath, "cloud_formation.json"))
+func LoadCFStackConfig() []byte {
+	dat, err := ioutil.ReadFile(filepath.Join(configPath, "cloud_formation.json"))
 	errorhandler.CheckError(err)
 	return dat
 }
