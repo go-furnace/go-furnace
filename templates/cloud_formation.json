@@ -114,6 +114,7 @@
         },
         "LaunchConfig": {
             "Type": "AWS::AutoScaling::LaunchConfiguration",
+            "AssociatePublicIpAddress" : true,
             "Properties": {
                 "KeyName": {
                     "Ref": "KeyName"
