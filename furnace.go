@@ -26,5 +26,7 @@ func init() {
 func main() {
 	registry := cmd.NewCommandRegistry()
 	registry.Register(commands.NewCreate)
+	registry.Register(commands.NewDelete)
+	registry.Register(commands.NewStatus)
 	registry.Execute()
 }

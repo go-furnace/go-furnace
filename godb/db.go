@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/Skarlso/go-furnace/config"
-	"github.com/Skarlso/go-furnace/errorhandler"
+	"github.com/Skarlso/go-furnace/utils"
 	"github.com/boltdb/bolt"
 )
 
@@ -21,7 +21,7 @@ func init() {
 // InitDb initializes the database.
 func InitDb() {
 	db, err := bolt.Open(filepath.Join(configPath, "furnace_main.db"), 0600, nil)
-	errorhandler.CheckError(err)
+	utils.CheckError(err)
 	defer db.Close()
 
 	err = db.Update(func(tx *bolt.Tx) error {
@@ -30,7 +30,7 @@ func InitDb() {
 		}
 		return nil
 	})
-	errorhandler.CheckError(err)
+	utils.CheckError(err)
 
 	log.Println("Database created.")
 }

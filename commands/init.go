@@ -8,8 +8,8 @@ import (
 	"sync"
 
 	"github.com/Skarlso/go-furnace/config"
-	"github.com/Skarlso/go-furnace/errorhandler"
 	"github.com/Skarlso/go-furnace/godb"
+	"github.com/Skarlso/go-furnace/utils"
 	"github.com/Yitsushi/go-commander"
 )
 
@@ -22,12 +22,12 @@ type Init struct{}
 func (i *Init) Execute(opts *commander.CommandHelper) {
 	configPath = config.Path()
 	usr, err := user.Current()
-	errorhandler.CheckError(err)
+	utils.CheckError(err)
 
 	if _, err := os.Stat(configPath); err != nil {
 		if os.IsNotExist(err) {
 			mkdirErr := os.Mkdir(configPath, os.ModePerm)
-			errorhandler.CheckError(mkdirErr)
+			utils.CheckError(mkdirErr)
 		}
 	}
 
@@ -58,10 +58,10 @@ func (i *Init) makeDefaultConfigurationForFile(filename, content string, usr *us
 		return
 	}
 	dst, err := os.Create(path)
-	errorhandler.CheckError(err)
+	utils.CheckError(err)
 	defer dst.Close()
 	if _, err = dst.WriteString(content); err != nil {
-		errorhandler.CheckError(err)
+		utils.CheckError(err)
 	}
 	log.Printf("Configuration created in home. Filename: %s\n", filename)
 }

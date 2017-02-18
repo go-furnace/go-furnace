@@ -1,4 +1,4 @@
-package errorhandler
+package utils
 
 import "log"
 

@@ -5,7 +5,7 @@ import (
 	"os/user"
 	"path/filepath"
 
-	"github.com/Skarlso/go-furnace/errorhandler"
+	"github.com/Skarlso/go-furnace/utils"
 )
 
 var configPath string
@@ -20,7 +20,7 @@ type Configuration struct {
 func Path() string {
 	// Get configuration path
 	usr, err := user.Current()
-	errorhandler.CheckError(err)
+	utils.CheckError(err)
 	return filepath.Join(usr.HomeDir, ".config", "go-furnace")
 }
 
@@ -31,6 +31,6 @@ func init() {
 // LoadCFStackConfig Load the CF stack configuration file into a []byte.
 func LoadCFStackConfig() []byte {
 	dat, err := ioutil.ReadFile(filepath.Join(configPath, "cloud_formation.json"))
-	errorhandler.CheckError(err)
+	utils.CheckError(err)
 	return dat
 }
