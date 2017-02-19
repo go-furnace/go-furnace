@@ -34,6 +34,7 @@ func (c *Create) Execute(opts *commander.CommandHelper) {
 	validateParams := &cloudformation.ValidateTemplateInput{
 		TemplateBody: aws.String(string(config)),
 	}
+	log.Println("Validating template.")
 	validResp, err := cfClient.ValidateTemplate(validateParams)
 	// log.Println("Response from validate:", validResp)
 	utils.CheckError(err)
@@ -60,6 +61,7 @@ func (c *Create) Execute(opts *commander.CommandHelper) {
 		Parameters:   stackParameters,
 		TemplateBody: aws.String(string(config)),
 	}
+	log.Println("Creating Stack with name: ", keyName(stackname))
 	resp, err := cfClient.CreateStack(stackInputParams)
 	utils.CheckError(err)
 	describeStackInput := &cloudformation.DescribeStacksInput{

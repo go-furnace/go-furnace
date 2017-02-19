@@ -17,8 +17,7 @@ func init() {
 	}
 	if _, err := os.Stat(filepath.Join(usr.HomeDir, ".config", "go-furnace")); err != nil {
 		if os.IsNotExist(err) {
-			i := commands.Init{}
-			i.Execute(nil)
+			log.Fatalln("Please create a 'go-furnace' folder under .config.")
 		}
 	}
 }
