@@ -8,7 +8,6 @@ import (
 	"sync"
 
 	"github.com/Skarlso/go-furnace/config"
-	"github.com/Skarlso/go-furnace/godb"
 	"github.com/Skarlso/go-furnace/utils"
 	"github.com/Yitsushi/go-commander"
 )
@@ -47,8 +46,6 @@ func (i *Init) Execute(opts *commander.CommandHelper) {
 		}(k, v)
 	}
 	wg.Wait()
-
-	godb.InitDb()
 }
 
 func (i *Init) makeDefaultConfigurationForFile(filename, content string, usr *user.User) {

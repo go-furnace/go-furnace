@@ -1,9 +1,11 @@
 package commands
 
 import (
-	"encoding/json"
+	"bufio"
 	"fmt"
 	"log"
+	"os"
+	"strings"
 
 	"github.com/Skarlso/go-furnace/config"
 	"github.com/Skarlso/go-furnace/utils"
@@ -11,6 +13,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
+	"github.com/fatih/color"
 )
 
 // Create command.
@@ -31,19 +34,30 @@ func (c *Create) Execute(opts *commander.CommandHelper) {
 	validateParams := &cloudformation.ValidateTemplateInput{
 		TemplateBody: aws.String(string(config)),
 	}
-
-	m := make(map[string]interface{})
-	json.Unmarshal(config, &m)
 	validResp, err := cfClient.ValidateTemplate(validateParams)
-	log.Println("Response from validate:", validResp)
+	// log.Println("Response from validate:", validResp)
 	utils.CheckError(err)
-	for k, v := range validResp.Parameters {
-		log.Println("k;v", k, *v.DefaultValue)
+	var stackParameters []*cloudformation.Parameter
+	keyName := color.New(color.FgWhite, color.Bold).SprintFunc()
+	defaultValue := color.New(color.FgHiBlack, color.Italic).SprintFunc()
+	for _, v := range validResp.Parameters {
+		var param cloudformation.Parameter
+		fmt.Printf("%s - '%s'(%s):", *v.Description, keyName(*v.ParameterKey), defaultValue(*v.DefaultValue))
+		reader := bufio.NewReader(os.Stdin)
+		text, _ := reader.ReadString('\n')
+		param.SetParameterKey(*v.ParameterKey)
+		text = strings.Trim(text, "\n")
+		if len(text) > 0 {
+			param.SetParameterValue(*aws.String(text))
+		} else {
+			param.SetParameterValue(*v.DefaultValue)
+		}
+		stackParameters = append(stackParameters, &param)
 	}
-	// os.Exit(1)
 
 	stackInputParams := &cloudformation.CreateStackInput{
 		StackName:    aws.String(stackname),
+		Parameters:   stackParameters,
 		TemplateBody: aws.String(string(config)),
 	}
 	resp, err := cfClient.CreateStack(stackInputParams)
@@ -58,8 +72,8 @@ func (c *Create) Execute(opts *commander.CommandHelper) {
 	descResp, err := cfClient.DescribeStacks(&cloudformation.DescribeStacksInput{StackName: aws.String(stackname)})
 	utils.CheckError(err)
 	fmt.Println()
-	log.Println("Stack state is: ", *descResp.Stacks[0].StackStatus)
-
+	var red = color.New(color.FgRed).SprintFunc()
+	log.Println("Stack state is: ", red(*descResp.Stacks[0].StackStatus))
 }
 
 // NewCreate Creates a new Create command.

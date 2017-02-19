@@ -29,7 +29,7 @@ func (c *Status) Execute(opts *commander.CommandHelper) {
 	descResp, err := cfClient.DescribeStacks(&cloudformation.DescribeStacksInput{StackName: aws.String(stackname)})
 	utils.CheckError(err)
 	fmt.Println()
-	info := color.New(color.FgWhite, color.BgGreen).SprintFunc()
+	info := color.New(color.FgWhite, color.Bold).SprintFunc()
 	log.Println("Stack state is: ", info(descResp.Stacks[0].GoString()))
 
 }
