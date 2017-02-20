@@ -8,7 +8,7 @@ import (
 )
 
 // TestConfigPath Test configuration path loader.
-func TestConfigPath(t *testing.T) {
+func TestConfigPathQuick(t *testing.T) {
 	usr, _ := user.Current()
 	actualConfigPath := Path()
 	expectedConfigPath := filepath.Join(usr.HomeDir, ".config", "go-furnace")
