@@ -10,7 +10,10 @@ import (
 
 var configPath string
 
-// STACKNAME is the default name for a stack
+// WAITFREQUENCY global wait frequency default.
+var WAITFREQUENCY = 1
+
+// STACKNAME is the default name for a stack.
 const STACKNAME = "FurnaceStack"
 
 // Configuration is a Configuration object.

@@ -8,6 +8,9 @@ linux:
 build:
 	go build -o ${BINARY}
 
+test:
+	go test -v ./...
+
 clean:
 	if [ -f ${BINARY} ]; then rm ${BINARY}; fi
 

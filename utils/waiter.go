@@ -13,7 +13,7 @@ var yellow = color.New(color.FgYellow).SprintFunc()
 var red = color.New(color.FgRed).SprintFunc()
 
 // WaitForFunctionWithStatusOutput waits for a function to complete its action.
-func WaitForFunctionWithStatusOutput(state string, f func()) {
+func WaitForFunctionWithStatusOutput(state string, freq int, f func()) {
 	var wg sync.WaitGroup
 	wg.Add(1)
 	done := make(chan bool)
@@ -27,7 +27,7 @@ func WaitForFunctionWithStatusOutput(state string, f func()) {
 		for {
 			counter = (counter + 1) % len(Spinners[spinner])
 			fmt.Printf("\r[%s] Waiting for stack to be in state: %s", yellow(string(Spinners[spinner][counter])), red(state))
-			time.Sleep(1 * time.Second)
+			time.Sleep(time.Duration(freq) * time.Second)
 			select {
 			case <-done:
 				break

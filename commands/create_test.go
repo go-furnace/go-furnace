@@ -3,6 +3,7 @@ package commands
 import (
 	"testing"
 
+	"github.com/Skarlso/go-furnace/config"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
 	"github.com/aws/aws-sdk-go/service/cloudformation/cloudformationiface"
 )
@@ -29,9 +30,10 @@ func (fc *fakeCFClient) DescribeStacks(input *cloudformation.DescribeStacksInput
 }
 
 func TestCreateCommand(t *testing.T) {
+	config.WAITFREQUENCY = 0
 	client := new(CFClient)
 	client.Client = &fakeCFClient{err: nil}
 	config := []byte("{}")
 	stackname := "TestStack"
-	createStack(stackname, config, client)
+	create(stackname, config, client)
 }

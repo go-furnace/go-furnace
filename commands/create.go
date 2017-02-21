@@ -38,40 +38,33 @@ func (c *Create) Execute(opts *commander.CommandHelper) {
 	sess := session.New(&aws.Config{Region: aws.String("eu-central-1")})
 	cfClient := cloudformation.New(sess, nil)
 	client := CFClient{cfClient}
-	createStack(stackname, config, &client)
+	create(stackname, config, &client)
 }
+
+var keyName = color.New(color.FgWhite, color.Bold).SprintFunc()
 
 // createStack will create a full stack and encapsulate the functionality of
 // the create command.
-func createStack(stackname string, template []byte, cfClient *CFClient) {
-	validResp, err := cfClient.validateTemplate(template)
-	utils.CheckError(err)
+func create(stackname string, template []byte, cfClient *CFClient) {
+	validResp := cfClient.validateTemplate(template)
 	stackParameters := gatherParameters(validResp)
 	stackInputParams := &cloudformation.CreateStackInput{
 		StackName:    aws.String(stackname),
 		Parameters:   stackParameters,
 		TemplateBody: aws.String(string(template)),
 	}
-	log.Println("Creating Stack with name: ", keyName(stackname))
-	resp, err := cfClient.Client.CreateStack(stackInputParams)
-	utils.CheckError(err)
-	describeStackInput := &cloudformation.DescribeStacksInput{
-		StackName: aws.String(stackname),
-	}
+	resp := cfClient.createStack(stackInputParams)
 	log.Println("Create stack response: ", resp.GoString())
-	utils.WaitForFunctionWithStatusOutput("CREATE_COMPLETE", func() {
-		cfClient.Client.WaitUntilStackCreateComplete(describeStackInput)
-	})
-	descResp, err := cfClient.Client.DescribeStacks(&cloudformation.DescribeStacksInput{StackName: aws.String(stackname)})
-	utils.CheckError(err)
+	cfClient.waitForStackComplete(stackname)
+	descResp := cfClient.describeStacks(&cloudformation.DescribeStacksInput{StackName: aws.String(stackname)})
 	fmt.Println()
 	var red = color.New(color.FgRed).SprintFunc()
 	if len(descResp.Stacks) > 0 {
 		log.Println("Stack state is: ", red(*descResp.Stacks[0].StackStatus))
+	} else {
+		log.Println("No stacks found with name: ", keyName(stackname))
 	}
 }
-
-var keyName = color.New(color.FgWhite, color.Bold).SprintFunc()
 
 func gatherParameters(params *cloudformation.ValidateTemplateOutput) []*cloudformation.Parameter {
 	var stackParameters []*cloudformation.Parameter
@@ -94,13 +87,36 @@ func gatherParameters(params *cloudformation.ValidateTemplateOutput) []*cloudfor
 	return stackParameters
 }
 
-func (cf *CFClient) validateTemplate(template []byte) (*cloudformation.ValidateTemplateOutput, error) {
+func (cf *CFClient) waitForStackComplete(stackname string) {
+	describeStackInput := &cloudformation.DescribeStacksInput{
+		StackName: aws.String(stackname),
+	}
+	utils.WaitForFunctionWithStatusOutput("CREATE_COMPLETE", config.WAITFREQUENCY, func() {
+		cf.Client.WaitUntilStackCreateComplete(describeStackInput)
+	})
+}
+
+func (cf *CFClient) createStack(stackInputParams *cloudformation.CreateStackInput) *cloudformation.CreateStackOutput {
+	log.Println("Creating Stack with name: ", keyName(*stackInputParams.StackName))
+	resp, err := cf.Client.CreateStack(stackInputParams)
+	utils.CheckError(err)
+	return resp
+}
+
+func (cf *CFClient) describeStacks(descStackInput *cloudformation.DescribeStacksInput) *cloudformation.DescribeStacksOutput {
+	descResp, err := cf.Client.DescribeStacks(descStackInput)
+	utils.CheckError(err)
+	return descResp
+}
+
+func (cf *CFClient) validateTemplate(template []byte) *cloudformation.ValidateTemplateOutput {
 	log.Println("Validating template.")
 	validateParams := &cloudformation.ValidateTemplateInput{
 		TemplateBody: aws.String(string(template)),
 	}
 	resp, err := cf.Client.ValidateTemplate(validateParams)
-	return resp, err
+	utils.CheckError(err)
+	return resp
 }
 
 // NewCreate Creates a new Create command.
