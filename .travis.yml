@@ -4,3 +4,4 @@ go:
   - master
 
 install: make get-deps
+script: make clean build test

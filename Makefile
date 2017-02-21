@@ -2,9 +2,6 @@ BINARY=furnace
 
 .DEFAULT_GOAL := build
 
-linux:
-	env GOOS=linux GOARCH=arm go build -o ${BINARY}
-
 build:
 	go build -o ${BINARY}
 
@@ -19,4 +16,7 @@ get-deps:
 clean:
 	if [ -f ${BINARY} ]; then rm ${BINARY}; fi
 
-.PHONY: clean build
+linux:
+	env GOOS=linux GOARCH=arm go build -o ${BINARY}
+
+.PHONY: clean build test linux
