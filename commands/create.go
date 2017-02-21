@@ -43,36 +43,14 @@ func (c *Create) Execute(opts *commander.CommandHelper) {
 
 // createStack will create a full stack and encapsulate the functionality of
 // the create command.
-func createStack(stackname string, config []byte, cfClient *CFClient) {
-	validateParams := &cloudformation.ValidateTemplateInput{
-		TemplateBody: aws.String(string(config)),
-	}
-	log.Println("Validating template.")
-	validResp, err := cfClient.Client.ValidateTemplate(validateParams)
-	log.Println("Response from validate:", validResp)
+func createStack(stackname string, template []byte, cfClient *CFClient) {
+	validResp, err := cfClient.validateTemplate(template)
 	utils.CheckError(err)
-	var stackParameters []*cloudformation.Parameter
-	keyName := color.New(color.FgWhite, color.Bold).SprintFunc()
-	defaultValue := color.New(color.FgHiBlack, color.Italic).SprintFunc()
-	log.Println("Gathering parameters.")
-	for _, v := range validResp.Parameters {
-		var param cloudformation.Parameter
-		fmt.Printf("%s - '%s'(%s):", *v.Description, keyName(*v.ParameterKey), defaultValue(*v.DefaultValue))
-		reader := bufio.NewReader(os.Stdin)
-		text, _ := reader.ReadString('\n')
-		param.SetParameterKey(*v.ParameterKey)
-		text = strings.Trim(text, "\n")
-		if len(text) > 0 {
-			param.SetParameterValue(*aws.String(text))
-		} else {
-			param.SetParameterValue(*v.DefaultValue)
-		}
-		stackParameters = append(stackParameters, &param)
-	}
+	stackParameters := gatherParameters(validResp)
 	stackInputParams := &cloudformation.CreateStackInput{
 		StackName:    aws.String(stackname),
 		Parameters:   stackParameters,
-		TemplateBody: aws.String(string(config)),
+		TemplateBody: aws.String(string(template)),
 	}
 	log.Println("Creating Stack with name: ", keyName(stackname))
 	resp, err := cfClient.Client.CreateStack(stackInputParams)
@@ -91,6 +69,38 @@ func createStack(stackname string, config []byte, cfClient *CFClient) {
 	if len(descResp.Stacks) > 0 {
 		log.Println("Stack state is: ", red(*descResp.Stacks[0].StackStatus))
 	}
+}
+
+var keyName = color.New(color.FgWhite, color.Bold).SprintFunc()
+
+func gatherParameters(params *cloudformation.ValidateTemplateOutput) []*cloudformation.Parameter {
+	var stackParameters []*cloudformation.Parameter
+	defaultValue := color.New(color.FgHiBlack, color.Italic).SprintFunc()
+	log.Println("Gathering parameters.")
+	for _, v := range params.Parameters {
+		var param cloudformation.Parameter
+		fmt.Printf("%s - '%s'(%s):", *v.Description, keyName(*v.ParameterKey), defaultValue(*v.DefaultValue))
+		reader := bufio.NewReader(os.Stdin)
+		text, _ := reader.ReadString('\n')
+		param.SetParameterKey(*v.ParameterKey)
+		text = strings.Trim(text, "\n")
+		if len(text) > 0 {
+			param.SetParameterValue(*aws.String(text))
+		} else {
+			param.SetParameterValue(*v.DefaultValue)
+		}
+		stackParameters = append(stackParameters, &param)
+	}
+	return stackParameters
+}
+
+func (cf *CFClient) validateTemplate(template []byte) (*cloudformation.ValidateTemplateOutput, error) {
+	log.Println("Validating template.")
+	validateParams := &cloudformation.ValidateTemplateInput{
+		TemplateBody: aws.String(string(template)),
+	}
+	resp, err := cf.Client.ValidateTemplate(validateParams)
+	return resp, err
 }
 
 // NewCreate Creates a new Create command.
