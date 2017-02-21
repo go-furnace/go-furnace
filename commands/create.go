@@ -8,22 +8,17 @@ import (
 	"strings"
 
 	"github.com/Skarlso/go-furnace/config"
+	"github.com/Skarlso/go-furnace/plugins"
 	"github.com/Skarlso/go-furnace/utils"
 	"github.com/Yitsushi/go-commander"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
-	"github.com/aws/aws-sdk-go/service/cloudformation/cloudformationiface"
 	"github.com/fatih/color"
 )
 
 // Create command.
 type Create struct {
-}
-
-// CFClient abstraction for cloudFormation client.
-type CFClient struct {
-	Client cloudformationiface.CloudFormationAPI
 }
 
 // Execute defines what this command does.
@@ -33,12 +28,22 @@ func (c *Create) Execute(opts *commander.CommandHelper) {
 		stackname = config.STACKNAME
 	}
 
-	config := config.LoadCFStackConfig()
+	template := config.LoadCFStackConfig()
 	log.Println("Creating cloud formation session.")
 	sess := session.New(&aws.Config{Region: aws.String("eu-central-1")})
 	cfClient := cloudformation.New(sess, nil)
 	client := CFClient{cfClient}
-	create(stackname, config, &client)
+	preCreatePlugins := plugins.GetPluginsForEvent(config.PRECREATE)
+	log.Println("The following plugins will be triggered pre-create: ", preCreatePlugins)
+	for _, p := range preCreatePlugins {
+		p.RunPlugin()
+	}
+	create(stackname, template, &client)
+	postCreatePlugins := plugins.GetPluginsForEvent(config.POSTCREATE)
+	log.Println("The following plugins will be triggered post-create: ", postCreatePlugins)
+	for _, p := range postCreatePlugins {
+		p.RunPlugin()
+	}
 }
 
 var keyName = color.New(color.FgWhite, color.Bold).SprintFunc()

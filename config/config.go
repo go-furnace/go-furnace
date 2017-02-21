@@ -6,6 +6,18 @@ import (
 	"path/filepath"
 
 	"github.com/Skarlso/go-furnace/utils"
+	"github.com/aws/aws-sdk-go/service/cloudformation/cloudformationiface"
+)
+
+const (
+	// PRECREATE Event name for plugins
+	PRECREATE = "pre-create"
+	// POSTCREATE Event name for plugins
+	POSTCREATE = "post-create"
+	// PREDESTROY Event name for plugins
+	PREDESTROY = "pre-destroy"
+	// POSTDESTROY Event name for plugins
+	POSTDESTROY = "post-destroy"
 )
 
 var configPath string
@@ -16,10 +28,9 @@ var WAITFREQUENCY = 1
 // STACKNAME is the default name for a stack.
 const STACKNAME = "FurnaceStack"
 
-// Configuration is a Configuration object.
-type Configuration struct {
-	LogLevel   string
-	UploadPath string
+// CFClient abstraction for cloudFormation client.
+type CFClient struct {
+	Client cloudformationiface.CloudFormationAPI
 }
 
 // Path retrieves the main configuration path.

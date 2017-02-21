@@ -10,4 +10,6 @@ AWS Cloud Formation hosting with Go.
 
 ## Usage
 
+## Plugins
+
 ## Contributions
