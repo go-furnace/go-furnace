@@ -42,6 +42,10 @@ func (c *Delete) Execute(opts *commander.CommandHelper) {
 	})
 }
 
+func deleteStack(stackname string) {
+
+}
+
 // NewDelete Creates a new Delete command.
 func NewDelete(appName string) *commander.CommandWrapper {
 	return &commander.CommandWrapper{

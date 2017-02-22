@@ -38,11 +38,17 @@ func (c *Create) Execute(opts *commander.CommandHelper) {
 	for _, p := range preCreatePlugins {
 		p.RunPlugin()
 	}
-	create(stackname, template, &client)
+	stacks := create(stackname, template, &client)
 	postCreatePlugins := plugins.GetPluginsForEvent(config.POSTCREATE)
 	log.Println("The following plugins will be triggered post-create: ", postCreatePlugins)
 	for _, p := range postCreatePlugins {
 		p.RunPlugin()
+	}
+	var red = color.New(color.FgRed).SprintFunc()
+	if len(stacks) > 0 {
+		log.Println("Stack state is: ", red(*stacks[0].StackStatus))
+	} else {
+		log.Fatalln("No stacks found with name: ", keyName(stackname))
 	}
 }
 
@@ -50,7 +56,7 @@ var keyName = color.New(color.FgWhite, color.Bold).SprintFunc()
 
 // createStack will create a full stack and encapsulate the functionality of
 // the create command.
-func create(stackname string, template []byte, cfClient *CFClient) {
+func create(stackname string, template []byte, cfClient *CFClient) []*cloudformation.Stack {
 	validResp := cfClient.validateTemplate(template)
 	stackParameters := gatherParameters(validResp)
 	stackInputParams := &cloudformation.CreateStackInput{
@@ -63,12 +69,7 @@ func create(stackname string, template []byte, cfClient *CFClient) {
 	cfClient.waitForStackComplete(stackname)
 	descResp := cfClient.describeStacks(&cloudformation.DescribeStacksInput{StackName: aws.String(stackname)})
 	fmt.Println()
-	var red = color.New(color.FgRed).SprintFunc()
-	if len(descResp.Stacks) > 0 {
-		log.Println("Stack state is: ", red(*descResp.Stacks[0].StackStatus))
-	} else {
-		log.Println("No stacks found with name: ", keyName(stackname))
-	}
+	return descResp.Stacks
 }
 
 func gatherParameters(params *cloudformation.ValidateTemplateOutput) []*cloudformation.Parameter {
