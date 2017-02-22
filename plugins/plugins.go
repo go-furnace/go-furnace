@@ -19,13 +19,11 @@ func init() {
 }
 
 // RegisterPlugin registers a plugin for a given event.
-func RegisterPlugin(event string, plug Plugin) {
+func RegisterPlugin(event string, plugs []Plugin) {
 	if v, ok := plugins[event]; ok {
-		v = append(v, plug)
+		v = append(v, plugs...)
 		plugins[event] = v
 	} else {
-		var plugs []Plugin
-		plugs = append(plugs, plug)
 		plugins[event] = plugs
 	}
 }

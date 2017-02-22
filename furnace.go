@@ -26,10 +26,14 @@ func init() {
 
 func main() {
 	// For now, the including of a plugin is done manually.
-	prePlug := plugins.MyAwesomePreCreatePlugin{Name: "MyAwesomeSamplePreCreatePlugin"}
-	plugins.RegisterPlugin(config.PRECREATE, prePlug)
-	postPlug := plugins.MyAwesomePostCreatePlugin{Name: "MyAwesomeSamplePostCreatePlugin"}
-	plugins.RegisterPlugin(config.POSTCREATE, postPlug)
+	preCreatePlugins := []plugins.Plugin{
+		plugins.MyAwesomePreCreatePlugin{Name: "SamplePreCreatePlugin"},
+	}
+	postCreatePlugins := []plugins.Plugin{
+		plugins.MyAwesomePostCreatePlugin{Name: "SamplePostCreatePlugin"},
+	}
+	plugins.RegisterPlugin(config.PRECREATE, preCreatePlugins)
+	plugins.RegisterPlugin(config.POSTCREATE, postCreatePlugins)
 	registry := cmd.NewCommandRegistry()
 	registry.Register(commands.NewCreate)
 	registry.Register(commands.NewDelete)
