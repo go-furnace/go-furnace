@@ -58,7 +58,7 @@ var keyName = color.New(color.FgWhite, color.Bold).SprintFunc()
 // the create command.
 func create(stackname string, template []byte, cfClient *CFClient) []*cloudformation.Stack {
 	validResp := cfClient.validateTemplate(template)
-	stackParameters := gatherParameters(validResp)
+	stackParameters := gatherParameters(os.Stdin, validResp)
 	stackInputParams := &cloudformation.CreateStackInput{
 		StackName:    aws.String(stackname),
 		Parameters:   stackParameters,
@@ -72,15 +72,14 @@ func create(stackname string, template []byte, cfClient *CFClient) []*cloudforma
 	return descResp.Stacks
 }
 
-func gatherParameters(params *cloudformation.ValidateTemplateOutput) []*cloudformation.Parameter {
+func gatherParameters(source *os.File, params *cloudformation.ValidateTemplateOutput) []*cloudformation.Parameter {
 	var stackParameters []*cloudformation.Parameter
 	defaultValue := color.New(color.FgHiBlack, color.Italic).SprintFunc()
 	log.Println("Gathering parameters.")
 	for _, v := range params.Parameters {
 		var param cloudformation.Parameter
 		fmt.Printf("%s - '%s'(%s):", *v.Description, keyName(*v.ParameterKey), defaultValue(*v.DefaultValue))
-		reader := bufio.NewReader(os.Stdin)
-		text, _ := reader.ReadString('\n')
+		text := readInputFrom(source)
 		param.SetParameterKey(*v.ParameterKey)
 		text = strings.Trim(text, "\n")
 		if len(text) > 0 {
@@ -91,6 +90,12 @@ func gatherParameters(params *cloudformation.ValidateTemplateOutput) []*cloudfor
 		stackParameters = append(stackParameters, &param)
 	}
 	return stackParameters
+}
+
+func readInputFrom(source *os.File) string {
+	reader := bufio.NewReader(source)
+	text, _ := reader.ReadString('\n')
+	return text
 }
 
 func (cf *CFClient) waitForStackComplete(stackname string) {
