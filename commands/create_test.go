@@ -57,3 +57,15 @@ func TestCreateProcedure(t *testing.T) {
 		t.Fatal("Not the correct stack returned. Returned was:", stacks)
 	}
 }
+
+func TestCreateReturnsEmptyStack(t *testing.T) {
+	config.WAITFREQUENCY = 0
+	client := new(CFClient)
+	stackname := "EmptyStack"
+	client.Client = &fakeCFClient{err: nil, stackname: stackname}
+	config := []byte("{}")
+	stacks := create(stackname, config, client)
+	if len(stacks) != 0 {
+		t.Fatal("Stack was not empty: ", stacks)
+	}
+}
