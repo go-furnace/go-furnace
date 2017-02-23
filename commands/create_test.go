@@ -20,28 +20,28 @@ var notEmptyStack = &cloudformation.DescribeStacksOutput{
 	},
 }
 
-type fakeCFClient struct {
+type fakeCreateCFClient struct {
 	cloudformationiface.CloudFormationAPI
 	stackname string
 	err       error
 }
 
-func (fc *fakeCFClient) ValidateTemplate(input *cloudformation.ValidateTemplateInput) (*cloudformation.ValidateTemplateOutput, error) {
+func (fc *fakeCreateCFClient) ValidateTemplate(input *cloudformation.ValidateTemplateInput) (*cloudformation.ValidateTemplateOutput, error) {
 	return &cloudformation.ValidateTemplateOutput{}, fc.err
 }
 
-func (fc *fakeCFClient) CreateStack(input *cloudformation.CreateStackInput) (*cloudformation.CreateStackOutput, error) {
+func (fc *fakeCreateCFClient) CreateStack(input *cloudformation.CreateStackInput) (*cloudformation.CreateStackOutput, error) {
 	if fc.stackname == "NotEmptyStack" {
 		return &cloudformation.CreateStackOutput{StackId: aws.String("DummyID")}, fc.err
 	}
 	return &cloudformation.CreateStackOutput{}, fc.err
 }
 
-func (fc *fakeCFClient) WaitUntilStackCreateComplete(input *cloudformation.DescribeStacksInput) error {
+func (fc *fakeCreateCFClient) WaitUntilStackCreateComplete(input *cloudformation.DescribeStacksInput) error {
 	return fc.err
 }
 
-func (fc *fakeCFClient) DescribeStacks(input *cloudformation.DescribeStacksInput) (*cloudformation.DescribeStacksOutput, error) {
+func (fc *fakeCreateCFClient) DescribeStacks(input *cloudformation.DescribeStacksInput) (*cloudformation.DescribeStacksOutput, error) {
 	if fc.stackname == "NotEmptyStack" {
 		return notEmptyStack, fc.err
 	}
@@ -52,7 +52,7 @@ func TestCreateProcedure(t *testing.T) {
 	config.WAITFREQUENCY = 0
 	client := new(CFClient)
 	stackname := "NotEmptyStack"
-	client.Client = &fakeCFClient{err: nil, stackname: stackname}
+	client.Client = &fakeCreateCFClient{err: nil, stackname: stackname}
 	config := []byte("{}")
 	stacks := create(stackname, config, client)
 	if len(stacks) == 0 {
@@ -67,7 +67,7 @@ func TestCreateReturnsEmptyStack(t *testing.T) {
 	config.WAITFREQUENCY = 0
 	client := new(CFClient)
 	stackname := "EmptyStack"
-	client.Client = &fakeCFClient{err: nil, stackname: stackname}
+	client.Client = &fakeCreateCFClient{err: nil, stackname: stackname}
 	config := []byte("{}")
 	stacks := create(stackname, config, client)
 	if len(stacks) != 0 {

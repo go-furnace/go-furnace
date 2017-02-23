@@ -10,8 +10,8 @@ type Plugin interface {
 // Plugins is a map of plugins for various stages of a deployment.
 // pre-create: Plugins which will run before the creation of a stack.
 // post-create: Plugins which will be called after the creation of a stack.
-// pre-destroy: Plugins which will be called before a stack is destroyed.
-// post-destroy: Plugins which will be called after a stack is destroyed.
+// pre-delete: Plugins which will be called before a stack is deleted.
+// post-delete: Plugins which will be called after a stack is deleted.
 var plugins map[string][]Plugin
 
 func init() {

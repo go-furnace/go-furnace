@@ -14,10 +14,10 @@ const (
 	PRECREATE = "pre-create"
 	// POSTCREATE Event name for plugins
 	POSTCREATE = "post-create"
-	// PREDESTROY Event name for plugins
-	PREDESTROY = "pre-destroy"
-	// POSTDESTROY Event name for plugins
-	POSTDESTROY = "post-destroy"
+	// PREDELETE Event name for plugins
+	PREDELETE = "pre-delete"
+	// POSTDELETE Event name for plugins
+	POSTDELETE = "post-delete"
 )
 
 var configPath string
