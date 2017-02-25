@@ -18,7 +18,7 @@ func (fc *fakeDeleteCFClient) DeleteStack(*cloudformation.DeleteStackInput) (*cl
 	return &cloudformation.DeleteStackOutput{}, fc.err
 }
 
-func (fc *fakeCreateCFClient) WaitUntilStackDeleteComplete(input *cloudformation.DescribeStacksInput) error {
+func (fc *fakeDeleteCFClient) WaitUntilStackDeleteComplete(input *cloudformation.DescribeStacksInput) error {
 	return fc.err
 }
 
@@ -27,5 +27,5 @@ func TestDeleteProcedure(t *testing.T) {
 	client := new(CFClient)
 	stackname := "ToDeleteStack"
 	client.Client = &fakeDeleteCFClient{err: nil, stackname: stackname}
-	// deleteStack(stackname, client)
+	deleteStack(stackname, client)
 }
