@@ -23,15 +23,20 @@ func (c *Status) Execute(opts *commander.CommandHelper) {
 	if len(stackname) < 1 {
 		stackname = config.STACKNAME
 	}
-
 	sess := session.New(&aws.Config{Region: aws.String("eu-central-1")})
 	cfClient := cloudformation.New(sess, nil)
-	descResp, err := cfClient.DescribeStacks(&cloudformation.DescribeStacksInput{StackName: aws.String(stackname)})
+	client := CFClient{cfClient}
+	stack := stackStatus(stackname, &client)
+	info := color.New(color.FgWhite, color.Bold).SprintFunc()
+	log.Println("Stack state is: ", info(stack.Stacks[0].GoString()))
+
+}
+
+func stackStatus(stackname string, cfClient *CFClient) *cloudformation.DescribeStacksOutput {
+	descResp, err := cfClient.Client.DescribeStacks(&cloudformation.DescribeStacksInput{StackName: aws.String(stackname)})
 	utils.CheckError(err)
 	fmt.Println()
-	info := color.New(color.FgWhite, color.Bold).SprintFunc()
-	log.Println("Stack state is: ", info(descResp.Stacks[0].GoString()))
-
+	return descResp
 }
 
 // NewStatus Creates a new Status command.

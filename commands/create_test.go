@@ -14,12 +14,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/cloudformation/cloudformationiface"
 )
 
-var notEmptyStack = &cloudformation.DescribeStacksOutput{
-	Stacks: []*cloudformation.Stack{
-		&cloudformation.Stack{StackName: aws.String("TestStack")},
-	},
-}
-
 type fakeCreateCFClient struct {
 	cloudformationiface.CloudFormationAPI
 	stackname string
@@ -43,7 +37,7 @@ func (fc *fakeCreateCFClient) WaitUntilStackCreateComplete(input *cloudformation
 
 func (fc *fakeCreateCFClient) DescribeStacks(input *cloudformation.DescribeStacksInput) (*cloudformation.DescribeStacksOutput, error) {
 	if fc.stackname == "NotEmptyStack" {
-		return notEmptyStack, fc.err
+		return NotEmptyStack, fc.err
 	}
 	return &cloudformation.DescribeStacksOutput{}, fc.err
 }
