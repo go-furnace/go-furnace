@@ -1,0 +1,3 @@
+[submodule "furnace-codedeploy-app"]
+	path = furnace-codedeploy-app
+	url = git@github.com:Skarlso/furnace-codedeploy-app.git

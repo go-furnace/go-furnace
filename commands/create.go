@@ -54,7 +54,7 @@ func (c *Create) Execute(opts *commander.CommandHelper) {
 
 var keyName = color.New(color.FgWhite, color.Bold).SprintFunc()
 
-// createStack will create a full stack and encapsulate the functionality of
+// create will create a full stack and encapsulate the functionality of
 // the create command.
 func create(stackname string, template []byte, cfClient *CFClient) []*cloudformation.Stack {
 	validResp := cfClient.validateTemplate(template)
