@@ -38,5 +38,6 @@ func main() {
 	registry.Register(commands.NewCreate)
 	registry.Register(commands.NewDelete)
 	registry.Register(commands.NewStatus)
+	registry.Register(commands.NewPush)
 	registry.Execute()
 }
