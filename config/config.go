@@ -28,6 +28,9 @@ var WAITFREQUENCY = 1
 // STACKNAME is the default name for a stack.
 const STACKNAME = "FurnaceStack"
 
+// CODEDEPLOYROLE is the default name of the codedeploy role.
+const CODEDEPLOYROLE = "CodeDeployServiceRole"
+
 // CFClient abstraction for cloudFormation client.
 type CFClient struct {
 	Client cloudformationiface.CloudFormationAPI

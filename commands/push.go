@@ -8,7 +8,9 @@ import (
 	"github.com/Yitsushi/go-commander"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/cloudformation"
 	"github.com/aws/aws-sdk-go/service/codedeploy"
+	"github.com/aws/aws-sdk-go/service/iam"
 )
 
 // Push command.
@@ -17,27 +19,35 @@ type Push struct {
 
 // Execute defines what this command does.
 func (c *Push) Execute(opts *commander.CommandHelper) {
-	appName := opts.Arg(0)
+	stackname := opts.Arg(0)
+	if len(stackname) < 1 {
+		stackname = config.STACKNAME
+	}
+	appName := opts.Arg(1)
 	if len(appName) < 1 {
 		appName = config.STACKNAME
 	}
 	sess := session.New(&aws.Config{Region: aws.String("eu-central-1")})
 	cdClient := codedeploy.New(sess, nil)
 	client := CDClient{cdClient}
+	cf := cloudformation.New(sess, nil)
+	cfClient := CFClient{cf}
+	iam := iam.New(sess, nil)
+	iamClient := IAMClient{iam}
+	asgName := getAutoScalingGroupKey(stackname, &cfClient)
+	role := getCodeDeployRoleARN(config.CODEDEPLOYROLE, &iamClient)
 	createApplication(appName, &client)
-	createDeploymentGroup(appName, &client)
-	// push(appName, &client)
+	createDeploymentGroup(appName, role, asgName, &client)
+	push(appName, asgName, &client)
 }
 
-func createDeploymentGroup(appName string, client *CDClient) {
-	// TODO: I have to get this from the CF stack.
-	autoScalingGroupKeyName := "XXXX"
+func createDeploymentGroup(appName string, role string, asg string, client *CDClient) {
 	params := &codedeploy.CreateDeploymentGroupInput{
-		ApplicationName:     aws.String(appName),                                              // Required
-		DeploymentGroupName: aws.String(appName + "DeploymentGroup"),                          // Required
-		ServiceRoleArn:      aws.String("arn:aws:iam::xxxxxxxxxx:role/CodeDeployServiceRole"), // Required
+		ApplicationName:     aws.String(appName),                     // Required
+		DeploymentGroupName: aws.String(appName + "DeploymentGroup"), // Required
+		ServiceRoleArn:      aws.String(role),                        // Required
 		AutoScalingGroups: []*string{
-			aws.String(autoScalingGroupKeyName),
+			aws.String(asg),
 		},
 		LoadBalancerInfo: &codedeploy.LoadBalancerInfo{
 			ElbInfoList: []*codedeploy.ELBInfo{
@@ -61,7 +71,7 @@ func createApplication(appName string, client *CDClient) {
 	log.Println(resp)
 }
 
-func push(appName string, client *CDClient) {
+func push(appName string, asg string, client *CDClient) {
 	params := &codedeploy.CreateDeploymentInput{
 		ApplicationName:               aws.String(appName), // Required
 		IgnoreApplicationStopFailures: aws.Bool(true),
@@ -82,6 +92,29 @@ func push(appName string, client *CDClient) {
 	resp, err := client.Client.CreateDeployment(params)
 	utils.CheckError(err)
 	log.Println(resp)
+}
+
+func getAutoScalingGroupKey(stackname string, client *CFClient) string {
+	params := &cloudformation.ListStackResourcesInput{
+		StackName: aws.String(stackname),
+	}
+	resp, err := client.Client.ListStackResources(params)
+	utils.CheckError(err)
+	for _, r := range resp.StackResourceSummaries {
+		if *r.ResourceType == "AWS::AutoScaling::AutoScalingGroup" {
+			return *r.PhysicalResourceId
+		}
+	}
+	return ""
+}
+
+func getCodeDeployRoleARN(roleName string, client *IAMClient) string {
+	params := &iam.GetRoleInput{
+		RoleName: aws.String(roleName),
+	}
+	resp, err := client.Client.GetRole(params)
+	utils.CheckError(err)
+	return *resp.Role.Arn
 }
 
 // NewPush Creates a new Push command.
