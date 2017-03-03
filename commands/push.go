@@ -7,6 +7,7 @@ import (
 	"github.com/Skarlso/go-furnace/utils"
 	"github.com/Yitsushi/go-commander"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
 	"github.com/aws/aws-sdk-go/service/codedeploy"
@@ -38,7 +39,7 @@ func (c *Push) Execute(opts *commander.CommandHelper) {
 	role := getCodeDeployRoleARN(config.CODEDEPLOYROLE, &iamClient)
 	createApplication(appName, &client)
 	createDeploymentGroup(appName, role, asgName, &client)
-	push(appName, asgName, &client)
+	push(appName, stackname, asgName, &client)
 }
 
 func createDeploymentGroup(appName string, role string, asg string, client *CDClient) {
@@ -58,7 +59,15 @@ func createDeploymentGroup(appName string, role string, asg string, client *CDCl
 		},
 	}
 	resp, err := client.Client.CreateDeploymentGroup(params)
-	utils.CheckError(err)
+	if err != nil {
+		if awsErr, ok := err.(awserr.Error); ok {
+			if awsErr.Code() != codedeploy.ErrCodeDeploymentGroupAlreadyExistsException {
+				log.Fatal(awsErr.Code())
+			}
+		} else {
+			log.Fatal(err)
+		}
+	}
 	log.Println(resp)
 }
 
@@ -67,11 +76,20 @@ func createApplication(appName string, client *CDClient) {
 		ApplicationName: aws.String(appName), // Required
 	}
 	resp, err := client.Client.CreateApplication(params)
-	utils.CheckError(err)
+	if err != nil {
+		if awsErr, ok := err.(awserr.Error); ok {
+			if awsErr.Code() != codedeploy.ErrCodeApplicationAlreadyExistsException {
+				log.Fatal(awsErr.Code())
+			}
+		} else {
+			log.Fatal(err)
+		}
+	}
 	log.Println(resp)
 }
 
-func push(appName string, asg string, client *CDClient) {
+func push(appName string, stackname string, asg string, client *CDClient) {
+	log.Println("Stackname: ", stackname)
 	params := &codedeploy.CreateDeploymentInput{
 		ApplicationName:               aws.String(appName), // Required
 		IgnoreApplicationStopFailures: aws.Bool(true),
@@ -86,6 +104,13 @@ func push(appName string, asg string, client *CDClient) {
 		TargetInstances: &codedeploy.TargetInstances{
 			AutoScalingGroups: []*string{
 				aws.String(asg),
+			},
+			TagFilters: []*codedeploy.EC2TagFilter{
+				{ // Required
+					Key:   aws.String("fu_stage"),
+					Type:  aws.String("KEY_AND_VALUE"),
+					Value: aws.String(stackname),
+				},
 			},
 		},
 		UpdateOutdatedInstancesOnly: aws.Bool(false),
