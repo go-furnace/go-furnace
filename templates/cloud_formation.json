@@ -77,6 +77,33 @@
                 "SubnetId" : { "Ref" : "SubnetZone1" }
             }
         },
+        "InstanceProfile" : {
+            "Type" : "AWS::IAM::InstanceProfile",
+            "Properties" : {
+                "Path" : "/",
+                "Roles" : [
+                    { "Ref" : "Role" }
+                ]
+            }
+        },
+        "Role" : {
+            "Type" : "AWS::IAM::Role",
+            "Properties" : {
+                "Path" : "/",
+                "AssumeRolePolicyDocument" : {
+                    "Version" : "2012-10-17",
+                    "Statement" : [
+                        {
+                            "Effect" : "Allow",
+                            "Principal" : {
+                                "Service" : [ "ec2.amazonaws.com" ]
+                            },
+                            "Action" : [ "sts:AssumeRole" ]
+                        }
+                    ]
+                },
+            }
+        },
         "AutoScalingGroup": {
             "Type": "AWS::AutoScaling::AutoScalingGroup",
             "DependsOn" : [ "VPCGatewayAttachment" ],
@@ -118,6 +145,7 @@
             "Type": "AWS::AutoScaling::LaunchConfiguration",
             "Properties": {
                 "AssociatePublicIpAddress" : true,
+                "IamInstanceProfile" : { "Ref" : "InstanceProfile" },
                 "KeyName": {
                     "Ref": "KeyName"
                 },

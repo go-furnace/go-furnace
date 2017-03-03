@@ -60,7 +60,10 @@ func create(stackname string, template []byte, cfClient *CFClient) []*cloudforma
 	validResp := cfClient.validateTemplate(template)
 	stackParameters := gatherParameters(os.Stdin, validResp)
 	stackInputParams := &cloudformation.CreateStackInput{
-		StackName:    aws.String(stackname),
+		StackName: aws.String(stackname),
+		Capabilities: []*string{
+			aws.String("CAPABILITY_IAM"),
+		},
 		Parameters:   stackParameters,
 		TemplateBody: aws.String(string(template)),
 	}
