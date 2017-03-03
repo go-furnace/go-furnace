@@ -81,13 +81,14 @@ func push(appName string, asg string, client *CDClient) {
 				CommitId:   aws.String("f1334d0ec8ea33abd2773bc8d6a475219bcf06f8"),
 				Repository: aws.String("Skarlso/furnace-codedeploy-app"),
 			},
+			RevisionType: aws.String("GitHub"),
 		},
 		TargetInstances: &codedeploy.TargetInstances{
 			AutoScalingGroups: []*string{
-				aws.String("AutoScalingGroup"),
+				aws.String(asg),
 			},
 		},
-		UpdateOutdatedInstancesOnly: aws.Bool(true),
+		UpdateOutdatedInstancesOnly: aws.Bool(false),
 	}
 	resp, err := client.Client.CreateDeployment(params)
 	utils.CheckError(err)
