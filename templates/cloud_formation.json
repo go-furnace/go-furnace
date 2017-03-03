@@ -142,6 +142,12 @@
                     "Fn::Base64" : { "Fn::Join" : [ "\n", [
                         "#!/bin/bash -v",
                         "sudo yum -y update",
+                        "sudo yum -y install ruby wget",
+                        "cd /home/ec2-user/",
+                        "wget https://aws-codedeploy-eu-central-1.s3.amazonaws.com/latest/install",
+                        "chmod +x ./install",
+                        "sudo ./install auto",
+                        "sudo service codedeploy-agent start",
                         "sudo yum -y install httpd",
                         "echo '<html><body>healthy</body></html>' >> /var/www/html/healthy.html",
                         "sudo service httpd start"
