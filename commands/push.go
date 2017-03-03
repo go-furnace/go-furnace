@@ -96,8 +96,8 @@ func push(appName string, stackname string, asg string, client *CDClient) {
 		DeploymentGroupName:           aws.String(appName + "DeploymentGroup"),
 		Revision: &codedeploy.RevisionLocation{
 			GitHubLocation: &codedeploy.GitHubLocation{
-				CommitId:   aws.String("f1334d0ec8ea33abd2773bc8d6a475219bcf06f8"),
-				Repository: aws.String("Skarlso/furnace-codedeploy-app"),
+				CommitId:   aws.String(config.GITREVISION),
+				Repository: aws.String(config.GITACCOUNT),
 			},
 			RevisionType: aws.String("GitHub"),
 		},

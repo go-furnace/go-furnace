@@ -2,6 +2,8 @@ package config
 
 import (
 	"io/ioutil"
+	"log"
+	"os"
 	"os/user"
 	"path/filepath"
 
@@ -31,6 +33,12 @@ const STACKNAME = "FurnaceStack"
 // CODEDEPLOYROLE is the default name of the codedeploy role.
 const CODEDEPLOYROLE = "CodeDeployServiceRole"
 
+// GITREVISION is the revision number to deploy.
+var GITREVISION string
+
+// GITACCOUNT is the account/project from which to deploy.
+var GITACCOUNT string
+
 // CFClient abstraction for cloudFormation client.
 type CFClient struct {
 	Client cloudformationiface.CloudFormationAPI
@@ -46,6 +54,14 @@ func Path() string {
 
 func init() {
 	configPath = Path()
+	GITACCOUNT = os.Getenv("GIT_ACCOUNT")
+	GITREVISION = os.Getenv("GITREVISION")
+	if len(GITACCOUNT) < 1 {
+		log.Fatal("Please define a git account and project to deploy from in the form of: account/project under GIT_ACCOUNT.")
+	}
+	if len(GITREVISION) < 1 {
+		log.Fatal("Please define the git commit hash to use for deploying under GIT_REVISION.")
+	}
 }
 
 // LoadCFStackConfig Load the CF stack configuration file into a []byte.

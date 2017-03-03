@@ -238,6 +238,12 @@
                         "FromPort" : "80",
                         "ToPort" : "80",
                         "SourceSecurityGroupId" : { "Ref" : "SecurityGroupElb" }
+                    },
+                    {
+                        "IpProtocol" : "HTTPS",
+                        "FromPort" : "443",
+                        "ToPort" : "443",
+                        "SourceSecurityGroupId" : { "Ref" : "SecurityGroupElb" }
                     }
                 ],
                 "SecurityGroupEgress" : [
