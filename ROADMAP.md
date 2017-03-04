@@ -1,4 +1,7 @@
 # ROADMAP
+## v1.0.0-beta
+
+- Implement configuration management.
 
 ## v0.9.0-beta
 
