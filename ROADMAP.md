@@ -8,6 +8,7 @@
 - Add git revision configuration.
 - Add deploying from S3 bucket.
     - For this the cf config needs access to the bucket.
+- Add control over the current environment to the plugin system.
 
 ## v0.0.1
 
