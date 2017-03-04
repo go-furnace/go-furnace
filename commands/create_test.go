@@ -77,7 +77,7 @@ func TestGatheringParametersWithoutSpecifyingUserInputShouldUseDefaultValue(t *t
 	defer in.Close()
 	validOutput := &cloudformation.ValidateTemplateOutput{
 		Parameters: []*cloudformation.TemplateParameter{
-			&cloudformation.TemplateParameter{
+			{
 				DefaultValue: aws.String("DefaultValue"),
 				Description:  aws.String("Description"),
 				NoEcho:       aws.Bool(false),
@@ -114,7 +114,7 @@ func TestGatheringParametersWithUserInputShouldUseInput(t *testing.T) {
 	// Setup the input
 	validOutput := &cloudformation.ValidateTemplateOutput{
 		Parameters: []*cloudformation.TemplateParameter{
-			&cloudformation.TemplateParameter{
+			{
 				DefaultValue: aws.String("DefaultValue"),
 				Description:  aws.String("Description"),
 				NoEcho:       aws.Bool(false),
