@@ -55,7 +55,7 @@ func Path() string {
 func init() {
 	configPath = Path()
 	GITACCOUNT = os.Getenv("GIT_ACCOUNT")
-	GITREVISION = os.Getenv("GITREVISION")
+	GITREVISION = os.Getenv("GIT_REVISION")
 	if len(GITACCOUNT) < 1 {
 		log.Fatal("Please define a git account and project to deploy from in the form of: account/project under GIT_ACCOUNT.")
 	}
