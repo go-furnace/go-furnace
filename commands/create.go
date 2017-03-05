@@ -30,7 +30,7 @@ func (c *Create) Execute(opts *commander.CommandHelper) {
 
 	template := config.LoadCFStackConfig()
 	log.Println("Creating cloud formation session.")
-	sess := session.New(&aws.Config{Region: aws.String("eu-central-1")})
+	sess := session.New(&aws.Config{Region: aws.String(config.REGION)})
 	cfClient := cloudformation.New(sess, nil)
 	client := CFClient{cfClient}
 	preCreatePlugins := plugins.GetPluginsForEvent(config.PRECREATE)

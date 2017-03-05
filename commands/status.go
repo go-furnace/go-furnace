@@ -23,7 +23,7 @@ func (c *Status) Execute(opts *commander.CommandHelper) {
 	if len(stackname) < 1 {
 		stackname = config.STACKNAME
 	}
-	sess := session.New(&aws.Config{Region: aws.String("eu-central-1")})
+	sess := session.New(&aws.Config{Region: aws.String(config.REGION)})
 	cfClient := cloudformation.New(sess, nil)
 	client := CFClient{cfClient}
 	stack := stackStatus(stackname, &client)

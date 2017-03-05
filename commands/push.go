@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/Skarlso/go-furnace/config"
@@ -28,7 +29,7 @@ func (c *Push) Execute(opts *commander.CommandHelper) {
 	if len(appName) < 1 {
 		appName = config.STACKNAME
 	}
-	sess := session.New(&aws.Config{Region: aws.String("eu-central-1")})
+	sess := session.New(&aws.Config{Region: aws.String(config.REGION)})
 	cdClient := codedeploy.New(sess, nil)
 	client := CDClient{cdClient}
 	cf := cloudformation.New(sess, nil)
@@ -44,9 +45,9 @@ func (c *Push) Execute(opts *commander.CommandHelper) {
 
 func createDeploymentGroup(appName string, role string, asg string, client *CDClient) {
 	params := &codedeploy.CreateDeploymentGroupInput{
-		ApplicationName:     aws.String(appName),                     // Required
-		DeploymentGroupName: aws.String(appName + "DeploymentGroup"), // Required
-		ServiceRoleArn:      aws.String(role),                        // Required
+		ApplicationName:     aws.String(appName),
+		DeploymentGroupName: aws.String(appName + "DeploymentGroup"),
+		ServiceRoleArn:      aws.String(role),
 		AutoScalingGroups: []*string{
 			aws.String(asg),
 		},
@@ -63,6 +64,9 @@ func createDeploymentGroup(appName string, role string, asg string, client *CDCl
 		if awsErr, ok := err.(awserr.Error); ok {
 			if awsErr.Code() != codedeploy.ErrCodeDeploymentGroupAlreadyExistsException {
 				log.Fatal(awsErr.Code())
+			} else {
+				log.Println("DeploymentGroup already exists. Nothing to do.")
+				return
 			}
 		} else {
 			log.Fatal(err)
@@ -73,13 +77,16 @@ func createDeploymentGroup(appName string, role string, asg string, client *CDCl
 
 func createApplication(appName string, client *CDClient) {
 	params := &codedeploy.CreateApplicationInput{
-		ApplicationName: aws.String(appName), // Required
+		ApplicationName: aws.String(appName),
 	}
 	resp, err := client.Client.CreateApplication(params)
 	if err != nil {
 		if awsErr, ok := err.(awserr.Error); ok {
 			if awsErr.Code() != codedeploy.ErrCodeApplicationAlreadyExistsException {
 				log.Fatal(awsErr.Code())
+			} else {
+				log.Println("Application already exists. Nothing to do.")
+				return
 			}
 		} else {
 			log.Fatal(err)
@@ -91,7 +98,7 @@ func createApplication(appName string, client *CDClient) {
 func push(appName string, stackname string, asg string, client *CDClient) {
 	log.Println("Stackname: ", stackname)
 	params := &codedeploy.CreateDeploymentInput{
-		ApplicationName:               aws.String(appName), // Required
+		ApplicationName:               aws.String(appName),
 		IgnoreApplicationStopFailures: aws.Bool(true),
 		DeploymentGroupName:           aws.String(appName + "DeploymentGroup"),
 		Revision: &codedeploy.RevisionLocation{
@@ -106,7 +113,7 @@ func push(appName string, stackname string, asg string, client *CDClient) {
 				aws.String(asg),
 			},
 			TagFilters: []*codedeploy.EC2TagFilter{
-				{ // Required
+				{
 					Key:   aws.String("fu_stage"),
 					Type:  aws.String("KEY_AND_VALUE"),
 					Value: aws.String(stackname),
@@ -117,7 +124,17 @@ func push(appName string, stackname string, asg string, client *CDClient) {
 	}
 	resp, err := client.Client.CreateDeployment(params)
 	utils.CheckError(err)
-	log.Println(resp)
+	utils.WaitForFunctionWithStatusOutput("SUCCEEDED", config.WAITFREQUENCY, func() {
+		client.Client.WaitUntilDeploymentSuccessful(&codedeploy.GetDeploymentInput{
+			DeploymentId: resp.DeploymentId,
+		})
+	})
+	fmt.Println()
+	deployment, err := client.Client.GetDeployment(&codedeploy.GetDeploymentInput{
+		DeploymentId: resp.DeploymentId,
+	})
+	utils.CheckError(err)
+	log.Println("Deployment Status: ", *deployment.DeploymentInfo.Status)
 }
 
 func getAutoScalingGroupKey(stackname string, client *CFClient) string {

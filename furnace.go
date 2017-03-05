@@ -39,5 +39,6 @@ func main() {
 	registry.Register(commands.NewDelete)
 	registry.Register(commands.NewStatus)
 	registry.Register(commands.NewPush)
+	registry.Register(commands.NewDeleteApp)
 	registry.Execute()
 }

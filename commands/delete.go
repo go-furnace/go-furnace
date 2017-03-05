@@ -28,7 +28,7 @@ func (c *Delete) Execute(opts *commander.CommandHelper) {
 	cyan := color.New(color.FgCyan).SprintFunc()
 
 	log.Printf("Deleting CloudFormation stack with name: %s\n", cyan(stackname))
-	sess := session.New(&aws.Config{Region: aws.String("eu-central-1")})
+	sess := session.New(&aws.Config{Region: aws.String(config.REGION)})
 	cfClient := cloudformation.New(sess, nil)
 	client := CFClient{cfClient}
 	preDeletePlugins := plugins.GetPluginsForEvent(config.PREDELETE)

@@ -6,8 +6,8 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
+	"strconv"
 
-	"github.com/Skarlso/go-furnace/utils"
 	"github.com/aws/aws-sdk-go/service/cloudformation/cloudformationiface"
 )
 
@@ -21,6 +21,9 @@ const (
 	// POSTDELETE Event name for plugins
 	POSTDELETE = "post-delete"
 )
+
+// REGION to operate in.
+var REGION string
 
 var configPath string
 
@@ -39,6 +42,9 @@ var GITREVISION string
 // GITACCOUNT is the account/project from which to deploy.
 var GITACCOUNT string
 
+// SPINNER is the index of which spinner to use. Defaults to 7.
+var SPINNER int
+
 // CFClient abstraction for cloudFormation client.
 type CFClient struct {
 	Client cloudformationiface.CloudFormationAPI
@@ -48,25 +54,39 @@ type CFClient struct {
 func Path() string {
 	// Get configuration path
 	usr, err := user.Current()
-	utils.CheckError(err)
+	if err != nil {
+		log.Fatalf("Error occurred: %s", err.Error())
+	}
 	return filepath.Join(usr.HomeDir, ".config", "go-furnace")
 }
 
 func init() {
 	configPath = Path()
-	GITACCOUNT = os.Getenv("GIT_ACCOUNT")
-	GITREVISION = os.Getenv("GIT_REVISION")
+	GITACCOUNT = os.Getenv("FURNACE_GIT_ACCOUNT")
+	GITREVISION = os.Getenv("FURNACE_GIT_REVISION")
+	REGION = os.Getenv("FURNACE_REGION")
+	spinner := os.Getenv("FURNACE_SPINNER")
+	if len(spinner) < 1 {
+		SPINNER = 7
+	} else {
+		SPINNER, _ = strconv.Atoi(spinner)
+	}
 	if len(GITACCOUNT) < 1 {
-		log.Fatal("Please define a git account and project to deploy from in the form of: account/project under GIT_ACCOUNT.")
+		log.Fatal("Please define a git account and project to deploy from in the form of: account/project under FURNACE_GIT_ACCOUNT.")
 	}
 	if len(GITREVISION) < 1 {
-		log.Fatal("Please define the git commit hash to use for deploying under GIT_REVISION.")
+		log.Fatal("Please define the git commit hash to use for deploying under FURNACE_GIT_REVISION.")
+	}
+	if len(REGION) < 1 {
+		log.Fatal("Please define a region to operate in with FURNACE_REGION exp: config.REGION.")
 	}
 }
 
 // LoadCFStackConfig Load the CF stack configuration file into a []byte.
 func LoadCFStackConfig() []byte {
 	dat, err := ioutil.ReadFile(filepath.Join(configPath, "cloud_formation.json"))
-	utils.CheckError(err)
+	if err != nil {
+		log.Fatalf("Error occurred: %s", err.Error())
+	}
 	return dat
 }

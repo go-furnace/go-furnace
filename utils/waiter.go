@@ -5,10 +5,10 @@ import (
 	"sync"
 	"time"
 
+	"github.com/Skarlso/go-furnace/config"
 	"github.com/fatih/color"
 )
 
-var spinner = 7
 var yellow = color.New(color.FgYellow).SprintFunc()
 var red = color.New(color.FgRed).SprintFunc()
 
@@ -25,11 +25,12 @@ func WaitForFunctionWithStatusOutput(state string, freq int, f func()) {
 	go func() {
 		counter := 0
 		for {
-			counter = (counter + 1) % len(Spinners[spinner])
-			fmt.Printf("\r[%s] Waiting for stack to be in state: %s", yellow(string(Spinners[spinner][counter])), red(state))
+			counter = (counter + 1) % len(Spinners[config.SPINNER])
+			fmt.Printf("\r[%s] Waiting for state: %s", yellow(string(Spinners[config.SPINNER][counter])), red(state))
 			time.Sleep(time.Duration(freq) * time.Second)
 			select {
 			case <-done:
+				fmt.Println()
 				break
 			default:
 			}

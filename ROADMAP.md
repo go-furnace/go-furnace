@@ -1,7 +1,7 @@
 # ROADMAP
 ## v1.0.0-beta
 
-- Implement configuration management.
+- Implement configuration management support for chef, puppet, ansible.
 
 ## v0.9.0-beta
 
