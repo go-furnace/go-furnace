@@ -3,6 +3,7 @@ package commands
 import (
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/Skarlso/go-furnace/config"
 	"github.com/Skarlso/go-furnace/utils"
@@ -19,12 +20,15 @@ import (
 type Push struct {
 }
 
+var s3Deploy = false
+var codeDeployBucket string
+var s3Key string
+
+var gitRevision string
+var gitAccount string
+
 // Execute defines what this command does.
 func (c *Push) Execute(opts *commander.CommandHelper) {
-	stackname := opts.Arg(0)
-	if len(stackname) < 1 {
-		stackname = config.STACKNAME
-	}
 	appName := opts.Arg(1)
 	if len(appName) < 1 {
 		appName = config.STACKNAME
@@ -34,13 +38,40 @@ func (c *Push) Execute(opts *commander.CommandHelper) {
 	client := CDClient{cdClient}
 	cf := cloudformation.New(sess, nil)
 	cfClient := CFClient{cf}
+	s3Deploy = opts.Flags["s3"]
+	determineDeployment()
+
 	iam := iam.New(sess, nil)
 	iamClient := IAMClient{iam}
-	asgName := getAutoScalingGroupKey(stackname, &cfClient)
+	asgName := getAutoScalingGroupKey(&cfClient)
 	role := getCodeDeployRoleARN(config.CODEDEPLOYROLE, &iamClient)
 	createApplication(appName, &client)
 	createDeploymentGroup(appName, role, asgName, &client)
-	push(appName, stackname, asgName, &client)
+	push(appName, asgName, &client)
+}
+
+func determineDeployment() {
+	if s3Deploy {
+		codeDeployBucket = os.Getenv("FURNACE_S3BUCKET")
+		if len(codeDeployBucket) < 1 {
+			log.Fatal("Please define FURNACE_S3BUCKET for the bucket to use.")
+		}
+		s3Key = os.Getenv("FURNACE_S3KEY")
+		if len(s3Key) < 1 {
+			log.Fatal("Please define FURNACE_S3KEY for the application to deploy.")
+		}
+		log.Println("S3 deployment will be used from bucket: ", codeDeployBucket)
+	} else {
+		gitAccount = os.Getenv("FURNACE_GIT_ACCOUNT")
+		gitRevision = os.Getenv("FURNACE_GIT_REVISION")
+		if len(gitAccount) < 1 {
+			log.Fatal("Please define a git account and project to deploy from in the form of: account/project under FURNACE_GIT_ACCOUNT.")
+		}
+		if len(gitRevision) < 1 {
+			log.Fatal("Please define the git commit hash to use for deploying under FURNACE_GIT_REVISION.")
+		}
+		log.Println("GitHub deployment will be used from account: ", gitAccount)
+	}
 }
 
 func createDeploymentGroup(appName string, role string, asg string, client *CDClient) {
@@ -95,19 +126,37 @@ func createApplication(appName string, client *CDClient) {
 	log.Println(resp)
 }
 
-func push(appName string, stackname string, asg string, client *CDClient) {
-	log.Println("Stackname: ", stackname)
+func revisionLocation() *codedeploy.RevisionLocation {
+	var rev *codedeploy.RevisionLocation
+	if s3Deploy {
+		rev = &codedeploy.RevisionLocation{
+			S3Location: &codedeploy.S3Location{
+				Bucket:     aws.String(codeDeployBucket),
+				BundleType: aws.String("zip"),
+				Key:        aws.String(s3Key),
+				// Version:    aws.String("VersionId"), TODO: This needs improvement
+			},
+			RevisionType: aws.String("S3"),
+		}
+	} else {
+		rev = &codedeploy.RevisionLocation{
+			GitHubLocation: &codedeploy.GitHubLocation{
+				CommitId:   aws.String(gitRevision),
+				Repository: aws.String(gitAccount),
+			},
+			RevisionType: aws.String("GitHub"),
+		}
+	}
+	return rev
+}
+
+func push(appName string, asg string, client *CDClient) {
+	log.Println("Stackname: ", config.STACKNAME)
 	params := &codedeploy.CreateDeploymentInput{
 		ApplicationName:               aws.String(appName),
 		IgnoreApplicationStopFailures: aws.Bool(true),
 		DeploymentGroupName:           aws.String(appName + "DeploymentGroup"),
-		Revision: &codedeploy.RevisionLocation{
-			GitHubLocation: &codedeploy.GitHubLocation{
-				CommitId:   aws.String(config.GITREVISION),
-				Repository: aws.String(config.GITACCOUNT),
-			},
-			RevisionType: aws.String("GitHub"),
-		},
+		Revision:                      revisionLocation(),
 		TargetInstances: &codedeploy.TargetInstances{
 			AutoScalingGroups: []*string{
 				aws.String(asg),
@@ -116,7 +165,7 @@ func push(appName string, stackname string, asg string, client *CDClient) {
 				{
 					Key:   aws.String("fu_stage"),
 					Type:  aws.String("KEY_AND_VALUE"),
-					Value: aws.String(stackname),
+					Value: aws.String(config.STACKNAME),
 				},
 			},
 		},
@@ -137,9 +186,9 @@ func push(appName string, stackname string, asg string, client *CDClient) {
 	log.Println("Deployment Status: ", *deployment.DeploymentInfo.Status)
 }
 
-func getAutoScalingGroupKey(stackname string, client *CFClient) string {
+func getAutoScalingGroupKey(client *CFClient) string {
 	params := &cloudformation.ListStackResourcesInput{
-		StackName: aws.String(stackname),
+		StackName: aws.String(config.STACKNAME),
 	}
 	resp, err := client.Client.ListStackResources(params)
 	utils.CheckError(err)
@@ -168,8 +217,8 @@ func NewPush(appName string) *commander.CommandWrapper {
 			Name:             "push",
 			ShortDescription: "Push to stack",
 			LongDescription:  `Push a version of the application to a stack`,
-			Arguments:        "name",
-			Examples:         []string{"push", "push version"},
+			Arguments:        "appName [-s3]",
+			Examples:         []string{"push", "push appName", "push appName -s3", "push -s3", "push appName"},
 		},
 	}
 }
