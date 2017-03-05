@@ -23,11 +23,7 @@ type Create struct {
 
 // Execute defines what this command does.
 func (c *Create) Execute(opts *commander.CommandHelper) {
-	stackname := opts.Arg(0)
-	if len(stackname) < 1 {
-		stackname = config.STACKNAME
-	}
-
+	stackname := config.STACKNAME
 	template := config.LoadCFStackConfig()
 	log.Println("Creating cloud formation session.")
 	sess := session.New(&aws.Config{Region: aws.String(config.REGION)})
@@ -141,8 +137,8 @@ func NewCreate(appName string) *commander.CommandWrapper {
 			Name:             "create",
 			ShortDescription: "Create a stack",
 			LongDescription:  `Create a stack on which to deploy code to later on. By default FurnaceStack is used as name.`,
-			Arguments:        "name",
-			Examples:         []string{"create", "create MyStackName"},
+			Arguments:        "",
+			Examples:         []string{"create"},
 		},
 	}
 }

@@ -20,13 +20,8 @@ type Delete struct {
 // Execute defines what this command does.
 func (c *Delete) Execute(opts *commander.CommandHelper) {
 
-	stackname := opts.Arg(0)
-	if len(stackname) < 1 {
-		stackname = config.STACKNAME
-	}
-
+	stackname := config.STACKNAME
 	cyan := color.New(color.FgCyan).SprintFunc()
-
 	log.Printf("Deleting CloudFormation stack with name: %s\n", cyan(stackname))
 	sess := session.New(&aws.Config{Region: aws.String(config.REGION)})
 	cfClient := cloudformation.New(sess, nil)
@@ -66,8 +61,8 @@ func NewDelete(appName string) *commander.CommandWrapper {
 			Name:             "delete",
 			ShortDescription: "Delete a stack",
 			LongDescription:  `Delete a stack with a given name.`,
-			Arguments:        "name",
-			Examples:         []string{"delete", "delete MyStackName"},
+			Arguments:        "",
+			Examples:         []string{"delete"},
 		},
 	}
 }
