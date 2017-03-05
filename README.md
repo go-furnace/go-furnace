@@ -87,10 +87,10 @@ Furnace provides the following commands (which you can check by running `./furna
 
 ```bash
 ➜  go-furnace git:(master) ✗ ./furnace
-create name               Create a stack
-delete name               Delete a stack
-status name               Status of a stack.
-push name                 Push to stack
+create                    Create a stack
+delete                    Delete a stack
+status                    Status of a stack.
+push appName [-s3]        Push to stack
 delete-application name   Deletes an Application
 help [command]            Display this help or a command specific help
 ```
