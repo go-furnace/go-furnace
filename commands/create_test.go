@@ -133,10 +133,13 @@ func TestGatheringParametersWithUserInputShouldUseInput(t *testing.T) {
 
 func TestNewCreate(t *testing.T) {
 	wrapper := NewCreate("furnace")
-	if wrapper.Help.Arguments != "name" ||
-		!reflect.DeepEqual(wrapper.Help.Examples, []string{"create", "create MyStackName"}) ||
-		wrapper.Help.LongDescription != `Create a stack on which to deploy code to later on. By default FurnaceStack is used as name.` ||
+	if wrapper.Help.Arguments != "" ||
+		!reflect.DeepEqual(wrapper.Help.Examples, []string{"create"}) ||
+		wrapper.Help.LongDescription != `Create a stack on which to deploy code later on. By default FurnaceStack is used as name.` ||
 		wrapper.Help.ShortDescription != "Create a stack" {
+		t.Log(wrapper.Help.LongDescription)
+		t.Log(wrapper.Help.ShortDescription)
+		t.Log(wrapper.Help.Examples)
 		t.Fatal("wrapper did not match with given params")
 	}
 }

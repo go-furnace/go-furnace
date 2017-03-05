@@ -19,17 +19,13 @@ type Status struct {
 
 // Execute defines what this command does.
 func (c *Status) Execute(opts *commander.CommandHelper) {
-	stackname := opts.Arg(0)
-	if len(stackname) < 1 {
-		stackname = config.STACKNAME
-	}
+	stackname := config.STACKNAME
 	sess := session.New(&aws.Config{Region: aws.String(config.REGION)})
 	cfClient := cloudformation.New(sess, nil)
 	client := CFClient{cfClient}
 	stack := stackStatus(stackname, &client)
 	info := color.New(color.FgWhite, color.Bold).SprintFunc()
 	log.Println("Stack state is: ", info(stack.Stacks[0].GoString()))
-
 }
 
 func stackStatus(stackname string, cfClient *CFClient) *cloudformation.DescribeStacksOutput {
@@ -47,8 +43,8 @@ func NewStatus(appName string) *commander.CommandWrapper {
 			Name:             "status",
 			ShortDescription: "Status of a stack.",
 			LongDescription:  `Get detailed status of the stack.`,
-			Arguments:        "name",
-			Examples:         []string{"status", "status MyStackName"},
+			Arguments:        "",
+			Examples:         []string{"status"},
 		},
 	}
 }

@@ -10,7 +10,7 @@ AWS Cloud Formation hosting with Go. This project utilises the power of AWS Clou
 simply deploy an application into a robust, self-healing, redundant environment. The environment is configurable through
 the CloudFormation Template. A sample can be found in the `templates` folder.
 
-The application to be deployed is currently handled via GitHub, but later on, S3 based deployment will also be supported.
+The application to be deployed is handled via GitHub, or S3.
 
 A sample application is provider under the `furnace-codedeploy-app` folder.
 
@@ -67,22 +67,19 @@ For other targets, please consult the Makefile.
 
 ### Configuration
 
-Furnace requires three environment properties. These are:
+Furnace has two stack related environment properties and a couple more which are shown later.
 
 ```bash
-# git revision is the latest git commit to use
-export FURNACE_GIT_REVISION=b80ea5b9dfefcd21e27a3e0f149ec73519d5a6f1
-export FURNACE_GIT_ACCOUNT=skarlso/furnace-codedeploy-app
 export FURNACE_REGION=eu-central-1
+# If this is not defined, a default will be used which is FurnaceStack
+export FURNACE_STACKNAME=FurnaceStack
 ```
 
 Furnace also requires the CloudFormation template to be placed under `~/.config/go-furnace`.
 
-CodeDeploy further requires a IAM policy to the current user in order to be able to handle ASG and deploying to the EC2 instances.
+CodeDeploy further requires an IAM policy on the current user in order to be able to handle ASG and deploying to the EC2 instances.
 For this, a regular IAM role can be created from the AWS console. The name of the IAM profile can be configured later when pushing,
-if that is not set the default is used which is `CodeDeployServiceRole`. This default can be found under `config.CODEDEPLOYROLE`.
-
-The CloudFormation template needs also be copied under `~/.config/go-furnace`.
+if that is not set, the default is used which is `CodeDeployServiceRole`. This default can be found under `config.CODEDEPLOYROLE`.
 
 ### Commands
 
@@ -90,10 +87,10 @@ Furnace provides the following commands (which you can check by running `./furna
 
 ```bash
 ➜  go-furnace git:(master) ✗ ./furnace
-create name               Create a stack
-delete name               Delete a stack
-status name               Status of a stack.
-push name                 Push to stack
+create                    Create a stack
+delete                    Delete a stack
+status                    Status of a stack.
+push appName [-s3]        Push to stack
 delete-application name   Deletes an Application
 help [command]            Display this help or a command specific help
 ```
@@ -137,6 +134,33 @@ two things. AutoScaling groups provided by the CloudFormation stack plus Tags th
 `fu_stage`.
 
 ![Push](./img/push.png)
+
+Push works with two revision locations.
+
+##### GitHub
+
+The default for a push is to locate a sample application on Github which will then be deployed.
+
+For this, the following two options need to be defined:
+
+```bash
+export FURNACE_GIT_REVISION=b80ea5b9dfefcd21e27a3e0f149ec73519d5a6f1
+export FURNACE_GIT_ACCOUNT=skarlso/furnace-codedeploy-app
+```
+
+##### S3
+
+To use S3 for deployment, push needs an additional flag like this: `furnace push --s3`. This requires the following
+two environment properties:
+
+```bash
+export FURNACE_S3KEY=app.zip
+export FURNACE_S3BUCKET=furnace-codedeploy-bucket
+```
+
+Bucket is a unique bucket which is used to store a zipped version of the application. The key is the name of the object.
+Access to the bucket needs to be defined in the CloudFormation template via an IAM Role. A sample is provided in the
+template under the `templates` folder.
 
 #### delete-application
 
