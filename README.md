@@ -121,6 +121,9 @@ This will create the whole stack via the configuration provided under templates.
 
 ![Create](./img/create.png)
 
+As you can see, furnace will ask for the parameters that reside in a template. If default is desired, simply
+hit enter to continue using the default value.
+
 #### delete
 
 Deletes the whole stack complete with everything attached to the stack expect for the CodeDeploy application.
