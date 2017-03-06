@@ -5,10 +5,9 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
+	"plugin"
 
 	"github.com/Skarlso/go-furnace/commands"
-	"github.com/Skarlso/go-furnace/config"
-	"github.com/Skarlso/go-furnace/plugins"
 	cmd "github.com/Yitsushi/go-commander"
 )
 
@@ -25,15 +24,15 @@ func init() {
 }
 
 func main() {
-	// For now, the including of a plugin is done manually.
-	preCreatePlugins := []plugins.Plugin{
-		plugins.MyAwesomePreCreatePlugin{Name: "SamplePreCreatePlugin"},
+	p, err := plugin.Open("./plugins/plugins.so")
+	if err != nil {
+		log.Fatal(err)
 	}
-	postCreatePlugins := []plugins.Plugin{
-		plugins.MyAwesomePostCreatePlugin{Name: "SamplePostCreatePlugin"},
+	run, err := p.Lookup("RunPlugin")
+	if err != nil {
+		log.Fatal(err)
 	}
-	plugins.RegisterPlugin(config.PRECREATE, preCreatePlugins)
-	plugins.RegisterPlugin(config.POSTCREATE, postCreatePlugins)
+	run.(func())()
 	registry := cmd.NewCommandRegistry()
 	registry.Register(commands.NewCreate)
 	registry.Register(commands.NewDelete)
