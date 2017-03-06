@@ -45,8 +45,10 @@ func (c *Push) Execute(opts *commander.CommandHelper) {
 	iamClient := IAMClient{iam}
 	asgName := getAutoScalingGroupKey(&cfClient)
 	role := getCodeDeployRoleARN(config.CODEDEPLOYROLE, &iamClient)
-	createApplication(appName, &client)
-	createDeploymentGroup(appName, role, asgName, &client)
+	err := createApplication(appName, &client)
+	utils.CheckError(err)
+	err = createDeploymentGroup(appName, role, asgName, &client)
+	utils.CheckError(err)
 	push(appName, asgName, &client)
 }
 
@@ -74,7 +76,7 @@ func determineDeployment() {
 	}
 }
 
-func createDeploymentGroup(appName string, role string, asg string, client *CDClient) {
+func createDeploymentGroup(appName string, role string, asg string, client *CDClient) error {
 	params := &codedeploy.CreateDeploymentGroupInput{
 		ApplicationName:     aws.String(appName),
 		DeploymentGroupName: aws.String(appName + "DeploymentGroup"),
@@ -94,19 +96,19 @@ func createDeploymentGroup(appName string, role string, asg string, client *CDCl
 	if err != nil {
 		if awsErr, ok := err.(awserr.Error); ok {
 			if awsErr.Code() != codedeploy.ErrCodeDeploymentGroupAlreadyExistsException {
-				log.Fatal(awsErr.Code())
-			} else {
-				log.Println("DeploymentGroup already exists. Nothing to do.")
-				return
+				log.Println(awsErr.Code())
+				return err
 			}
-		} else {
-			log.Fatal(err)
+			log.Println("DeploymentGroup already exists. Nothing to do.")
+			return nil
 		}
+		return err
 	}
 	log.Println(resp)
+	return nil
 }
 
-func createApplication(appName string, client *CDClient) {
+func createApplication(appName string, client *CDClient) error {
 	params := &codedeploy.CreateApplicationInput{
 		ApplicationName: aws.String(appName),
 	}
@@ -114,16 +116,16 @@ func createApplication(appName string, client *CDClient) {
 	if err != nil {
 		if awsErr, ok := err.(awserr.Error); ok {
 			if awsErr.Code() != codedeploy.ErrCodeApplicationAlreadyExistsException {
-				log.Fatal(awsErr.Code())
-			} else {
-				log.Println("Application already exists. Nothing to do.")
-				return
+				log.Println(awsErr.Code())
+				return err
 			}
-		} else {
-			log.Fatal(err)
+			log.Println("Application already exists. Nothing to do.")
+			return nil
 		}
+		return err
 	}
 	log.Println(resp)
+	return nil
 }
 
 func revisionLocation() *codedeploy.RevisionLocation {
