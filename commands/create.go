@@ -29,11 +29,13 @@ func (c *Create) Execute(opts *commander.CommandHelper) {
 	cfClient := cloudformation.New(sess, nil)
 	client := CFClient{cfClient}
 	for _, p := range config.PluginRegistry["pre_create"] {
-		p.(func())()
+		log.Println("Running plugin: ", p.Name)
+		p.Run.(func())()
 	}
 	stacks := create(stackname, template, &client)
 	for _, p := range config.PluginRegistry["post_create"] {
-		p.(func())()
+		log.Println("Running plugin: ", p.Name)
+		p.Run.(func())()
 	}
 	var red = color.New(color.FgRed).SprintFunc()
 	if len(stacks) > 0 {

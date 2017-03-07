@@ -42,8 +42,14 @@ var STACKNAME = "FurnaceStack"
 // SPINNER is the index of which spinner to use. Defaults to 7.
 var SPINNER int
 
+// Plugin is a plugin to execute
+type Plugin struct {
+	Run  interface{}
+	Name string
+}
+
 // PluginRegistry is a registry of plugins for certain events
-var PluginRegistry map[string][]interface{}
+var PluginRegistry map[string][]Plugin
 
 // CFClient abstraction for cloudFormation client.
 type CFClient struct {
@@ -79,13 +85,13 @@ func init() {
 	PluginRegistry = fillRegistry()
 }
 
-func fillRegistry() map[string][]interface{} {
+func fillRegistry() map[string][]Plugin {
 	enable := os.Getenv("FURNACE_ENABLE_PLUGIN_SYSTEM")
+	ret := make(map[string][]Plugin)
 	if len(enable) < 1 {
-		return make(map[string][]interface{})
+		return ret
 	}
 	// log.Println("Filling plugin registry.")
-	ret := make(map[string][]interface{})
 	files, _ := ioutil.ReadDir(filepath.Join(configPath, "plugins"))
 	pluginCount := 0
 	for _, f := range files {
@@ -102,12 +108,16 @@ func fillRegistry() map[string][]interface{} {
 			log.Printf("Plugin '%s' did not have 'RunPlugin' method. Error: %s\n", fullPath, err.Error())
 			continue
 		}
+		plug := Plugin{
+			Run:  run,
+			Name: f.Name(),
+		}
 		if p, ok := ret[key]; ok {
-			p = append(p, run)
+			p = append(p, plug)
 			ret[key] = p
 		} else {
-			plugs := make([]interface{}, 0)
-			plugs = append(plugs, run.(func()))
+			plugs := make([]Plugin, 0)
+			plugs = append(plugs, plug)
 			ret[key] = plugs
 		}
 		pluginCount++

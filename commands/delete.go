@@ -26,11 +26,13 @@ func (c *Delete) Execute(opts *commander.CommandHelper) {
 	cfClient := cloudformation.New(sess, nil)
 	client := CFClient{cfClient}
 	for _, p := range config.PluginRegistry["pre_delete"] {
-		p.(func())()
+		log.Println("Running plugin: ", p.Name)
+		p.Run.(func())()
 	}
 	deleteStack(stackname, &client)
 	for _, p := range config.PluginRegistry["post_delete"] {
-		p.(func())()
+		log.Println("Running plugin: ", p.Name)
+		p.Run.(func())()
 	}
 }
 
