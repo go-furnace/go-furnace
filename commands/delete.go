@@ -25,7 +25,13 @@ func (c *Delete) Execute(opts *commander.CommandHelper) {
 	sess := session.New(&aws.Config{Region: aws.String(config.REGION)})
 	cfClient := cloudformation.New(sess, nil)
 	client := CFClient{cfClient}
+	for _, p := range config.PluginRegistry["pre_delete"] {
+		p.(func())()
+	}
 	deleteStack(stackname, &client)
+	for _, p := range config.PluginRegistry["post_delete"] {
+		p.(func())()
+	}
 }
 
 func deleteStack(stackname string, cfClient *CFClient) {

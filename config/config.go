@@ -6,7 +6,10 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
+	"plugin"
 	"strconv"
+
+	"strings"
 
 	"github.com/aws/aws-sdk-go/service/cloudformation/cloudformationiface"
 )
@@ -39,6 +42,9 @@ var STACKNAME = "FurnaceStack"
 // SPINNER is the index of which spinner to use. Defaults to 7.
 var SPINNER int
 
+// PluginRegistry is a registry of plugins for certain events
+var PluginRegistry map[string][]interface{}
+
 // CFClient abstraction for cloudFormation client.
 type CFClient struct {
 	Client cloudformationiface.CloudFormationAPI
@@ -64,12 +70,50 @@ func init() {
 		SPINNER, _ = strconv.Atoi(spinner)
 	}
 	if len(REGION) < 1 {
-		log.Fatal("Please define a region to operate in with FURNACE_REGION exp: config.REGION.")
+		log.Fatal("Please define a region to operate in with FURNACE_REGION exp: eu-central-1.")
 	}
 	stackname := os.Getenv("FURNACE_STACKNAME")
 	if len(stackname) > 0 {
 		STACKNAME = stackname
 	}
+	PluginRegistry = fillRegistry()
+}
+
+func fillRegistry() map[string][]interface{} {
+	enable := os.Getenv("FURNACE_ENABLE_PLUGIN_SYSTEM")
+	if len(enable) < 1 {
+		return make(map[string][]interface{})
+	}
+	// log.Println("Filling plugin registry.")
+	ret := make(map[string][]interface{})
+	files, _ := ioutil.ReadDir(filepath.Join(configPath, "plugins"))
+	pluginCount := 0
+	for _, f := range files {
+		split := strings.Split(f.Name(), ".")
+		key := split[len(split)-1]
+		fullPath := filepath.Join(configPath, "plugins", f.Name())
+		p, err := plugin.Open(fullPath)
+		if err != nil {
+			log.Printf("Plugin '%s' failed to load. Error: %s\n", fullPath, err.Error())
+			continue
+		}
+		run, err := p.Lookup("RunPlugin")
+		if err != nil {
+			log.Printf("Plugin '%s' did not have 'RunPlugin' method. Error: %s\n", fullPath, err.Error())
+			continue
+		}
+		if p, ok := ret[key]; ok {
+			p = append(p, run)
+			ret[key] = p
+		} else {
+			plugs := make([]interface{}, 0)
+			plugs = append(plugs, run.(func()))
+			ret[key] = plugs
+		}
+		pluginCount++
+	}
+	log.Printf("'%d' plugins loaded successfully.\n", pluginCount)
+	return ret
 }
 
 // LoadCFStackConfig Load the CF stack configuration file into a []byte.

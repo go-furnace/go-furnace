@@ -5,7 +5,6 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
-	"plugin"
 
 	"github.com/Skarlso/go-furnace/commands"
 	cmd "github.com/Yitsushi/go-commander"
@@ -24,15 +23,6 @@ func init() {
 }
 
 func main() {
-	p, err := plugin.Open("./plugins/plugins.so")
-	if err != nil {
-		log.Fatal(err)
-	}
-	run, err := p.Lookup("RunPlugin")
-	if err != nil {
-		log.Fatal(err)
-	}
-	run.(func())()
 	registry := cmd.NewCommandRegistry()
 	registry.Register(commands.NewCreate)
 	registry.Register(commands.NewDelete)

@@ -28,7 +28,13 @@ func (c *Create) Execute(opts *commander.CommandHelper) {
 	sess := session.New(&aws.Config{Region: aws.String(config.REGION)})
 	cfClient := cloudformation.New(sess, nil)
 	client := CFClient{cfClient}
+	for _, p := range config.PluginRegistry["pre_create"] {
+		p.(func())()
+	}
 	stacks := create(stackname, template, &client)
+	for _, p := range config.PluginRegistry["post_create"] {
+		p.(func())()
+	}
 	var red = color.New(color.FgRed).SprintFunc()
 	if len(stacks) > 0 {
 		log.Println("Stack state is: ", red(*stacks[0].StackStatus))
