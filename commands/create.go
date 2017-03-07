@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/Skarlso/go-furnace/config"
-	"github.com/Skarlso/go-furnace/plugins"
 	"github.com/Skarlso/go-furnace/utils"
 	"github.com/Yitsushi/go-commander"
 	"github.com/aws/aws-sdk-go/aws"
@@ -29,16 +28,14 @@ func (c *Create) Execute(opts *commander.CommandHelper) {
 	sess := session.New(&aws.Config{Region: aws.String(config.REGION)})
 	cfClient := cloudformation.New(sess, nil)
 	client := CFClient{cfClient}
-	preCreatePlugins := plugins.GetPluginsForEvent(config.PRECREATE)
-	log.Println("The following plugins will be triggered pre-create: ", preCreatePlugins)
-	for _, p := range preCreatePlugins {
-		p.RunPlugin()
+	for _, p := range config.PluginRegistry["pre_create"] {
+		log.Println("Running plugin: ", p.Name)
+		p.Run.(func())()
 	}
 	stacks := create(stackname, template, &client)
-	postCreatePlugins := plugins.GetPluginsForEvent(config.POSTCREATE)
-	log.Println("The following plugins will be triggered post-create: ", postCreatePlugins)
-	for _, p := range postCreatePlugins {
-		p.RunPlugin()
+	for _, p := range config.PluginRegistry["post_create"] {
+		log.Println("Running plugin: ", p.Name)
+		p.Run.(func())()
 	}
 	var red = color.New(color.FgRed).SprintFunc()
 	if len(stacks) > 0 {

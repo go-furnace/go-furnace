@@ -4,7 +4,6 @@ import (
 	"log"
 
 	"github.com/Skarlso/go-furnace/config"
-	"github.com/Skarlso/go-furnace/plugins"
 	"github.com/Skarlso/go-furnace/utils"
 	"github.com/Yitsushi/go-commander"
 	"github.com/aws/aws-sdk-go/aws"
@@ -26,16 +25,14 @@ func (c *Delete) Execute(opts *commander.CommandHelper) {
 	sess := session.New(&aws.Config{Region: aws.String(config.REGION)})
 	cfClient := cloudformation.New(sess, nil)
 	client := CFClient{cfClient}
-	preDeletePlugins := plugins.GetPluginsForEvent(config.PREDELETE)
-	log.Println("The following plugins will be triggered pre-delete: ", preDeletePlugins)
-	for _, p := range preDeletePlugins {
-		p.RunPlugin()
+	for _, p := range config.PluginRegistry["pre_delete"] {
+		log.Println("Running plugin: ", p.Name)
+		p.Run.(func())()
 	}
 	deleteStack(stackname, &client)
-	postDeletePlugins := plugins.GetPluginsForEvent(config.POSTDELETE)
-	log.Println("The following plugins will be triggered post-delete: ", postDeletePlugins)
-	for _, p := range postDeletePlugins {
-		p.RunPlugin()
+	for _, p := range config.PluginRegistry["post_delete"] {
+		log.Println("Running plugin: ", p.Name)
+		p.Run.(func())()
 	}
 }
 
