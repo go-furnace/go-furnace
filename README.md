@@ -6,7 +6,7 @@
 
 ## Intro
 
-AWS Cloud Formation hosting with Go. This project utilises the power of AWS CloudFormation and CodeDeploy in order to
+AWS Cloud Formation hosting with Go. This project utilizes the power of AWS CloudFormation and CodeDeploy in order to
 simply deploy an application into a robust, self-healing, redundant environment. The environment is configurable through
 the CloudFormation Template. A sample can be found in the `templates` folder.
 
@@ -192,6 +192,8 @@ the plugin will simple be ignored. Well, technically it will be loaded, just not
 
 To build the plugin run `go build -buildmode=plugin -o myplugin.so myplugin.go`. Than copy the so to said folder. And that's it. You should
 be all set.
+
+Plugins are loaded as encountered, so if order of execution is important, pre_fix the file names with numbers.
 
 **IMPORTANT**: Plugins are only supported on Linux right now. If you would like to play with it, I recommend using the official Docker golang
 container which is dead simple to setup. To link your project into the container, run it with the following command from the root of your project:
