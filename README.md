@@ -177,70 +177,29 @@ url provided by the load balancer.
 
 ### Experimental Plug-in System
 
-Experimental plug-in system of Go 1.8 is enabled on branch `experimental_pluginsystem`. That will be, however, the defacto
-soon-ish, since the old ways, explained below, where not really plug-ins.
-
 To enable the plugin system, please set the environment property `FURNACE_ENABLE_PLUGIN_SYSTEM`.
 
-To use the plugin system, please look at the example plugins in the plugins folder. At the moment, plugins are not receiving the
+To use the plugin system, please look at the example plugins in the `plugins` folder. At the moment, plugins are not receiving the
 environment for further manipulations; however, this will be remedied.
 
-A plugin is a standalone go project, with main package, and a single entry point function called `RunPlugin`. If the plugin fails
+A plugin is a standalone go project with main package, and a single entry point function called `RunPlugin`. If the plugin fails
 to provide that function it will not be loaded. Plugins have to be placed under `~/.config/go-furnace/plugins`. Their extension decide
 at what stage they will be loaded. Extensions should be one of the following: `pre_create, post_create, pre_delete, post_delete`. If not,
 the plugin will simple be ignored. Well, technically it will be loaded, just not used.
 
-To build the plugin run `go build -buildmode=plugin -o myplugin.so myplugin.go`. Than copy the so to said folder. And that's it. You should
-be all set.
+To build the plugin run `go build -buildmode=plugin -o myplugin.pre_create myplugin.go`. Than copy the `.pre_create` to said folder. And
+that's it, you should be all set.
 
 Plugins are loaded as encountered, so if order of execution is important, pre_fix the file names with numbers.
 
 **IMPORTANT**: Plugins are only supported on Linux right now. If you would like to play with it, I recommend using the official Docker golang
-container which is dead simple to setup. To link your project into the container, run it with the following command from the root of your project:
+container which is easy to use. To link your project into the container, run it with the following command from the root of your project:
 
 ```bash
 docker run --name furnace -it -v `pwd`:/go/src/github.com/Skarlso/go-furnace golang bash
 ```
 
 Should any question arise, please don't hesitate to open an issue with the PreFix [Question].
-
-### Old Ways
-
-Until Go's own Plugin system is fully supported ( which will take a while ), a rudimentary plugin system has been put in place.
-There are four events currently for plugins:
-```bash
-- PRE_CREATE
-- POST_CREATE
-- PRE_DELETE
-- POST_DELETE
-```
-
-In order to implement a plugin, place a file into the `plugins` folder, and implement the following interface:
-
-```go
-// Plugin interface defines the capabilities of a plugin
-type Plugin interface {
-	RunPlugin()
-}
-```
-
-At the moment the plugin also needs to be registered by hand in `furnace.go` like this:
-
-```go
-// For now, the including of a plugin is done manually.
-preCreatePlugins := []plugins.Plugin{
-    plugins.MyAwesomePreCreatePlugin{Name: "SamplePreCreatePlugin"},
-}
-postCreatePlugins := []plugins.Plugin{
-    plugins.MyAwesomePostCreatePlugin{Name: "SamplePostCreatePlugin"},
-}
-plugins.RegisterPlugin(config.PRECREATE, preCreatePlugins)
-plugins.RegisterPlugin(config.POSTCREATE, postCreatePlugins)
-```
-
-This will later be replaced by putting a .so or .dylib file into the plugin folder, and no re-compile will be necessary.
-
-The plugin system also needs some way to pass in control over the current environment. So it's very much under development.
 
 ## Testing
 
