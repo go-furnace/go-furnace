@@ -3,3 +3,4 @@ furnace
 .DS_Store
 *.swp
 cover.out
+.vscode
