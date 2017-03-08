@@ -3,5 +3,13 @@ language: go
 go:
   - master
 
-install: make get-deps
-script: make clean build test
+before_install:
+  - go get github.com/axw/gocov/gocov
+  - go get github.com/mattn/goveralls
+  - if ! go get github.com/golang/tools/cmd/cover; then go get golang.org/x/tools/cmd/cover; fi
+
+install:
+  - make get-deps
+script:
+  - $HOME/gopath/bin/goveralls -service=travis-ci
+  - make clean build test
