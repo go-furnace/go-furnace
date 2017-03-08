@@ -4,6 +4,8 @@
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/Skarlso/go-furnace)](https://goreportcard.com/report/github.com/Skarlso/go-furnace) [![Build Status](https://travis-ci.org/Skarlso/go-furnace.svg?branch=master)](https://travis-ci.org/Skarlso/go-furnace)
 
+[![Coverage Status](https://coveralls.io/repos/github/Skarlso/go-furnace/badge.svg?branch=master)](https://coveralls.io/github/Skarlso/go-furnace?branch=master)
+
 ## Intro
 
 AWS Cloud Formation hosting with Go. This project utilizes the power of AWS CloudFormation and CodeDeploy in order to
