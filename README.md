@@ -180,7 +180,7 @@ url provided by the load balancer.
 
 To enable the plugin system, please set the environment property `FURNACE_ENABLE_PLUGIN_SYSTEM`.
 
-To use the plugin system, please look at the example plugins in the `plugins` folder. At the moment, plugins are not receiving the
+To use the plugin system, please look at the example plugins in project `furnace-plugins`. At the moment, plugins are not receiving the
 environment for further manipulations; however, this will be remedied.
 
 A plugin is a standalone go project with main package, and a single entry point function called `RunPlugin`. If the plugin fails
