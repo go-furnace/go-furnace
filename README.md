@@ -203,6 +203,14 @@ docker run --name furnace -it -v `pwd`:/go/src/github.com/Skarlso/go-furnace gol
 
 Should any question arise, please don't hesitate to open an issue with the PreFix [Question].
 
+## Configuration Management
+
+Any kind of Configuration Management needs to be implemented by the application which is deployed.
+
+That means that changes are applied to the `appspec.yml` file and the structure of the application itself.
+
+For further examples checkout the AWS codedeploy example: [AwsLabs](https://github.com/awslabs/aws-codedeploy-samples).
+
 ## Testing
 
 Testing the project for development is simply by executing `make test`.
