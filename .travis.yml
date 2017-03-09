@@ -10,4 +10,4 @@ install: make get-deps
 
 script:
     - go list ./... | grep -v plugins | xargs -I {} go test {} -covermode=count -coverprofile=profile.cov
-    - $HOME/gopath/bin/goveralls goveralls -coverprofile=$TRAVIS_BUILD_DIR/profile.cov -service=travis-ci
+    - $HOME/gopath/bin/goveralls -coverprofile=profile.cov -service=travis-ci
