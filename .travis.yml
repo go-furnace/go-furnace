@@ -5,6 +5,7 @@ go:
 
 before_install:
     - go get github.com/mattn/goveralls
+    - mkdir -p $HOME/.config/go-furnace
 
 install: make get-deps
 
