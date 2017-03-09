@@ -1,6 +1,3 @@
 [submodule "furnace-codedeploy-app"]
 	path = furnace-codedeploy-app
 	url = https://github.com/Skarlso/furnace-codedeploy-app.git
-[submodule "furnace-plugins"]
-	path = furnace-plugins
-	url = https://github.com/Skarlso/furnace-plugins.git
