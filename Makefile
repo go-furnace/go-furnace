@@ -6,7 +6,7 @@ build:
 	go build -i -o ${BINARY}
 
 test:
-	go list ./... | grep -v plugins | xargs -I {} go test {}
+	go test ./...
 
 get-deps:
 	go get github.com/aws/aws-sdk-go
