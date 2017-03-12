@@ -27,7 +27,7 @@ are application into. How many server we would like to have? Load Balancing, and
 network with VPCs. CloudFormation brings all these elements together into a bundler project called a `Stack`.
 This stack can be created, updated, deleted and queried for various information.
 
-This is what `Furnace` aims ti abstract in order to provide a very easy interface to work with complex architecture.
+This is what `Furnace` aims to abstract in order to provide a very easy interface to work with complex architecture.
 
 ### CodeDeploy
 
