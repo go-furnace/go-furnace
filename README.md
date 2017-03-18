@@ -174,6 +174,12 @@ url provided by the load balancer.
 
 ![Success](./img/push_success.png)
 
+#### status
+
+The status command displays information about the stack.
+
+![Status1](./img/status1.png)![Status2](./img/status2.png)
+
 ## Plugins
 
 ### Experimental Plug-in System
