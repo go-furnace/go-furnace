@@ -178,7 +178,7 @@ url provided by the load balancer.
 
 The status command displays information about the stack.
 
-![Status1](./img/status1.png)![Status2](./img/status2.png)
+![Status1](./img/status1.png)
 
 ## Plugins
 
