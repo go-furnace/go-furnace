@@ -66,8 +66,14 @@ func printStackResources(resources []ResourceStatus) {
 }
 
 func (r ResourceStatus) String() string {
+	var red = color.New(color.FgRed).SprintFunc()
+	var yellow = color.New(color.FgYellow).SprintFunc()
 	ret := ""
-	ret += fmt.Sprintf("|Name:          %s|\n|Id:            %s|\n|Status:        %s|\n|Type:          %s|\n", r.LogicalId, r.PhysicalId, r.Status, r.Type)
+	ret += fmt.Sprintf("|Name:          %s|\n|Id:            %s|\n|Status:        %s|\n|Type:          %s|\n",
+		red(r.LogicalId),
+		yellow(r.PhysicalId),
+		yellow(r.Status),
+		yellow(r.Type))
 	ret += "-------------------\n"
 	return ret
 }
