@@ -1,4 +1,10 @@
 # ROADMAP
+
+## v1.1.0-beta
+
+- `update` command which updates the stack with new information
+- `rollout` command which rotates an outdated instance out of the cloudformation stack and adds a new one
+
 ## v1.0.0-beta
 
 - Implement configuration management support for chef, puppet, ansible.
