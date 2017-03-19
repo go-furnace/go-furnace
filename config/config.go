@@ -10,8 +10,6 @@ import (
 	"strconv"
 
 	"strings"
-
-	"github.com/aws/aws-sdk-go/service/cloudformation/cloudformationiface"
 )
 
 const (
@@ -50,11 +48,6 @@ type Plugin struct {
 
 // PluginRegistry is a registry of plugins for certain events
 var PluginRegistry map[string][]Plugin
-
-// CFClient abstraction for cloudFormation client.
-type CFClient struct {
-	Client cloudformationiface.CloudFormationAPI
-}
 
 // Path retrieves the main configuration path.
 func Path() string {
