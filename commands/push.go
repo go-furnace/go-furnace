@@ -220,7 +220,7 @@ func NewPush(appName string) *commander.CommandWrapper {
 			ShortDescription: "Push to stack",
 			LongDescription:  `Push a version of the application to a stack`,
 			Arguments:        "appName [-s3]",
-			Examples:         []string{"push", "push appName", "push appName -s3", "push -s3", "push appName"},
+			Examples:         []string{"", "appName", "appName -s3", "-s3", "appName"},
 		},
 	}
 }

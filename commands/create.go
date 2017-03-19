@@ -135,7 +135,7 @@ func NewCreate(appName string) *commander.CommandWrapper {
 			ShortDescription: "Create a stack",
 			LongDescription:  `Create a stack on which to deploy code later on. By default FurnaceStack is used as name.`,
 			Arguments:        "",
-			Examples:         []string{"create"},
+			Examples:         []string{""},
 		},
 	}
 }

@@ -59,7 +59,7 @@ func NewDelete(appName string) *commander.CommandWrapper {
 			ShortDescription: "Delete a stack",
 			LongDescription:  `Delete a stack with a given name.`,
 			Arguments:        "",
-			Examples:         []string{"delete"},
+			Examples:         []string{""},
 		},
 	}
 }

@@ -87,7 +87,7 @@ func NewStatus(appName string) *commander.CommandWrapper {
 			ShortDescription: "Status of a stack.",
 			LongDescription:  `Get detailed status of the stack.`,
 			Arguments:        "",
-			Examples:         []string{"status"},
+			Examples:         []string{""},
 		},
 	}
 }
