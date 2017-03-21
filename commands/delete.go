@@ -18,18 +18,21 @@ type Delete struct {
 
 // Execute defines what this command does.
 func (c *Delete) Execute(opts *commander.CommandHelper) {
-
-	stackname := config.STACKNAME
-	cyan := color.New(color.FgCyan).SprintFunc()
-	log.Printf("Deleting CloudFormation stack with name: %s\n", cyan(stackname))
 	sess := session.New(&aws.Config{Region: aws.String(config.REGION)})
 	cfClient := cloudformation.New(sess, nil)
 	client := CFClient{cfClient}
+	deleteExecute(opts, &client)
+}
+
+func deleteExecute(opts *commander.CommandHelper, client *CFClient) {
+	stackname := config.STACKNAME
+	cyan := color.New(color.FgCyan).SprintFunc()
+	log.Printf("Deleting CloudFormation stack with name: %s\n", cyan(stackname))
 	for _, p := range config.PluginRegistry["pre_delete"] {
 		log.Println("Running plugin: ", p.Name)
 		p.Run.(func())()
 	}
-	deleteStack(stackname, &client)
+	deleteStack(stackname, client)
 	for _, p := range config.PluginRegistry["post_delete"] {
 		log.Println("Running plugin: ", p.Name)
 		p.Run.(func())()

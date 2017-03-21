@@ -22,23 +22,27 @@ type Create struct {
 
 // Execute defines what this command does.
 func (c *Create) Execute(opts *commander.CommandHelper) {
-	stackname := config.STACKNAME
-	template := config.LoadCFStackConfig()
 	log.Println("Creating cloud formation session.")
 	sess := session.New(&aws.Config{Region: aws.String(config.REGION)})
 	cfClient := cloudformation.New(sess, nil)
 	client := CFClient{cfClient}
+	createExecute(opts, &client)
+}
+
+func createExecute(opts *commander.CommandHelper, client *CFClient) {
+	stackname := config.STACKNAME
+	template := config.LoadCFStackConfig()
 	for _, p := range config.PluginRegistry["pre_create"] {
 		log.Println("Running plugin: ", p.Name)
 		p.Run.(func())()
 	}
-	stacks := create(stackname, template, &client)
+	stacks := create(stackname, template, client)
 	for _, p := range config.PluginRegistry["post_create"] {
 		log.Println("Running plugin: ", p.Name)
 		p.Run.(func())()
 	}
 	var red = color.New(color.FgRed).SprintFunc()
-	if len(stacks) > 0 {
+	if stacks != nil {
 		log.Println("Stack state is: ", red(*stacks[0].StackStatus))
 	} else {
 		log.Fatalln("No stacks found with name: ", keyName(stackname))

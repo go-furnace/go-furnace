@@ -26,6 +26,9 @@ type IAMClient struct {
 // NotEmptyStack test structs which defines a non-empty stack.
 var NotEmptyStack = &cloudformation.DescribeStacksOutput{
 	Stacks: []*cloudformation.Stack{
-		{StackName: aws.String("TestStack")},
+		{
+			StackName:   aws.String("TestStack"),
+			StackStatus: aws.String("CREATE_COMPLETE"),
+		},
 	},
 }

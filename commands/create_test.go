@@ -9,6 +9,7 @@ import (
 	"reflect"
 
 	"github.com/Skarlso/go-furnace/config"
+	commander "github.com/Yitsushi/go-commander"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
 	"github.com/aws/aws-sdk-go/service/cloudformation/cloudformationiface"
@@ -40,6 +41,15 @@ func (fc *fakeCreateCFClient) DescribeStacks(input *cloudformation.DescribeStack
 		return NotEmptyStack, fc.err
 	}
 	return &cloudformation.DescribeStacksOutput{}, fc.err
+}
+
+func TestCreateExecute(t *testing.T) {
+	config.WAITFREQUENCY = 0
+	client := new(CFClient)
+	stackname := "NotEmptyStack"
+	client.Client = &fakeCreateCFClient{err: nil, stackname: stackname}
+	opts := &commander.CommandHelper{}
+	createExecute(opts, client)
 }
 
 func TestCreateProcedure(t *testing.T) {

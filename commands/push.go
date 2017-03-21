@@ -29,27 +29,30 @@ var gitAccount string
 
 // Execute defines what this command does.
 func (c *Push) Execute(opts *commander.CommandHelper) {
+	sess := session.New(&aws.Config{Region: aws.String(config.REGION)})
+	cd := codedeploy.New(sess, nil)
+	cdClient := CDClient{cd}
+	cf := cloudformation.New(sess, nil)
+	cfClient := CFClient{cf}
+	iam := iam.New(sess, nil)
+	iamClient := IAMClient{iam}
+	pushExecute(opts, &cfClient, &cdClient, &iamClient)
+}
+
+func pushExecute(opts *commander.CommandHelper, cfClient *CFClient, cdClient *CDClient, iamClient *IAMClient) {
 	appName := opts.Arg(1)
 	if len(appName) < 1 {
 		appName = config.STACKNAME
 	}
-	sess := session.New(&aws.Config{Region: aws.String(config.REGION)})
-	cdClient := codedeploy.New(sess, nil)
-	client := CDClient{cdClient}
-	cf := cloudformation.New(sess, nil)
-	cfClient := CFClient{cf}
 	s3Deploy = opts.Flags["s3"]
 	determineDeployment()
-
-	iam := iam.New(sess, nil)
-	iamClient := IAMClient{iam}
-	asgName := getAutoScalingGroupKey(&cfClient)
-	role := getCodeDeployRoleARN(config.CODEDEPLOYROLE, &iamClient)
-	err := createApplication(appName, &client)
+	asgName := getAutoScalingGroupKey(cfClient)
+	role := getCodeDeployRoleARN(config.CODEDEPLOYROLE, iamClient)
+	err := createApplication(appName, cdClient)
 	utils.CheckError(err)
-	err = createDeploymentGroup(appName, role, asgName, &client)
+	err = createDeploymentGroup(appName, role, asgName, cdClient)
 	utils.CheckError(err)
-	push(appName, asgName, &client)
+	push(appName, asgName, cdClient)
 }
 
 func determineDeployment() {
