@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/Skarlso/go-furnace/config"
+	commander "github.com/Yitsushi/go-commander"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
@@ -104,6 +105,17 @@ func TestDetermineDeploymentGit(t *testing.T) {
 	if gitRevision != "testrevision" {
 		t.Fatalf("git revision was not equal to testrevision. Was: %s\n", gitRevision)
 	}
+}
+
+func TestPushExecute(t *testing.T) {
+	iamClient := new(IAMClient)
+	iamClient.Client = &fakePushIAMClient{err: nil}
+	cdClient := new(CDClient)
+	cdClient.Client = &fakePushCDClient{err: nil, awsErr: nil}
+	cfClient := new(CFClient)
+	cfClient.Client = &fakePushCFClient{err: nil}
+	opts := &commander.CommandHelper{}
+	pushExecute(opts, cfClient, cdClient, iamClient)
 }
 
 func TestDetermineDeploymentS3(t *testing.T) {
