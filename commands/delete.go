@@ -28,12 +28,12 @@ func deleteExecute(opts *commander.CommandHelper, client *CFClient) {
 	stackname := config.STACKNAME
 	cyan := color.New(color.FgCyan).SprintFunc()
 	log.Printf("Deleting CloudFormation stack with name: %s\n", cyan(stackname))
-	for _, p := range config.PluginRegistry["pre_delete"] {
+	for _, p := range config.PluginRegistry[config.PREDELETE] {
 		log.Println("Running plugin: ", p.Name)
 		p.Run.(func())()
 	}
 	deleteStack(stackname, client)
-	for _, p := range config.PluginRegistry["post_delete"] {
+	for _, p := range config.PluginRegistry[config.POSTDELETE] {
 		log.Println("Running plugin: ", p.Name)
 		p.Run.(func())()
 	}

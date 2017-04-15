@@ -208,6 +208,33 @@ docker run --name furnace -it -v `pwd`:/go/src/github.com/Skarlso/go-furnace gol
 
 Should any question arise, please don't hesitate to open an issue with the PreFix [Question].
 
+### Slack Plugin
+
+An example for a notification plugin after a stack has been created could look something like this:
+
+```go
+package main
+
+import (
+	"fmt"
+	"os"
+
+	"github.com/nlopes/slack"
+)
+
+func RunPlugin() {
+	stackname := os.Getenv("FURNACE_STACKNAME")
+	api := slack.New("YOUR_TOKEN_HERE")
+	params := slack.PostMessageParameters{}
+	channelID, timestamp, err := api.PostMessage("#general", fmt.Sprintf("Stack with name '%s' is Done.", stackname), params)
+	if err != nil {
+		fmt.Printf("%s\n", err)
+		return
+	}
+	fmt.Printf("Message successfully sent to channel %s at %s", channelID, timestamp)
+}
+```
+
 ## Configuration Management
 
 Any kind of Configuration Management needs to be implemented by the application which is deployed.

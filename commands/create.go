@@ -32,12 +32,12 @@ func (c *Create) Execute(opts *commander.CommandHelper) {
 func createExecute(opts *commander.CommandHelper, client *CFClient) {
 	stackname := config.STACKNAME
 	template := config.LoadCFStackConfig()
-	for _, p := range config.PluginRegistry["pre_create"] {
+	for _, p := range config.PluginRegistry[config.PRECREATE] {
 		log.Println("Running plugin: ", p.Name)
 		p.Run.(func())()
 	}
 	stacks := create(stackname, template, client)
-	for _, p := range config.PluginRegistry["post_create"] {
+	for _, p := range config.PluginRegistry[config.POSTCREATE] {
 		log.Println("Running plugin: ", p.Name)
 		p.Run.(func())()
 	}

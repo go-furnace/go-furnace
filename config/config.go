@@ -14,13 +14,13 @@ import (
 
 const (
 	// PRECREATE Event name for plugins
-	PRECREATE = "pre-create"
+	PRECREATE = "pre_create"
 	// POSTCREATE Event name for plugins
-	POSTCREATE = "post-create"
+	POSTCREATE = "post_create"
 	// PREDELETE Event name for plugins
-	PREDELETE = "pre-delete"
+	PREDELETE = "pre_delete"
 	// POSTDELETE Event name for plugins
-	POSTDELETE = "post-delete"
+	POSTDELETE = "post_delete"
 )
 
 // CODEDEPLOYROLE is the default name of the codedeploy role.
