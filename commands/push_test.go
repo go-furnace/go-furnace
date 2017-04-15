@@ -1,12 +1,14 @@
 package commands
 
 import (
+	"errors"
 	"log"
 	"os"
 	"reflect"
 	"testing"
 
 	"github.com/Skarlso/go-furnace/config"
+	"github.com/Skarlso/go-furnace/utils"
 	commander "github.com/Yitsushi/go-commander"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -32,6 +34,10 @@ type fakePushCDClient struct {
 	codedeployiface.CodeDeployAPI
 	err    error
 	awsErr awserr.Error
+}
+
+func init() {
+	utils.LogFatalf = log.Fatalf
 }
 
 func (fiam *fakePushIAMClient) GetRole(*iam.GetRoleInput) (*iam.GetRoleOutput, error) {
@@ -98,6 +104,7 @@ func TestDetermineDeploymentGit(t *testing.T) {
 	s3Deploy = false
 	os.Setenv("FURNACE_GIT_ACCOUNT", "test/account")
 	os.Setenv("FURNACE_GIT_REVISION", "testrevision")
+	defer os.Clearenv()
 	determineDeployment()
 	if gitAccount != "test/account" {
 		t.Fatalf("git account was not equal to test/account. Was: %s\n", gitAccount)
@@ -122,12 +129,93 @@ func TestDetermineDeploymentS3(t *testing.T) {
 	s3Deploy = true
 	os.Setenv("FURNACE_S3BUCKET", "testBucket")
 	os.Setenv("FURNACE_S3KEY", "testKey")
+	defer os.Clearenv()
 	determineDeployment()
 	if s3Key != "testKey" {
 		t.Fatalf("s3 key was not set. Was: %s\n", s3Key)
 	}
 	if codeDeployBucket != "testBucket" {
 		t.Fatalf("s3 bucket was not set. Was: %s\n", codeDeployBucket)
+	}
+}
+
+func TestDetermineDeploymentFailS3BucketNotSet(t *testing.T) {
+	failed := false
+	expectedMessage := "Please define FURNACE_S3BUCKET for the bucket to use."
+	var message string
+	utils.LogFatalf = func(s string, a ...interface{}) {
+		failed = true
+		message = s
+	}
+	s3Deploy = true
+	os.Setenv("FURNACE_S3KEY", "testKey")
+	defer os.Clearenv()
+	determineDeployment()
+	if !failed {
+		t.Error("should have failed execution")
+	}
+	if message != expectedMessage {
+		t.Errorf("expected message %s did not equal actual %s", expectedMessage, message)
+	}
+}
+
+func TestDetermineDeploymentFailS3KeyNotSet(t *testing.T) {
+	failed := false
+	expectedMessage := "Please define FURNACE_S3KEY for the application to deploy."
+	var message string
+	utils.LogFatalf = func(s string, a ...interface{}) {
+		failed = true
+		message = s
+	}
+	s3Deploy = true
+	os.Setenv("FURNACE_S3BUCKET", "testBucket")
+	defer os.Clearenv()
+	determineDeployment()
+	if !failed {
+		t.Error("should have failed execution")
+	}
+	if message != expectedMessage {
+		t.Errorf("expected message %s did not equal actual %s", expectedMessage, message)
+	}
+}
+
+func TestDetermineDeploymentFailGitAccountNotSet(t *testing.T) {
+	s3Deploy = false
+	failed := false
+	expectedMessage := "Please define a git account and project to deploy from in the form of: account/project under FURNACE_GIT_ACCOUNT."
+	var message string
+	utils.LogFatalf = func(s string, a ...interface{}) {
+		failed = true
+		message = s
+	}
+	os.Setenv("FURNACE_GIT_REVISION", "testrevision")
+	defer os.Clearenv()
+	determineDeployment()
+	if !failed {
+		t.Error("should have failed execution")
+	}
+	if message != expectedMessage {
+		t.Errorf("expected message %s did not equal actual %s", expectedMessage, message)
+	}
+}
+
+func TestDetermineDeploymentFailGitRevisionNotSet(t *testing.T) {
+	s3Deploy = false
+	failed := false
+	expectedMessage := "Please define the git commit hash to use for deploying under FURNACE_GIT_REVISION."
+	var message string
+	utils.LogFatalf = func(s string, a ...interface{}) {
+		failed = true
+		message = s
+	}
+	os.Setenv("FURNACE_GIT_ACCOUNT", "test/account")
+	defer os.Clearenv()
+	determineDeployment()
+	if !failed {
+		t.Error("should have failed execution")
+	}
+	if message != expectedMessage {
+		t.Errorf("expected message %s did not equal actual %s", expectedMessage, message)
 	}
 }
 
@@ -152,6 +240,15 @@ func TestCreateDeploymentGroupAlreadyExists(t *testing.T) {
 func TestCreateDeploymentGroupFailsOnDifferentError(t *testing.T) {
 	client := new(CDClient)
 	client.Client = &fakePushCDClient{err: nil, awsErr: awserr.New(codedeploy.ErrCodeDeploymentGroupNameRequiredException, "Different error", nil)}
+	err := createDeploymentGroup("dummyApp", "dummyRole", "dummyAsg", client)
+	if err == nil {
+		t.Fatal("error was not nil: ", err)
+	}
+}
+
+func TestCreateDeploymentGroupFailsOnNonAWSError(t *testing.T) {
+	client := new(CDClient)
+	client.Client = &fakePushCDClient{err: errors.New("non aws error"), awsErr: nil}
 	err := createDeploymentGroup("dummyApp", "dummyRole", "dummyAsg", client)
 	if err == nil {
 		t.Fatal("error was not nil: ", err)
@@ -185,10 +282,19 @@ func TestCreateApplicationFailsOnDifferentError(t *testing.T) {
 	}
 }
 
+func TestCreateApplicationFailsOnNonAWSError(t *testing.T) {
+	client := new(CDClient)
+	client.Client = &fakePushCDClient{err: errors.New("non aws error"), awsErr: nil}
+	err := createApplication("dummyApp", client)
+	if err == nil {
+		t.Fatal("error was not nil: ", err)
+	}
+}
+
 func TestRevisionLocationS3(t *testing.T) {
 	s3Deploy = true
-	os.Setenv("FURNACE_S3BUCKET", "testBucket")
-	os.Setenv("FURNACE_S3KEY", "testKey")
+	codeDeployBucket = "testBucket"
+	s3Key = "testKey"
 	expected := &codedeploy.RevisionLocation{
 		S3Location: &codedeploy.S3Location{
 			Bucket:     aws.String("testBucket"),
@@ -208,6 +314,7 @@ func TestRevisionLocationGit(t *testing.T) {
 	s3Deploy = false
 	os.Setenv("FURNACE_S3BUCKET", "testBucket")
 	os.Setenv("FURNACE_S3KEY", "testKey")
+	defer os.Clearenv()
 	expected := &codedeploy.RevisionLocation{
 		GitHubLocation: &codedeploy.GitHubLocation{
 			CommitId:   aws.String(gitRevision),

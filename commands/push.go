@@ -59,21 +59,21 @@ func determineDeployment() {
 	if s3Deploy {
 		codeDeployBucket = os.Getenv("FURNACE_S3BUCKET")
 		if len(codeDeployBucket) < 1 {
-			log.Fatal("Please define FURNACE_S3BUCKET for the bucket to use.")
+			utils.HandleFatal("Please define FURNACE_S3BUCKET for the bucket to use.", nil)
 		}
 		s3Key = os.Getenv("FURNACE_S3KEY")
 		if len(s3Key) < 1 {
-			log.Fatal("Please define FURNACE_S3KEY for the application to deploy.")
+			utils.HandleFatal("Please define FURNACE_S3KEY for the application to deploy.", nil)
 		}
 		log.Println("S3 deployment will be used from bucket: ", codeDeployBucket)
 	} else {
 		gitAccount = os.Getenv("FURNACE_GIT_ACCOUNT")
 		gitRevision = os.Getenv("FURNACE_GIT_REVISION")
 		if len(gitAccount) < 1 {
-			log.Fatal("Please define a git account and project to deploy from in the form of: account/project under FURNACE_GIT_ACCOUNT.")
+			utils.HandleFatal("Please define a git account and project to deploy from in the form of: account/project under FURNACE_GIT_ACCOUNT.", nil)
 		}
 		if len(gitRevision) < 1 {
-			log.Fatal("Please define the git commit hash to use for deploying under FURNACE_GIT_REVISION.")
+			utils.HandleFatal("Please define the git commit hash to use for deploying under FURNACE_GIT_REVISION.", nil)
 		}
 		log.Println("GitHub deployment will be used from account: ", gitAccount)
 	}

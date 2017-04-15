@@ -10,6 +10,8 @@ import (
 
 	"errors"
 
+	"log"
+
 	"github.com/Skarlso/go-furnace/config"
 	"github.com/Skarlso/go-furnace/utils"
 	commander "github.com/Yitsushi/go-commander"
@@ -24,26 +26,33 @@ type fakeCreateCFClient struct {
 	err       error
 }
 
+func init() {
+	utils.LogFatalf = log.Fatalf
+}
+
 func (fc *fakeCreateCFClient) ValidateTemplate(input *cloudformation.ValidateTemplateInput) (*cloudformation.ValidateTemplateOutput, error) {
-	return &cloudformation.ValidateTemplateOutput{}, fc.err
+	if fc.stackname == "ValidationError" {
+		return &cloudformation.ValidateTemplateOutput{}, fc.err
+	}
+	return &cloudformation.ValidateTemplateOutput{}, nil
 }
 
 func (fc *fakeCreateCFClient) CreateStack(input *cloudformation.CreateStackInput) (*cloudformation.CreateStackOutput, error) {
 	if fc.stackname == "NotEmptyStack" {
 		return &cloudformation.CreateStackOutput{StackId: aws.String("DummyID")}, fc.err
 	}
-	return &cloudformation.CreateStackOutput{}, fc.err
+	return &cloudformation.CreateStackOutput{}, nil
 }
 
 func (fc *fakeCreateCFClient) WaitUntilStackCreateComplete(input *cloudformation.DescribeStacksInput) error {
-	return fc.err
+	return nil
 }
 
 func (fc *fakeCreateCFClient) DescribeStacks(input *cloudformation.DescribeStacksInput) (*cloudformation.DescribeStacksOutput, error) {
-	if fc.stackname == "NotEmptyStack" {
+	if fc.stackname == "NotEmptyStack" || fc.stackname == "DescribeStackFailed" {
 		return NotEmptyStack, fc.err
 	}
-	return &cloudformation.DescribeStacksOutput{}, fc.err
+	return &cloudformation.DescribeStacksOutput{}, nil
 }
 
 func TestCreateExecute(t *testing.T) {
@@ -88,17 +97,70 @@ func TestCreateProcedure(t *testing.T) {
 
 func TestCreateStackReturnsWithError(t *testing.T) {
 	failed := false
+	expectedMessage := "failed to create stack"
+	var message string
 	utils.LogFatalf = func(s string, a ...interface{}) {
 		failed = true
+		message = a[0].(error).Error()
 	}
 	config.WAITFREQUENCY = 0
 	client := new(CFClient)
 	stackname := "NotEmptyStack"
-	client.Client = &fakeCreateCFClient{err: errors.New("failed to create stack"), stackname: stackname}
+	client.Client = &fakeCreateCFClient{err: errors.New(expectedMessage), stackname: stackname}
 	config := []byte("{}")
 	create(stackname, config, client)
 	if !failed {
 		t.Error("Expected outcome to fail. Did not fail.")
+	}
+	if message != expectedMessage {
+		t.Errorf("message did not equal expected message of '%s', was:%s", expectedMessage, message)
+	}
+}
+
+func TestDescribeStackReturnsWithError(t *testing.T) {
+	failed := false
+	var message string
+	utils.LogFatalf = func(s string, a ...interface{}) {
+		failed = true
+		if err, ok := a[0].(error); ok {
+			message = err.Error()
+		}
+	}
+	config.WAITFREQUENCY = 0
+	client := new(CFClient)
+	stackname := "DescribeStackFailed"
+	client.Client = &fakeCreateCFClient{err: errors.New("failed describe stack"), stackname: stackname}
+	config := []byte("{}")
+	create(stackname, config, client)
+	if !failed {
+		t.Error("Expected outcome to fail. Did not fail.")
+	}
+	if message != "failed describe stack" {
+		t.Error("message did not equal expected message of 'failed describe stack', was:", message)
+	}
+}
+
+func TestValidateReturnsWithError(t *testing.T) {
+	failed := false
+	expectedMessage := "validation error occurred"
+	var message string
+	utils.LogFatalf = func(s string, a ...interface{}) {
+		failed = true
+		if err, ok := a[0].(error); ok {
+			message = err.Error()
+		}
+	}
+	config.WAITFREQUENCY = 0
+	client := new(CFClient)
+	stackname := "ValidationError"
+	client.Client = &fakeCreateCFClient{err: errors.New(expectedMessage), stackname: stackname}
+	config := []byte("{}")
+	create(stackname, config, client)
+	if !failed {
+		t.Error("Expected outcome to fail. Did not fail.")
+	}
+	if message != expectedMessage {
+		t.Errorf("message did not equal expected message of '%s', was:%s", expectedMessage, message)
 	}
 }
 
