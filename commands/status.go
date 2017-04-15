@@ -17,11 +17,16 @@ import (
 type Status struct {
 }
 
+// ResourceStatus defines a resource.
 type ResourceStatus struct {
-	Status     string
-	PhysicalId string
-	LogicalId  string
-	Type       string
+	// Status is the status of the resource
+	Status string
+	// PhysicalId of the resource
+	PhysicalID string
+	// LogicalId of the resource
+	LogicalID string
+	// Type of the resource
+	Type string
 }
 
 // Execute defines what this command does.
@@ -49,7 +54,7 @@ func stackResources(stackname string, cfClient *CFClient) []ResourceStatus {
 	descResp, err := cfClient.Client.DescribeStackResources(&cloudformation.DescribeStackResourcesInput{StackName: aws.String(stackname)})
 	utils.CheckError(err)
 	for _, r := range descResp.StackResources {
-		res := ResourceStatus{Status: *r.ResourceStatus, PhysicalId: *r.PhysicalResourceId, LogicalId: *r.LogicalResourceId, Type: *r.ResourceType}
+		res := ResourceStatus{Status: *r.ResourceStatus, PhysicalID: *r.PhysicalResourceId, LogicalID: *r.LogicalResourceId, Type: *r.ResourceType}
 		resources = append(resources, res)
 	}
 	fmt.Println()
@@ -70,8 +75,8 @@ func (r ResourceStatus) String() string {
 	var yellow = color.New(color.FgYellow).SprintFunc()
 	ret := ""
 	ret += fmt.Sprintf("|Name:          %s|\n|Id:            %s|\n|Status:        %s|\n|Type:          %s|\n",
-		red(r.LogicalId),
-		yellow(r.PhysicalId),
+		red(r.LogicalID),
+		yellow(r.PhysicalID),
 		yellow(r.Status),
 		yellow(r.Type))
 	ret += "-------------------\n"
