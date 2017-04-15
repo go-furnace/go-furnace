@@ -8,7 +8,10 @@ import (
 
 	"reflect"
 
+	"errors"
+
 	"github.com/Skarlso/go-furnace/config"
+	"github.com/Skarlso/go-furnace/utils"
 	commander "github.com/Yitsushi/go-commander"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
@@ -52,6 +55,22 @@ func TestCreateExecute(t *testing.T) {
 	createExecute(opts, client)
 }
 
+func TestCreateExecuteEmptyStack(t *testing.T) {
+	failed := false
+	utils.LogFatalf = func(s string, a ...interface{}) {
+		failed = true
+	}
+	config.WAITFREQUENCY = 0
+	client := new(CFClient)
+	stackname := "EmptyStack"
+	client.Client = &fakeCreateCFClient{err: nil, stackname: stackname}
+	opts := &commander.CommandHelper{}
+	createExecute(opts, client)
+	if !failed {
+		t.Error("Expected outcome to fail. Did not fail.")
+	}
+}
+
 func TestCreateProcedure(t *testing.T) {
 	config.WAITFREQUENCY = 0
 	client := new(CFClient)
@@ -64,6 +83,22 @@ func TestCreateProcedure(t *testing.T) {
 	}
 	if *stacks[0].StackName != "TestStack" {
 		t.Fatal("Not the correct stack returned. Returned was:", stacks)
+	}
+}
+
+func TestCreateStackReturnsWithError(t *testing.T) {
+	failed := false
+	utils.LogFatalf = func(s string, a ...interface{}) {
+		failed = true
+	}
+	config.WAITFREQUENCY = 0
+	client := new(CFClient)
+	stackname := "NotEmptyStack"
+	client.Client = &fakeCreateCFClient{err: errors.New("failed to create stack"), stackname: stackname}
+	config := []byte("{}")
+	create(stackname, config, client)
+	if !failed {
+		t.Error("Expected outcome to fail. Did not fail.")
 	}
 }
 

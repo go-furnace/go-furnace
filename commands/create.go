@@ -45,7 +45,7 @@ func createExecute(opts *commander.CommandHelper, client *CFClient) {
 	if stacks != nil {
 		log.Println("Stack state is: ", red(*stacks[0].StackStatus))
 	} else {
-		log.Fatalln("No stacks found with name: ", keyName(stackname))
+		utils.HandleFatal(fmt.Sprintf("No stacks found with name: %s", keyName(stackname)), nil)
 	}
 }
 
