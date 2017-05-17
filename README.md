@@ -51,9 +51,9 @@ Go also provides a single binary which is easy to put on the execution path and 
 
 Go has ample libraries which come to aid with AWS and their own Go SDK is pretty mature and stable.
 
-## Usage
+## Usage
 
-### Make
+### Make
 
 This project is using a `Makefile` for it's build processes. The following commands will create a binary and
 run all tests:
@@ -247,7 +247,7 @@ For further examples checkout the AWS codedeploy example: [AwsLabs](https://gith
 
 Testing the project for development is simply by executing `make test`.
 
-## Contributions
+## Contributions
 
 Contributions are very welcomed, ideas, questions, remarks, please don't hesitate to submit a ticket. On what to do,
 please take a look at the ROADMAP.md file.
