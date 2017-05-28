@@ -15,7 +15,7 @@ The application to be deployed is handled via GitHub, or S3.
 
 A sample application is provider under the `furnace-codedeploy-app` folder.
 
-## AWS
+## AWS
 
 ### CloudFormation
 
@@ -43,7 +43,7 @@ the `Stack` manages.
 Don't forget to install the CodeDeploy agent to your instances for the CodeDeploy to work. For this, see an example in the
 provided template.
 
-## Go
+## Go
 
 The decision to use [Go](https://golang.org/) for this project came very easy considering the many benefits Go provides when
 handling APIs and async requests. Downloading massive files from S3 in threads, or starting many services at once is a breeze.
