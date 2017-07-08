@@ -29,5 +29,6 @@ func main() {
 	registry.Register(commands.NewStatus)
 	registry.Register(commands.NewPush)
 	registry.Register(commands.NewDeleteApp)
+	registry.Register(commands.NewUpdate)
 	registry.Execute()
 }
