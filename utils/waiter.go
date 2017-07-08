@@ -18,7 +18,7 @@ func WaitForFunctionWithStatusOutput(state string, freq int, f func()) {
 	wg.Add(1)
 	done := make(chan bool)
 	timeout := make(chan bool, 1)
-	out := time.Duration(1) * time.Second
+	out := time.Duration(240) * time.Second
 	start := time.Now()
 	end := start.Add(out)
 	go func(e time.Time) {
