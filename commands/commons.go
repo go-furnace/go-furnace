@@ -7,7 +7,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/Skarlso/go-furnace/config"
 	"github.com/Skarlso/go-furnace/utils"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
@@ -38,15 +37,6 @@ func readInputFrom(source *os.File) string {
 	reader := bufio.NewReader(source)
 	text, _ := reader.ReadString('\n')
 	return text
-}
-
-func (cf *CFClient) waitForStackStatus(stackname string, status string) {
-	describeStackInput := &cloudformation.DescribeStacksInput{
-		StackName: aws.String(stackname),
-	}
-	utils.WaitForFunctionWithStatusOutput(status, config.WAITFREQUENCY, func() {
-		cf.Client.WaitUntilStackCreateComplete(describeStackInput)
-	})
 }
 
 func (cf *CFClient) describeStacks(descStackInput *cloudformation.DescribeStacksInput) *cloudformation.DescribeStacksOutput {

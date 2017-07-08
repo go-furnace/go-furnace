@@ -64,10 +64,19 @@ func create(stackname string, template []byte, cfClient *CFClient) []*cloudforma
 	}
 	resp := cfClient.createStack(stackInputParams)
 	log.Println("Create stack response: ", resp.GoString())
-	cfClient.waitForStackStatus(stackname, "CREATE_COMPLETE")
+	cfClient.waitForStackCreateCompleteStatus(stackname)
 	descResp := cfClient.describeStacks(&cloudformation.DescribeStacksInput{StackName: aws.String(stackname)})
 	fmt.Println()
 	return descResp.Stacks
+}
+
+func (cf *CFClient) waitForStackCreateCompleteStatus(stackname string) {
+	describeStackInput := &cloudformation.DescribeStacksInput{
+		StackName: aws.String(stackname),
+	}
+	utils.WaitForFunctionWithStatusOutput("CREATE_COMPLETE", config.WAITFREQUENCY, func() {
+		cf.Client.WaitUntilStackCreateComplete(describeStackInput)
+	})
 }
 
 func (cf *CFClient) createStack(stackInputParams *cloudformation.CreateStackInput) *cloudformation.CreateStackOutput {
