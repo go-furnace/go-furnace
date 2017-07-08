@@ -17,17 +17,6 @@ func WaitForFunctionWithStatusOutput(state string, freq int, f func()) {
 	var wg sync.WaitGroup
 	wg.Add(1)
 	done := make(chan bool)
-	timeout := make(chan bool, 1)
-	out := time.Duration(240) * time.Second
-	start := time.Now()
-	end := start.Add(out)
-	go func(e time.Time) {
-		current := time.Now()
-		for !current.After(e) {
-			current = time.Now()
-		}
-		timeout <- true
-	}(end)
 	go func() {
 		defer wg.Done()
 		f()
@@ -43,13 +32,10 @@ func WaitForFunctionWithStatusOutput(state string, freq int, f func()) {
 			case <-done:
 				fmt.Println()
 				break
-			case <-timeout:
-				fmt.Println("\nTimeout occurred while waiting for state: ", red(state))
-				wg.Done()
-				break
 			default:
 			}
 		}
 	}()
+
 	wg.Wait()
 }
