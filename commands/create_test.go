@@ -250,3 +250,45 @@ func TestNewCreate(t *testing.T) {
 		t.Fatal("wrapper did not match with given params")
 	}
 }
+
+func TestPreCreatePlugins(t *testing.T) {
+	ran := false
+	runner := func() {
+		ran = true
+	}
+	plugins := config.Plugin{
+		Name: "testPlugin",
+		Run:  runner,
+	}
+	config.PluginRegistry[config.PRECREATE] = []config.Plugin{plugins}
+	config.WAITFREQUENCY = 0
+	client := new(CFClient)
+	stackname := "NotEmptyStack"
+	client.Client = &fakeCreateCFClient{err: nil, stackname: stackname}
+	opts := &commander.CommandHelper{}
+	createExecute(opts, client)
+	if !ran {
+		t.Fatal("Precreate plugin was not executed.")
+	}
+}
+
+func TestPostCreatePlugins(t *testing.T) {
+	ran := false
+	runner := func() {
+		ran = true
+	}
+	plugins := config.Plugin{
+		Name: "testPlugin",
+		Run:  runner,
+	}
+	config.PluginRegistry[config.POSTCREATE] = []config.Plugin{plugins}
+	config.WAITFREQUENCY = 0
+	client := new(CFClient)
+	stackname := "NotEmptyStack"
+	client.Client = &fakeCreateCFClient{err: nil, stackname: stackname}
+	opts := &commander.CommandHelper{}
+	createExecute(opts, client)
+	if !ran {
+		t.Fatal("Postcreate plugin was not executed.")
+	}
+}
