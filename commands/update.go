@@ -30,15 +30,7 @@ func (c *Update) Execute(opts *commander.CommandHelper) {
 func updateExecute(opts *commander.CommandHelper, client *CFClient) {
 	stackname := config.STACKNAME
 	template := config.LoadCFStackConfig()
-	for _, p := range config.PluginRegistry[config.PRECREATE] {
-		log.Println("Running plugin: ", p.Name)
-		p.Run.(func())()
-	}
 	stacks := update(stackname, template, client)
-	for _, p := range config.PluginRegistry[config.POSTCREATE] {
-		log.Println("Running plugin: ", p.Name)
-		p.Run.(func())()
-	}
 	var red = color.New(color.FgRed).SprintFunc()
 	if stacks != nil {
 		log.Println("Stack state is: ", red(*stacks[0].StackStatus))

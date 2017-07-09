@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"reflect"
 	"testing"
 
 	"errors"
@@ -109,5 +110,18 @@ func TestUpdateStackReturnsWithError(t *testing.T) {
 	}
 	if message != expectedMessage {
 		t.Errorf("message did not equal expected message of '%s', was:%s", expectedMessage, message)
+	}
+}
+
+func TestUpdateCreate(t *testing.T) {
+	wrapper := NewUpdate("furnace")
+	if wrapper.Help.Arguments != "" ||
+		!reflect.DeepEqual(wrapper.Help.Examples, []string{""}) ||
+		wrapper.Help.LongDescription != `Update a stack with new parameters.` ||
+		wrapper.Help.ShortDescription != "Update a stack" {
+		t.Log(wrapper.Help.LongDescription)
+		t.Log(wrapper.Help.ShortDescription)
+		t.Log(wrapper.Help.Examples)
+		t.Fatal("wrapper did not match with given params")
 	}
 }
