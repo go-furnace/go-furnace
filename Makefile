@@ -4,11 +4,6 @@ BINARY=furnace
 
 .PHONY: clean build test linux
 
-get-deps:
- 	go get github.com/aws/aws-sdk-go
- 	go get github.com/Yitsushi/go-commander
- 	go get github.com/fatih/color
-
 
 build:
 	go build -i -o ${BINARY}
@@ -18,6 +13,11 @@ osx:
 
 test:
 	go test ./...
+
+get-deps:
+	go get github.com/aws/aws-sdk-go
+	go get github.com/Yitsushi/go-commander
+	go get github.com/fatih/color
 
 install:
 	go install
