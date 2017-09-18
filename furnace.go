@@ -6,7 +6,7 @@ import (
 	"os/user"
 	"path/filepath"
 
-	"github.com/Skarlso/go-furnace/commands"
+	"github.com/Skarlso/go-furnace/aws/awscommands"
 	cmd "github.com/Yitsushi/go-commander"
 )
 
