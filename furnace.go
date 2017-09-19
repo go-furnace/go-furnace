@@ -25,5 +25,6 @@ func init() {
 func main() {
 	registry := cmd.NewCommandRegistry()
 	registry.Register(commands.NewAws)
+	registry.Register(commands.NewGoogle)
 	registry.Execute()
 }
