@@ -249,6 +249,10 @@ For further examples checkout the AWS codedeploy example: [AwsLabs](https://gith
 
 Testing the project for development is simply by executing `make test`.
 
+## Google Cloud
+
+Google Cloud integration is a work in progress. Expect further update as it continue to be implemented.
+
 ## Contributions
 
 Contributions are very welcomed, ideas, questions, remarks, please don't hesitate to submit a ticket. On what to do,
