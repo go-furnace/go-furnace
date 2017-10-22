@@ -18,6 +18,10 @@ get-deps:
 	go get github.com/aws/aws-sdk-go
 	go get github.com/Yitsushi/go-commander
 	go get github.com/fatih/color
+	go get golang.org/x/net/context
+	go get golang.org/x/oauth2/google
+	go get google.golang.org/api/compute/v1
+	go get google.golang.org/api/deploymentmanager/v2
 
 install:
 	go install
