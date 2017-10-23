@@ -25,8 +25,11 @@ func (c *Create) Execute(opts *commander.CommandHelper) {
 	// log.Println(client)
 	d, _ := dm.New(client)
 	log.Println(d)
-	deployments := d.Deployments.List("ProjectName")
+	deployments := dm.Deployment{
+		Name: "anyad",
+	}
 	log.Println(deployments)
+	d.Deployments.Insert("anyad", &deployments)
 }
 
 // NewCreate Creates a new create command
