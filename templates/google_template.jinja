@@ -1,0 +1,18 @@
+resources:
+- name: the-first-vm
+  type: compute.v1.instance
+  properties:
+    zone: europe-west3
+    machineType: https://www.googleapis.com/compute/v1/projects/ProjectName/zones/europe-west3/machineTypes/f1-micro
+    disks:
+    - deviceName: boot
+      type: PERSISTENT
+      boot: true
+      autoDelete: true
+      initializeParams:
+        sourceImage: https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/family/debian-8
+    networkInterfaces:
+    - network: $(ref.a-new-network.selfLink)
+      accessConfigs:
+      - name: External NAT
+        type: ONE_TO_ONE_NAT

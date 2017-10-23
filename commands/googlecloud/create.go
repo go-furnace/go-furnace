@@ -17,16 +17,16 @@ type Create struct {
 // Execute runs the create command
 func (c *Create) Execute(opts *commander.CommandHelper) {
 	log.Println("Creating Deployment Manager.")
-	// Use oauth2.NoContext if there isn't a good context to pass in.
 	ctx := context.TODO()
-
 	client, err := google.DefaultClient(ctx, compute.ComputeScope)
 	if err != nil {
 		log.Fatalf(err.Error())
 	}
-	log.Println(client)
+	// log.Println(client)
 	d, _ := dm.New(client)
 	log.Println(d)
+	deployments := d.Deployments.List("ProjectName")
+	log.Println(deployments)
 }
 
 // NewCreate Creates a new create command
