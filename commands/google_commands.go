@@ -13,6 +13,7 @@ type Google struct {
 func (a *Google) Execute(opts *commander.CommandHelper) {
 	registry := commander.NewCommandRegistry()
 	registry.Register(googlecommands.NewCreate)
+	registry.Register(googlecommands.NewDelete)
 	registry.Depth = 1
 	registry.Execute()
 }

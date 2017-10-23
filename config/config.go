@@ -127,3 +127,13 @@ func LoadCFStackConfig() []byte {
 	}
 	return dat
 }
+
+// TODO: Extract this into google specific configuration loader.
+// LoadGoogleStackConfig Loads the google stack configuration file.
+func LoadGoogleStackConfig() []byte {
+	dat, err := ioutil.ReadFile(filepath.Join(configPath, "google_template.yaml"))
+	if err != nil {
+		log.Fatalf("Error occurred: %s", err.Error())
+	}
+	return dat
+}

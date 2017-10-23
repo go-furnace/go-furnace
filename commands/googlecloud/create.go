@@ -3,10 +3,10 @@ package googlecloud
 import (
 	"log"
 
+	"github.com/Skarlso/go-furnace/config"
 	"github.com/Yitsushi/go-commander"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2/google"
-	"google.golang.org/api/compute/v1"
 	dm "google.golang.org/api/deploymentmanager/v2"
 )
 
@@ -17,19 +17,36 @@ type Create struct {
 // Execute runs the create command
 func (c *Create) Execute(opts *commander.CommandHelper) {
 	log.Println("Creating Deployment Manager.")
+	deploymentName := "furnace-stack"
 	ctx := context.TODO()
-	client, err := google.DefaultClient(ctx, compute.ComputeScope)
+	client, err := google.DefaultClient(ctx, dm.NdevCloudmanScope)
 	if err != nil {
 		log.Fatalf(err.Error())
 	}
-	// log.Println(client)
+
 	d, _ := dm.New(client)
-	log.Println(d)
+	gConfig := config.LoadGoogleStackConfig()
+	log.Println("Config: ", string(gConfig))
+	config := dm.ConfigFile{
+		Content: string(gConfig),
+	}
+	targetConfiguration := dm.TargetConfiguration{
+		Config: &config,
+	}
 	deployments := dm.Deployment{
-		Name: "anyad",
+		Name:   deploymentName,
+		Target: &targetConfiguration,
 	}
 	log.Println(deployments)
-	d.Deployments.Insert("anyad", &deployments)
+	ret := d.Deployments.Insert(deploymentName, &deployments)
+	log.Println(ret)
+	op, err := ret.Do()
+	if err != nil {
+		log.Fatal("error while doing deployment: ", err)
+	}
+	for op.Progress != 100 {
+		log.Println(op.Progress)
+	}
 }
 
 // NewCreate Creates a new create command
