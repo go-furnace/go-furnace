@@ -40,6 +40,10 @@ var STACKNAME = "FurnaceStack"
 // SPINNER is the index of which spinner to use. Defaults to 7.
 var SPINNER int
 
+// GOOGLEPROJECTNAME The name of the google project to do the deployment in.
+// TODO: Extract this to Google Specific Configuration
+var GOOGLEPROJECTNAME string
+
 // Plugin is a plugin to execute
 type Plugin struct {
 	Run  interface{}
@@ -62,6 +66,7 @@ func Path() string {
 func init() {
 	configPath = Path()
 	REGION = os.Getenv("FURNACE_REGION")
+	GOOGLEPROJECTNAME = os.Getenv("GOOGLE_PROJECT_NAME")
 	spinner := os.Getenv("FURNACE_SPINNER")
 	if len(spinner) < 1 {
 		SPINNER = 7

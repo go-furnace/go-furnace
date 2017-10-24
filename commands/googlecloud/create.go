@@ -3,8 +3,10 @@ package googlecloud
 import (
 	"log"
 
-	"github.com/Skarlso/go-furnace/config"
+	fc "github.com/Skarlso/go-furnace/config"
+	"github.com/Skarlso/go-furnace/utils"
 	"github.com/Yitsushi/go-commander"
+	"github.com/fatih/color"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2/google"
 	dm "google.golang.org/api/deploymentmanager/v2"
@@ -14,19 +16,33 @@ import (
 type Create struct {
 }
 
+// These need a better place
+var keyName = color.New(color.FgWhite, color.Bold).SprintFunc()
+var yellow = color.New(color.FgYellow).SprintFunc()
+var red = color.New(color.FgRed).SprintFunc()
+
 // Execute runs the create command
 func (c *Create) Execute(opts *commander.CommandHelper) {
-	log.Println("Creating Deployment Manager.")
-	deploymentName := "furnace-stack"
-	ctx := context.TODO()
+	log.Println("Creating Deployment under project name: .", keyName(fc.GOOGLEPROJECTNAME))
+	deploymentName := fc.STACKNAME
+	log.Println("Deployment name is: ", keyName(deploymentName))
+	ctx := context.Background()
 	client, err := google.DefaultClient(ctx, dm.NdevCloudmanScope)
 	if err != nil {
 		log.Fatalf(err.Error())
 	}
-
 	d, _ := dm.New(client)
-	gConfig := config.LoadGoogleStackConfig()
-	log.Println("Config: ", string(gConfig))
+	deployments := constructDeploymen(deploymentName)
+	ret := d.Deployments.Insert(fc.GOOGLEPROJECTNAME, deployments)
+	_, err = ret.Do()
+	if err != nil {
+		log.Fatal("error while doing deployment: ", err)
+	}
+	utils.WaitForDeploymentToFinish(*d, deploymentName)
+}
+
+func constructDeploymen(deploymentName string) *dm.Deployment {
+	gConfig := fc.LoadGoogleStackConfig()
 	config := dm.ConfigFile{
 		Content: string(gConfig),
 	}
@@ -37,16 +53,7 @@ func (c *Create) Execute(opts *commander.CommandHelper) {
 		Name:   deploymentName,
 		Target: &targetConfiguration,
 	}
-	log.Println(deployments)
-	ret := d.Deployments.Insert(deploymentName, &deployments)
-	log.Println(ret)
-	op, err := ret.Do()
-	if err != nil {
-		log.Fatal("error while doing deployment: ", err)
-	}
-	for op.Progress != 100 {
-		log.Println(op.Progress)
-	}
+	return &deployments
 }
 
 // NewCreate Creates a new create command

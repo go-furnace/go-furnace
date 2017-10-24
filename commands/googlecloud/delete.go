@@ -3,7 +3,8 @@ package googlecloud
 import (
 	"log"
 
-	"github.com/Skarlso/go-furnace/config"
+	fc "github.com/Skarlso/go-furnace/config"
+	"github.com/Skarlso/go-furnace/utils"
 	"github.com/Yitsushi/go-commander"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2/google"
@@ -16,23 +17,20 @@ type Delete struct {
 
 // Execute runs the create command
 func (d *Delete) Execute(opts *commander.CommandHelper) {
-	log.Println("Deleteing Deployment Manager.")
-	deploymentName := "furnace-stack"
-	ctx := context.TODO()
+	deploymentName := fc.STACKNAME
+	log.Println("Deleteing Deployment Under Project: ", keyName(fc.GOOGLEPROJECTNAME))
+	ctx := context.Background()
 	client, err := google.DefaultClient(ctx, deploymentmanager.NdevCloudmanScope)
 	if err != nil {
 		log.Fatalf(err.Error())
 	}
-
 	d2, _ := deploymentmanager.New(client)
-	gConfig := config.LoadGoogleStackConfig()
-	log.Println("Config: ", string(gConfig))
-	ret := d2.Deployments.Delete("<PROJECT_ID>", deploymentName)
-	op, err := ret.Do()
+	ret := d2.Deployments.Delete(fc.GOOGLEPROJECTNAME, deploymentName)
+	_, err = ret.Do()
 	if err != nil {
 		log.Fatal("error while deleting deployment: ", err)
 	}
-	log.Println(op)
+	utils.WaitForDeploymentToFinish(*d2, deploymentName)
 }
 
 // NewDelete Create a new create command
@@ -42,7 +40,7 @@ func NewDelete(appName string) *commander.CommandWrapper {
 		Help: &commander.CommandDescriptor{
 			Name:             "delete",
 			ShortDescription: "Delete a Google Deployment Manager",
-			LongDescription:  `I'll write this later`,
+			LongDescription:  `Delete a deployment under a given project id.`,
 			Arguments:        "",
 			Examples:         []string{"delete"},
 		},
