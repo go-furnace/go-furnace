@@ -142,3 +142,28 @@ func LoadGoogleStackConfig() []byte {
 	}
 	return dat
 }
+
+// TODO: Put this into the Google Specific Config Section
+func LoadImportFileContent(name string) []byte {
+	dat, err := ioutil.ReadFile(filepath.Join(configPath, name))
+	if err != nil {
+		log.Fatalf("Error occurred: %s", err.Error())
+	}
+	return dat
+}
+
+// TODO: Put this into the Google Specific Config Section
+func LoadSchemaForPath(name string) (bool, []byte) {
+	base := name[0:strings.LastIndex(name, ".")]
+	schema := filepath.Join(configPath, base+".schema")
+	log.Println("Looking for schema file for: ", name)
+	log.Println("Schema to look for is: ", schema)
+	if _, err := os.Stat(schema); os.IsNotExist(err) {
+		return false, []byte{}
+	}
+	dat, err := ioutil.ReadFile(schema)
+	if err != nil {
+		log.Fatalf("Error occurred: %s", err.Error())
+	}
+	return true, dat
+}

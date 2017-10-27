@@ -10,6 +10,7 @@ import (
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2/google"
 	dm "google.golang.org/api/deploymentmanager/v2"
+	yaml "gopkg.in/yaml.v1"
 )
 
 // Create commands for google Deployment Manager
@@ -41,6 +42,16 @@ func (c *Create) Execute(opts *commander.CommandHelper) {
 	utils.WaitForDeploymentToFinish(*d, deploymentName)
 }
 
+// Path contains all the jinja imports in the config.yml file.
+type Path struct {
+	Path string `yaml:"path"`
+}
+
+// Imports is the high level representation of imports in the config.yml file.
+type Imports struct {
+	Paths []Path `yaml:"imports"`
+}
+
 func constructDeploymen(deploymentName string) *dm.Deployment {
 	gConfig := fc.LoadGoogleStackConfig()
 	config := dm.ConfigFile{
@@ -49,6 +60,25 @@ func constructDeploymen(deploymentName string) *dm.Deployment {
 	targetConfiguration := dm.TargetConfiguration{
 		Config: &config,
 	}
+
+	imps := Imports{}
+	err := yaml.Unmarshal(gConfig, &imps)
+	if err != nil {
+		utils.HandleFatal("error while parsing yaml: ", err)
+	}
+
+	if len(imps.Paths) > 0 {
+		imports := []*dm.ImportFile{}
+		for _, temp := range imps.Paths {
+			templateContent := fc.LoadImportFileContent(temp.Path)
+			imports = append(imports, &dm.ImportFile{Content: string(templateContent)})
+			if ok, schema := fc.LoadSchemaForPath(temp.Path); ok {
+				imports = append(imports, &dm.ImportFile{Content: string(schema)})
+			}
+		}
+		targetConfiguration.Imports = imports
+	}
+
 	deployments := dm.Deployment{
 		Name:   deploymentName,
 		Target: &targetConfiguration,
