@@ -67,6 +67,7 @@ func constructDeploymen(deploymentName string) *dm.Deployment {
 		utils.HandleFatal("error while parsing yaml: ", err)
 	}
 
+	// Load templates and all .schema files that might accompany them.
 	if len(imps.Paths) > 0 {
 		imports := []*dm.ImportFile{}
 		for _, temp := range imps.Paths {
