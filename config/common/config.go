@@ -1,4 +1,4 @@
-package commonconfig
+package config
 
 import (
 	"log"

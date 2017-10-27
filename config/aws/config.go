@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"plugin"
 
+	"github.com/Skarlso/go-furnace/config/common"
+
 	"strings"
 )
 
@@ -86,4 +88,13 @@ func fillRegistry() map[string][]Plugin {
 	}
 	log.Printf("'%d' plugins loaded successfully.\n", pluginCount)
 	return ret
+}
+
+// LoadCFStackConfig Load the CF stack configuration file into a []byte.
+func LoadCFStackConfig() []byte {
+	dat, err := ioutil.ReadFile(filepath.Join(configPath, "cloud_formation.json"))
+	if err != nil {
+		log.Fatalf("Error occurred: %s", err.Error())
+	}
+	return dat
 }
