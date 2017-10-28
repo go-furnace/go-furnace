@@ -22,6 +22,7 @@ get-deps:
 	go get golang.org/x/oauth2/google
 	go get google.golang.org/api/compute/v1
 	go get google.golang.org/api/deploymentmanager/v2
+	go get gopkg.in/yaml.v1
 
 install:
 	go install
