@@ -9,7 +9,7 @@ import (
 
 	"strings"
 
-	config "github.com/Skarlso/miner/config/common"
+	"github.com/Skarlso/miner/config"
 )
 
 const (
@@ -41,7 +41,6 @@ var PluginRegistry map[string][]Plugin
 var configPath string
 
 func init() {
-
 	configPath = config.Path()
 	REGION = os.Getenv("AWS_FURNACE_REGION")
 	if len(REGION) < 1 {

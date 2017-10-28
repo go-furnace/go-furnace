@@ -3,7 +3,8 @@ package awscommands
 import (
 	"log"
 
-	"github.com/Skarlso/go-furnace/config"
+	awsconfig "github.com/Skarlso/go-furnace/config/aws"
+	config "github.com/Skarlso/go-furnace/config/common"
 	"github.com/Skarlso/go-furnace/utils"
 	"github.com/Yitsushi/go-commander"
 	"github.com/aws/aws-sdk-go/aws"
@@ -22,7 +23,7 @@ func (c *DeleteApp) Execute(opts *commander.CommandHelper) {
 	if len(appName) < 1 {
 		appName = config.STACKNAME
 	}
-	sess := session.New(&aws.Config{Region: aws.String(config.REGION)})
+	sess := session.New(&aws.Config{Region: aws.String(awsconfig.REGION)})
 	cdClient := codedeploy.New(sess, nil)
 	client := CDClient{cdClient}
 	deleteApplication(appName, &client)

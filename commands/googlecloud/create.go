@@ -3,7 +3,8 @@ package googlecloud
 import (
 	"log"
 
-	fc "github.com/Skarlso/go-furnace/config"
+	config "github.com/Skarlso/go-furnace/config/common"
+	fc "github.com/Skarlso/go-furnace/config/google"
 	"github.com/Skarlso/go-furnace/utils"
 	"github.com/Yitsushi/go-commander"
 	"github.com/fatih/color"
@@ -25,7 +26,7 @@ var red = color.New(color.FgRed).SprintFunc()
 // Execute runs the create command
 func (c *Create) Execute(opts *commander.CommandHelper) {
 	log.Println("Creating Deployment under project name: .", keyName(fc.GOOGLEPROJECTNAME))
-	deploymentName := fc.STACKNAME
+	deploymentName := config.STACKNAME
 	log.Println("Deployment name is: ", keyName(deploymentName))
 	ctx := context.Background()
 	client, err := google.DefaultClient(ctx, dm.NdevCloudmanScope)

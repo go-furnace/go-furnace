@@ -5,7 +5,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/Skarlso/go-furnace/config"
+	awsconfig "github.com/Skarlso/go-furnace/config/aws"
+	config "github.com/Skarlso/go-furnace/config/common"
 	"github.com/Skarlso/go-furnace/utils"
 	"github.com/Yitsushi/go-commander"
 	"github.com/aws/aws-sdk-go/aws"
@@ -21,7 +22,7 @@ type Update struct {
 // Execute defines what this command does.
 func (c *Update) Execute(opts *commander.CommandHelper) {
 	log.Println("Creating cloud formation session.")
-	sess := session.New(&aws.Config{Region: aws.String(config.REGION)})
+	sess := session.New(&aws.Config{Region: aws.String(awsconfig.REGION)})
 	cfClient := cloudformation.New(sess, nil)
 	client := CFClient{cfClient}
 	updateExecute(opts, &client)
@@ -29,7 +30,7 @@ func (c *Update) Execute(opts *commander.CommandHelper) {
 
 func updateExecute(opts *commander.CommandHelper, client *CFClient) {
 	stackname := config.STACKNAME
-	template := config.LoadCFStackConfig()
+	template := awsconfig.LoadCFStackConfig()
 	stacks := update(stackname, template, client)
 	var red = color.New(color.FgRed).SprintFunc()
 	if stacks != nil {

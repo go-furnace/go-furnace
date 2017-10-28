@@ -5,7 +5,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/Skarlso/go-furnace/config"
+	awsconfig "github.com/Skarlso/go-furnace/config/aws"
+	config "github.com/Skarlso/go-furnace/config/common"
 	"github.com/Skarlso/go-furnace/utils"
 	"github.com/Yitsushi/go-commander"
 	"github.com/aws/aws-sdk-go/aws"
@@ -21,7 +22,7 @@ type Create struct {
 // Execute defines what this command does.
 func (c *Create) Execute(opts *commander.CommandHelper) {
 	log.Println("Creating cloud formation session.")
-	sess := session.New(&aws.Config{Region: aws.String(config.REGION)})
+	sess := session.New(&aws.Config{Region: aws.String(awsconfig.REGION)})
 	cfClient := cloudformation.New(sess, nil)
 	client := CFClient{cfClient}
 	createExecute(opts, &client)
@@ -29,13 +30,13 @@ func (c *Create) Execute(opts *commander.CommandHelper) {
 
 func createExecute(opts *commander.CommandHelper, client *CFClient) {
 	stackname := config.STACKNAME
-	template := config.LoadCFStackConfig()
-	for _, p := range config.PluginRegistry[config.PRECREATE] {
+	template := awsconfig.LoadCFStackConfig()
+	for _, p := range awsconfig.PluginRegistry[awsconfig.PRECREATE] {
 		log.Println("Running plugin: ", p.Name)
 		p.Run.(func())()
 	}
 	stacks := create(stackname, template, client)
-	for _, p := range config.PluginRegistry[config.POSTCREATE] {
+	for _, p := range awsconfig.PluginRegistry[awsconfig.POSTCREATE] {
 		log.Println("Running plugin: ", p.Name)
 		p.Run.(func())()
 	}

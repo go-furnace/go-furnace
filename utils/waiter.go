@@ -6,7 +6,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Skarlso/go-furnace/config"
+	config "github.com/Skarlso/go-furnace/config/common"
+	googleconfig "github.com/Skarlso/go-furnace/config/google"
 	"github.com/fatih/color"
 	dm "google.golang.org/api/deploymentmanager/v2"
 )
@@ -45,7 +46,7 @@ func WaitForFunctionWithStatusOutput(state string, freq int, f func()) {
 
 // WaitForDeploymentToFinish waits for a google deployment to finish.
 func WaitForDeploymentToFinish(d dm.Service, deploymentName string) {
-	project := d.Deployments.Get(config.GOOGLEPROJECTNAME, deploymentName)
+	project := d.Deployments.Get(googleconfig.GOOGLEPROJECTNAME, deploymentName)
 	deploymentOp, err := project.Do()
 	if err != nil {
 		log.Fatal("error while getting deployment: ", err)

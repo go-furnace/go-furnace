@@ -6,9 +6,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/Skarlso/go-furnace/config/common"
-
 	"strings"
+
+	"github.com/Skarlso/miner/config"
 )
 
 var configPath string
@@ -18,7 +18,7 @@ var GOOGLEPROJECTNAME string
 
 func init() {
 	GOOGLEPROJECTNAME = os.Getenv("GOOGLE_PROJECT_NAME")
-	configPath = commonconfig.Path()
+	configPath = config.Path()
 }
 
 // LoadGoogleStackConfig Loads the google stack configuration file.

@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/Skarlso/go-furnace/config"
+	awsconfig "github.com/Skarlso/go-furnace/config/aws"
+	config "github.com/Skarlso/go-furnace/config/common"
 	"github.com/Skarlso/go-furnace/utils"
 	"github.com/Yitsushi/go-commander"
 	"github.com/aws/aws-sdk-go/aws"
@@ -32,7 +33,7 @@ type ResourceStatus struct {
 // Execute defines what this command does.
 func (c *Status) Execute(opts *commander.CommandHelper) {
 	stackname := config.STACKNAME
-	sess := session.New(&aws.Config{Region: aws.String(config.REGION)})
+	sess := session.New(&aws.Config{Region: aws.String(awsconfig.REGION)})
 	cfClient := cloudformation.New(sess, nil)
 	client := CFClient{cfClient}
 	stack := stackStatus(stackname, &client)

@@ -3,7 +3,8 @@ package googlecloud
 import (
 	"log"
 
-	fc "github.com/Skarlso/go-furnace/config"
+	config "github.com/Skarlso/go-furnace/config/common"
+	fc "github.com/Skarlso/go-furnace/config/google"
 	"github.com/Skarlso/go-furnace/utils"
 	"github.com/Yitsushi/go-commander"
 	"golang.org/x/net/context"
@@ -17,7 +18,7 @@ type Delete struct {
 
 // Execute runs the create command
 func (d *Delete) Execute(opts *commander.CommandHelper) {
-	deploymentName := fc.STACKNAME
+	deploymentName := config.STACKNAME
 	log.Println("Deleteing Deployment Under Project: ", keyName(fc.GOOGLEPROJECTNAME))
 	ctx := context.Background()
 	client, err := google.DefaultClient(ctx, deploymentmanager.NdevCloudmanScope)
