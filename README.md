@@ -73,7 +73,7 @@ For other targets, please consult the Makefile.
 Furnace has two stack related environment properties and a couple more which are shown later.
 
 ```bash
-export FURNACE_REGION=eu-central-1
+export AWS_FURNACE_REGION=eu-central-1
 # If this is not defined, a default will be used which is FurnaceStack
 export FURNACE_STACKNAME=FurnaceStack
 ```

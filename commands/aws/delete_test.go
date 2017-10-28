@@ -4,7 +4,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/Skarlso/go-furnace/config"
+	awsconfig "github.com/Skarlso/go-furnace/config/aws"
+	config "github.com/Skarlso/go-furnace/config/common"
 	commander "github.com/Yitsushi/go-commander"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
 	"github.com/aws/aws-sdk-go/service/cloudformation/cloudformationiface"
@@ -46,11 +47,11 @@ func TestPreDeletePlugins(t *testing.T) {
 	runner := func() {
 		ran = true
 	}
-	plugins := config.Plugin{
+	plugins := awsconfig.Plugin{
 		Name: "testPlugin",
 		Run:  runner,
 	}
-	config.PluginRegistry[config.PREDELETE] = []config.Plugin{plugins}
+	awsconfig.PluginRegistry[config.PREDELETE] = []awsconfig.Plugin{plugins}
 	config.WAITFREQUENCY = 0
 	client := new(CFClient)
 	stackname := "ToDeleteStack"
@@ -67,11 +68,11 @@ func TestPostDeletePlugins(t *testing.T) {
 	runner := func() {
 		ran = true
 	}
-	plugins := config.Plugin{
+	plugins := awsconfig.Plugin{
 		Name: "testPlugin",
 		Run:  runner,
 	}
-	config.PluginRegistry[config.POSTDELETE] = []config.Plugin{plugins}
+	awsconfig.PluginRegistry[config.POSTDELETE] = []awsconfig.Plugin{plugins}
 	config.WAITFREQUENCY = 0
 	client := new(CFClient)
 	stackname := "ToDeleteStack"

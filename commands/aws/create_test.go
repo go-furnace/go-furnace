@@ -12,7 +12,8 @@ import (
 
 	"log"
 
-	"github.com/Skarlso/go-furnace/config"
+	awsconfig "github.com/Skarlso/go-furnace/config/aws"
+	config "github.com/Skarlso/go-furnace/config/common"
 	"github.com/Skarlso/go-furnace/utils"
 	commander "github.com/Yitsushi/go-commander"
 	"github.com/aws/aws-sdk-go/aws"
@@ -256,11 +257,11 @@ func TestPreCreatePlugins(t *testing.T) {
 	runner := func() {
 		ran = true
 	}
-	plugins := config.Plugin{
+	plugins := awsconfig.Plugin{
 		Name: "testPlugin",
 		Run:  runner,
 	}
-	config.PluginRegistry[config.PRECREATE] = []config.Plugin{plugins}
+	awsconfig.PluginRegistry[config.PRECREATE] = []awsconfig.Plugin{plugins}
 	config.WAITFREQUENCY = 0
 	client := new(CFClient)
 	stackname := "NotEmptyStack"
@@ -277,11 +278,11 @@ func TestPostCreatePlugins(t *testing.T) {
 	runner := func() {
 		ran = true
 	}
-	plugins := config.Plugin{
+	plugins := awsconfig.Plugin{
 		Name: "testPlugin",
 		Run:  runner,
 	}
-	config.PluginRegistry[config.POSTCREATE] = []config.Plugin{plugins}
+	awsconfig.PluginRegistry[config.POSTCREATE] = []awsconfig.Plugin{plugins}
 	config.WAITFREQUENCY = 0
 	client := new(CFClient)
 	stackname := "NotEmptyStack"

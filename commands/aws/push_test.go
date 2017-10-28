@@ -7,7 +7,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/Skarlso/go-furnace/config"
+	config "github.com/Skarlso/go-furnace/config/common"
 	"github.com/Skarlso/go-furnace/utils"
 	commander "github.com/Yitsushi/go-commander"
 	"github.com/aws/aws-sdk-go/aws"

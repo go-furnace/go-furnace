@@ -8,7 +8,7 @@ import (
 
 	"strings"
 
-	"github.com/Skarlso/miner/config"
+	config "github.com/Skarlso/go-furnace/config/common"
 )
 
 var configPath string
