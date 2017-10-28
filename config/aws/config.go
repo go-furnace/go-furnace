@@ -7,9 +7,9 @@ import (
 	"path/filepath"
 	"plugin"
 
-	"github.com/Skarlso/go-furnace/config/common"
-
 	"strings"
+
+	config "github.com/Skarlso/miner/config/common"
 )
 
 const (
@@ -41,7 +41,8 @@ var PluginRegistry map[string][]Plugin
 var configPath string
 
 func init() {
-	configPath = commonconfig.Path()
+
+	configPath = config.Path()
 	REGION = os.Getenv("AWS_FURNACE_REGION")
 	if len(REGION) < 1 {
 		log.Fatal("Please define a region to operate in with FURNACE_REGION exp: eu-central-1.")
