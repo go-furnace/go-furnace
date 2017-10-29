@@ -22,16 +22,12 @@ func (s *Status) Execute(opts *commander.CommandHelper) {
 	log.Println("Deployment name is: ", keyName(deploymentName))
 	ctx := context.Background()
 	client, err := google.DefaultClient(ctx, dm.NdevCloudmanScope)
-	if err != nil {
-		log.Fatalf(err.Error())
-	}
+	config.CheckError(err)
 	d, _ := dm.New(client)
 	project := d.Deployments.Get(fc.GOOGLEPROJECTNAME, deploymentName)
 	p, err := project.Do()
-	if err != nil {
-		config.HandleFatal("error while getting project status", err)
-	}
-	log.Println(p.Target.Config)
+	config.CheckError(err)
+	log.Println(p.Target)
 }
 
 // NewStatus Creates a new status command

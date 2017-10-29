@@ -30,9 +30,7 @@ func (c *Create) Execute(opts *commander.CommandHelper) {
 	deployments := constructDeploymen(deploymentName)
 	ret := d.Deployments.Insert(fc.GOOGLEPROJECTNAME, deployments)
 	_, err = ret.Do()
-	if err != nil {
-		log.Fatal("error while doing deployment: ", err)
-	}
+	config.CheckError(err)
 	WaitForDeploymentToFinish(*d, deploymentName)
 }
 
@@ -61,6 +59,7 @@ func constructDeploymen(deploymentName string) *dm.Deployment {
 
 	// Load templates and all .schema files that might accompany them.
 	if len(imps.Paths) > 0 {
+		log.Println("Found the following import files: ", imps.Paths)
 		imports := []*dm.ImportFile{}
 		for _, temp := range imps.Paths {
 			templateContent := fc.LoadImportFileContent(temp.Path)

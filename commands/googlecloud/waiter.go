@@ -25,7 +25,7 @@ func WaitForDeploymentToFinish(d dm.Service, deploymentName string) {
 	}
 	var counter int
 	// This needs a timeout
-	for deploymentOp.Operation.Status == "RUNNING" {
+	for deploymentOp.Operation.Status == "RUNNING" || deploymentOp.Operation.Status == "PENDING" {
 		time.Sleep(1 * time.Duration(time.Second))
 		counter = (counter + 1) % len(config.Spinners[config.SPINNER])
 		fmt.Printf("\r[%s] Waiting for state: %s", yellow(string(config.Spinners[config.SPINNER][counter])), red("DONE"))

@@ -35,7 +35,7 @@ var WAITFREQUENCY = 1
 var STACKNAME = "FurnaceStack"
 
 // SPINNER is the index of which spinner to use. Defaults to 7.
-var SPINNER int
+var SPINNER = 7
 
 // LogFatalf is the function to log a fatal error.
 var LogFatalf = log.Fatalf

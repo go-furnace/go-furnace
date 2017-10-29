@@ -21,12 +21,11 @@ func (d *Delete) Execute(opts *commander.CommandHelper) {
 	log.Println("Deleteing Deployment Under Project: ", keyName(fc.GOOGLEPROJECTNAME))
 	ctx := context.Background()
 	client, err := google.DefaultClient(ctx, deploymentmanager.NdevCloudmanScope)
-	if err != nil {
-		log.Fatalf(err.Error())
-	}
+	config.CheckError(err)
 	d2, _ := deploymentmanager.New(client)
 	ret := d2.Deployments.Delete(fc.GOOGLEPROJECTNAME, deploymentName)
 	_, err = ret.Do()
+	// TODO: Handle app not found
 	if err != nil {
 		log.Fatal("error while deleting deployment: ", err)
 	}
