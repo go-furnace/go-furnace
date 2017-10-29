@@ -9,6 +9,8 @@ import (
 	googleconfig "github.com/Skarlso/go-furnace/config/google"
 	"github.com/fatih/color"
 	dm "google.golang.org/api/deploymentmanager/v2"
+	grcp "google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 )
 
 // These need a better place
@@ -30,7 +32,8 @@ func WaitForDeploymentToFinish(d dm.Service, deploymentName string) {
 		counter = (counter + 1) % len(config.Spinners[config.SPINNER])
 		fmt.Printf("\r[%s] Waiting for state: %s", yellow(string(config.Spinners[config.SPINNER][counter])), red("DONE"))
 		deploymentOp, err = project.Do()
-		if err != nil {
+		// TODO: Not going to work nicly like this because it won't stop looping.
+		if err != nil && grcp.Code(err) != codes.NotFound {
 			log.Fatal("\nerror while getting deployment: ", err)
 		}
 	}

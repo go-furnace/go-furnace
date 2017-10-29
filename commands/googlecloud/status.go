@@ -2,6 +2,7 @@ package googlecloud
 
 import (
 	"log"
+	"strings"
 
 	config "github.com/Skarlso/go-furnace/config/common"
 	fc "github.com/Skarlso/go-furnace/config/google"
@@ -27,7 +28,16 @@ func (s *Status) Execute(opts *commander.CommandHelper) {
 	project := d.Deployments.Get(fc.GOOGLEPROJECTNAME, deploymentName)
 	p, err := project.Do()
 	config.CheckError(err)
-	log.Println(p.Target)
+	manifestID := p.Manifest[strings.LastIndex(p.Manifest, "/")+1 : len(p.Manifest)]
+	manifest := d.Manifests.Get(fc.GOOGLEPROJECTNAME, deploymentName, manifestID)
+	m, err := manifest.Do()
+	config.CheckError(err)
+	log.Println("Description: ", p.Description)
+	log.Println("Name: ", p.Name)
+	log.Println("Labels: ", p.Labels)
+	log.Println("Selflink: ", p.SelfLink)
+	log.Println("Layout: \n", m.Layout)
+	// Consider getting every resource?
 }
 
 // NewStatus Creates a new status command
