@@ -6,7 +6,6 @@ import (
 
 	awsconfig "github.com/Skarlso/go-furnace/config/aws"
 	config "github.com/Skarlso/go-furnace/config/common"
-	"github.com/Skarlso/go-furnace/utils"
 	"github.com/Yitsushi/go-commander"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -45,7 +44,7 @@ func (c *Status) Execute(opts *commander.CommandHelper) {
 
 func stackStatus(stackname string, cfClient *CFClient) *cloudformation.DescribeStacksOutput {
 	descResp, err := cfClient.Client.DescribeStacks(&cloudformation.DescribeStacksInput{StackName: aws.String(stackname)})
-	utils.CheckError(err)
+	config.CheckError(err)
 	fmt.Println()
 	return descResp
 }
@@ -53,7 +52,7 @@ func stackStatus(stackname string, cfClient *CFClient) *cloudformation.DescribeS
 func stackResources(stackname string, cfClient *CFClient) []ResourceStatus {
 	resources := make([]ResourceStatus, 0)
 	descResp, err := cfClient.Client.DescribeStackResources(&cloudformation.DescribeStackResourcesInput{StackName: aws.String(stackname)})
-	utils.CheckError(err)
+	config.CheckError(err)
 	for _, r := range descResp.StackResources {
 		res := ResourceStatus{Status: *r.ResourceStatus, PhysicalID: *r.PhysicalResourceId, LogicalID: *r.LogicalResourceId, Type: *r.ResourceType}
 		resources = append(resources, res)

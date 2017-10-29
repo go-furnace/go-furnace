@@ -14,7 +14,6 @@ import (
 
 	awsconfig "github.com/Skarlso/go-furnace/config/aws"
 	config "github.com/Skarlso/go-furnace/config/common"
-	"github.com/Skarlso/go-furnace/utils"
 	commander "github.com/Yitsushi/go-commander"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
@@ -28,7 +27,7 @@ type fakeCreateCFClient struct {
 }
 
 func init() {
-	utils.LogFatalf = log.Fatalf
+	config.LogFatalf = log.Fatalf
 }
 
 func (fc *fakeCreateCFClient) ValidateTemplate(input *cloudformation.ValidateTemplateInput) (*cloudformation.ValidateTemplateOutput, error) {
@@ -67,7 +66,7 @@ func TestCreateExecute(t *testing.T) {
 
 func TestCreateExecuteEmptyStack(t *testing.T) {
 	failed := false
-	utils.LogFatalf = func(s string, a ...interface{}) {
+	config.LogFatalf = func(s string, a ...interface{}) {
 		failed = true
 	}
 	config.WAITFREQUENCY = 0
@@ -100,7 +99,7 @@ func TestCreateStackReturnsWithError(t *testing.T) {
 	failed := false
 	expectedMessage := "failed to create stack"
 	var message string
-	utils.LogFatalf = func(s string, a ...interface{}) {
+	config.LogFatalf = func(s string, a ...interface{}) {
 		failed = true
 		message = a[0].(error).Error()
 	}
@@ -121,7 +120,7 @@ func TestCreateStackReturnsWithError(t *testing.T) {
 func TestDescribeStackReturnsWithError(t *testing.T) {
 	failed := false
 	var message string
-	utils.LogFatalf = func(s string, a ...interface{}) {
+	config.LogFatalf = func(s string, a ...interface{}) {
 		failed = true
 		if err, ok := a[0].(error); ok {
 			message = err.Error()
@@ -145,7 +144,7 @@ func TestValidateReturnsWithError(t *testing.T) {
 	failed := false
 	expectedMessage := "validation error occurred"
 	var message string
-	utils.LogFatalf = func(s string, a ...interface{}) {
+	config.LogFatalf = func(s string, a ...interface{}) {
 		failed = true
 		if err, ok := a[0].(error); ok {
 			message = err.Error()

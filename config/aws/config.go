@@ -93,8 +93,6 @@ func fillRegistry() map[string][]Plugin {
 // LoadCFStackConfig Load the CF stack configuration file into a []byte.
 func LoadCFStackConfig() []byte {
 	dat, err := ioutil.ReadFile(filepath.Join(configPath, "cloud_formation.json"))
-	if err != nil {
-		log.Fatalf("Error occurred: %s", err.Error())
-	}
+	config.CheckError(err)
 	return dat
 }

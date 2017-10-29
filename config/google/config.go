@@ -24,18 +24,14 @@ func init() {
 // LoadGoogleStackConfig Loads the google stack configuration file.
 func LoadGoogleStackConfig() []byte {
 	dat, err := ioutil.ReadFile(filepath.Join(configPath, "google_template.yaml"))
-	if err != nil {
-		log.Fatalf("Error occurred: %s", err.Error())
-	}
+	config.CheckError(err)
 	return dat
 }
 
 // LoadImportFileContent Load import file contents.
 func LoadImportFileContent(name string) []byte {
 	dat, err := ioutil.ReadFile(filepath.Join(configPath, name))
-	if err != nil {
-		log.Fatalf("Error occurred: %s", err.Error())
-	}
+	config.CheckError(err)
 	return dat
 }
 
@@ -49,8 +45,6 @@ func LoadSchemaForPath(name string) (bool, []byte) {
 		return false, []byte{}
 	}
 	dat, err := ioutil.ReadFile(schema)
-	if err != nil {
-		log.Fatalf("Error occurred: %s", err.Error())
-	}
+	config.CheckError(err)
 	return true, dat
 }

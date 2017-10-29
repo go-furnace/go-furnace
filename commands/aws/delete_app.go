@@ -5,7 +5,6 @@ import (
 
 	awsconfig "github.com/Skarlso/go-furnace/config/aws"
 	config "github.com/Skarlso/go-furnace/config/common"
-	"github.com/Skarlso/go-furnace/utils"
 	"github.com/Yitsushi/go-commander"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -35,7 +34,7 @@ func deleteApplication(appName string, client *CDClient) {
 	_, err := client.Client.DeleteApplication(&codedeploy.DeleteApplicationInput{
 		ApplicationName: aws.String(appName),
 	})
-	utils.CheckError(err)
+	config.CheckError(err)
 }
 
 // NewDeleteApp Creates a new DeleteApp command.

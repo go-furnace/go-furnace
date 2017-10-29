@@ -9,7 +9,6 @@ import (
 	"log"
 
 	config "github.com/Skarlso/go-furnace/config/common"
-	"github.com/Skarlso/go-furnace/utils"
 	commander "github.com/Yitsushi/go-commander"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
@@ -23,7 +22,7 @@ type fakeUpdateCFClient struct {
 }
 
 func init() {
-	utils.LogFatalf = log.Fatalf
+	config.LogFatalf = log.Fatalf
 }
 
 func (fc *fakeUpdateCFClient) ValidateTemplate(input *cloudformation.ValidateTemplateInput) (*cloudformation.ValidateTemplateOutput, error) {
@@ -62,7 +61,7 @@ func TestUpdateExecute(t *testing.T) {
 
 func TestUpdateExecuteEmptyStack(t *testing.T) {
 	failed := false
-	utils.LogFatalf = func(s string, a ...interface{}) {
+	config.LogFatalf = func(s string, a ...interface{}) {
 		failed = true
 	}
 	config.WAITFREQUENCY = 0
@@ -95,7 +94,7 @@ func TestUpdateStackReturnsWithError(t *testing.T) {
 	failed := false
 	expectedMessage := "failed to create stack"
 	var message string
-	utils.LogFatalf = func(s string, a ...interface{}) {
+	config.LogFatalf = func(s string, a ...interface{}) {
 		failed = true
 		message = a[0].(error).Error()
 	}

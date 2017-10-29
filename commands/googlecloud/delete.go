@@ -5,7 +5,6 @@ import (
 
 	config "github.com/Skarlso/go-furnace/config/common"
 	fc "github.com/Skarlso/go-furnace/config/google"
-	"github.com/Skarlso/go-furnace/utils"
 	"github.com/Yitsushi/go-commander"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2/google"
@@ -31,7 +30,7 @@ func (d *Delete) Execute(opts *commander.CommandHelper) {
 	if err != nil {
 		log.Fatal("error while deleting deployment: ", err)
 	}
-	utils.WaitForDeploymentToFinish(*d2, deploymentName)
+	WaitForDeploymentToFinish(*d2, deploymentName)
 }
 
 // NewDelete Create a new create command

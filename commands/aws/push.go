@@ -7,7 +7,6 @@ import (
 
 	awsconfig "github.com/Skarlso/go-furnace/config/aws"
 	config "github.com/Skarlso/go-furnace/config/common"
-	"github.com/Skarlso/go-furnace/utils"
 	"github.com/Yitsushi/go-commander"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -50,9 +49,9 @@ func pushExecute(opts *commander.CommandHelper, cfClient *CFClient, cdClient *CD
 	asgName := getAutoScalingGroupKey(cfClient)
 	role := getCodeDeployRoleARN(awsconfig.CODEDEPLOYROLE, iamClient)
 	err := createApplication(appName, cdClient)
-	utils.CheckError(err)
+	config.CheckError(err)
 	err = createDeploymentGroup(appName, role, asgName, cdClient)
-	utils.CheckError(err)
+	config.CheckError(err)
 	push(appName, asgName, cdClient)
 }
 
@@ -60,21 +59,21 @@ func determineDeployment() {
 	if s3Deploy {
 		codeDeployBucket = os.Getenv("FURNACE_S3BUCKET")
 		if len(codeDeployBucket) < 1 {
-			utils.HandleFatal("Please define FURNACE_S3BUCKET for the bucket to use.", nil)
+			config.HandleFatal("Please define FURNACE_S3BUCKET for the bucket to use.", nil)
 		}
 		s3Key = os.Getenv("FURNACE_S3KEY")
 		if len(s3Key) < 1 {
-			utils.HandleFatal("Please define FURNACE_S3KEY for the application to deploy.", nil)
+			config.HandleFatal("Please define FURNACE_S3KEY for the application to deploy.", nil)
 		}
 		log.Println("S3 deployment will be used from bucket: ", codeDeployBucket)
 	} else {
 		gitAccount = os.Getenv("FURNACE_GIT_ACCOUNT")
 		gitRevision = os.Getenv("FURNACE_GIT_REVISION")
 		if len(gitAccount) < 1 {
-			utils.HandleFatal("Please define a git account and project to deploy from in the form of: account/project under FURNACE_GIT_ACCOUNT.", nil)
+			config.HandleFatal("Please define a git account and project to deploy from in the form of: account/project under FURNACE_GIT_ACCOUNT.", nil)
 		}
 		if len(gitRevision) < 1 {
-			utils.HandleFatal("Please define the git commit hash to use for deploying under FURNACE_GIT_REVISION.", nil)
+			config.HandleFatal("Please define the git commit hash to use for deploying under FURNACE_GIT_REVISION.", nil)
 		}
 		log.Println("GitHub deployment will be used from account: ", gitAccount)
 	}
@@ -178,8 +177,8 @@ func push(appName string, asg string, client *CDClient) {
 		UpdateOutdatedInstancesOnly: aws.Bool(false),
 	}
 	resp, err := client.Client.CreateDeployment(params)
-	utils.CheckError(err)
-	utils.WaitForFunctionWithStatusOutput("SUCCEEDED", config.WAITFREQUENCY, func() {
+	config.CheckError(err)
+	WaitForFunctionWithStatusOutput("SUCCEEDED", config.WAITFREQUENCY, func() {
 		client.Client.WaitUntilDeploymentSuccessful(&codedeploy.GetDeploymentInput{
 			DeploymentId: resp.DeploymentId,
 		})
@@ -188,7 +187,7 @@ func push(appName string, asg string, client *CDClient) {
 	deployment, err := client.Client.GetDeployment(&codedeploy.GetDeploymentInput{
 		DeploymentId: resp.DeploymentId,
 	})
-	utils.CheckError(err)
+	config.CheckError(err)
 	log.Println("Deployment Status: ", *deployment.DeploymentInfo.Status)
 }
 
@@ -197,7 +196,7 @@ func getAutoScalingGroupKey(client *CFClient) string {
 		StackName: aws.String(config.STACKNAME),
 	}
 	resp, err := client.Client.ListStackResources(params)
-	utils.CheckError(err)
+	config.CheckError(err)
 	for _, r := range resp.StackResourceSummaries {
 		if *r.ResourceType == "AWS::AutoScaling::AutoScalingGroup" {
 			return *r.PhysicalResourceId
@@ -211,7 +210,7 @@ func getCodeDeployRoleARN(roleName string, client *IAMClient) string {
 		RoleName: aws.String(roleName),
 	}
 	resp, err := client.Client.GetRole(params)
-	utils.CheckError(err)
+	config.CheckError(err)
 	return *resp.Role.Arn
 }
 

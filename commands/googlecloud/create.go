@@ -5,9 +5,7 @@ import (
 
 	config "github.com/Skarlso/go-furnace/config/common"
 	fc "github.com/Skarlso/go-furnace/config/google"
-	"github.com/Skarlso/go-furnace/utils"
 	"github.com/Yitsushi/go-commander"
-	"github.com/fatih/color"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2/google"
 	dm "google.golang.org/api/deploymentmanager/v2"
@@ -17,11 +15,6 @@ import (
 // Create commands for google Deployment Manager
 type Create struct {
 }
-
-// These need a better place
-var keyName = color.New(color.FgWhite, color.Bold).SprintFunc()
-var yellow = color.New(color.FgYellow).SprintFunc()
-var red = color.New(color.FgRed).SprintFunc()
 
 // Execute runs the create command
 func (c *Create) Execute(opts *commander.CommandHelper) {
@@ -40,7 +33,7 @@ func (c *Create) Execute(opts *commander.CommandHelper) {
 	if err != nil {
 		log.Fatal("error while doing deployment: ", err)
 	}
-	utils.WaitForDeploymentToFinish(*d, deploymentName)
+	WaitForDeploymentToFinish(*d, deploymentName)
 }
 
 // Path contains all the jinja imports in the config.yml file.
@@ -55,18 +48,16 @@ type Imports struct {
 
 func constructDeploymen(deploymentName string) *dm.Deployment {
 	gConfig := fc.LoadGoogleStackConfig()
-	config := dm.ConfigFile{
+	configFile := dm.ConfigFile{
 		Content: string(gConfig),
 	}
 	targetConfiguration := dm.TargetConfiguration{
-		Config: &config,
+		Config: &configFile,
 	}
 
 	imps := Imports{}
 	err := yaml.Unmarshal(gConfig, &imps)
-	if err != nil {
-		utils.HandleFatal("error while parsing yaml: ", err)
-	}
+	config.CheckError(err)
 
 	// Load templates and all .schema files that might accompany them.
 	if len(imps.Paths) > 0 {
