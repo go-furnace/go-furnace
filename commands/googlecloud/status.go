@@ -37,7 +37,7 @@ func (s *Status) Execute(opts *commander.CommandHelper) {
 	log.Println("Labels: ", p.Labels)
 	log.Println("Selflink: ", p.SelfLink)
 	log.Println("Layout: \n", m.Layout)
-	// Consider getting every resource?
+	// Consider getting every resource status?
 }
 
 // NewStatus Creates a new status command

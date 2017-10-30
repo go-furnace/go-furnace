@@ -25,7 +25,6 @@ func (d *Delete) Execute(opts *commander.CommandHelper) {
 	d2, _ := deploymentmanager.New(client)
 	ret := d2.Deployments.Delete(fc.GOOGLEPROJECTNAME, deploymentName)
 	_, err = ret.Do()
-	// TODO: Handle app not found
 	if err != nil {
 		log.Fatal("error while deleting deployment: ", err)
 	}

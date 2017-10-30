@@ -9,11 +9,9 @@ import (
 	googleconfig "github.com/Skarlso/go-furnace/config/google"
 	"github.com/fatih/color"
 	dm "google.golang.org/api/deploymentmanager/v2"
-	grcp "google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
+	"google.golang.org/api/googleapi"
 )
 
-// These need a better place
 var keyName = color.New(color.FgWhite, color.Bold).SprintFunc()
 var yellow = color.New(color.FgYellow).SprintFunc()
 var red = color.New(color.FgRed).SprintFunc()
@@ -23,7 +21,7 @@ func WaitForDeploymentToFinish(d dm.Service, deploymentName string) {
 	project := d.Deployments.Get(googleconfig.GOOGLEPROJECTNAME, deploymentName)
 	deploymentOp, err := project.Do()
 	if err != nil {
-		log.Fatal("error while getting deployment: ", err)
+		config.HandleFatal("error while getting deployment: ", err)
 	}
 	var counter int
 	// This needs a timeout
@@ -32,11 +30,13 @@ func WaitForDeploymentToFinish(d dm.Service, deploymentName string) {
 		counter = (counter + 1) % len(config.Spinners[config.SPINNER])
 		fmt.Printf("\r[%s] Waiting for state: %s", yellow(string(config.Spinners[config.SPINNER][counter])), red("DONE"))
 		deploymentOp, err = project.Do()
-		// TODO: Not going to work nicly like this because it won't stop looping.
-		if err != nil && grcp.Code(err) != codes.NotFound {
-			log.Fatal("\nerror while getting deployment: ", err)
+		if err != nil {
+			if err.(*googleapi.Error).Code != 404 {
+				config.HandleFatal("error while getting deployment: ", err)
+			} else {
+				log.Println("\nStack terminated!")
+				break
+			}
 		}
 	}
-	fmt.Println()
-	log.Println("Final deployment status: ", keyName(deploymentOp.Operation.Status))
 }
