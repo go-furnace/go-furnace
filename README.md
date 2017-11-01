@@ -253,6 +253,20 @@ Testing the project for development is simply by executing `make test`.
 
 Google Cloud integration is a work in progress. Expect further update as it continue to be implemented.
 
+### Authentication with Google
+
+KeyFile
+
+### Templates
+
+Copy them over
+
+### Create a Code Repository
+
+### Story your startup script on a bucket
+
+### In-line startup scrip into template
+
 ## Contributions
 
 Contributions are very welcomed, ideas, questions, remarks, please don't hesitate to submit a ticket. On what to do,

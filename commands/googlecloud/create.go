@@ -2,6 +2,7 @@ package googlecloud
 
 import (
 	"log"
+	"path/filepath"
 
 	config "github.com/Skarlso/go-furnace/config/common"
 	fc "github.com/Skarlso/go-furnace/config/google"
@@ -37,6 +38,7 @@ func (c *Create) Execute(opts *commander.CommandHelper) {
 // Path contains all the jinja imports in the config.yml file.
 type Path struct {
 	Path string `yaml:"path"`
+	Name string `yaml:"name,omitempty"`
 }
 
 // Imports is the high level representation of imports in the config.yml file.
@@ -63,9 +65,18 @@ func constructDeploymen(deploymentName string) *dm.Deployment {
 		imports := []*dm.ImportFile{}
 		for _, temp := range imps.Paths {
 			templateContent := fc.LoadImportFileContent(temp.Path)
-			imports = append(imports, &dm.ImportFile{Content: string(templateContent)})
+			var name string
+			if len(temp.Name) > 0 {
+				name = temp.Name
+			} else {
+				name = filepath.Base(temp.Path)
+			}
+			log.Println("Adding template name: ", name)
+			templateFile := &dm.ImportFile{Content: string(templateContent), Name: name}
+			imports = append(imports, templateFile)
 			if ok, schema := fc.LoadSchemaForPath(temp.Path); ok {
-				imports = append(imports, &dm.ImportFile{Content: string(schema)})
+				f := &dm.ImportFile{Content: string(schema)}
+				imports = append(imports, f)
 			}
 		}
 		targetConfiguration.Imports = imports

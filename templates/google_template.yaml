@@ -1,4 +1,4 @@
-# Copyright 2016 Google Inc. All rights reserved.
+# Copyright 2015 Google Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,21 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# [START all]
+imports:
+- name: template.jinja
+  path: ./template.jinja
+
 resources:
-- name: the-first-vm
-  type: compute.v1.instance
+- name: template
+  type: template.jinja
   properties:
     zone: europe-west3-a
-    machineType: https://www.googleapis.com/compute/v1/projects/<project-id>/zones/europe-west3-a/machineTypes/f1-micro
-    disks:
-    - deviceName: boot
-      type: PERSISTENT
-      boot: true
-      autoDelete: true
-      initializeParams:
-        sourceImage: https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/family/debian-8
-    networkInterfaces:
-    - network: https://www.googleapis.com/compute/v1/projects/<project-id>/global/networks/default
-      accessConfigs:
-      - name: External NAT
-        type: ONE_TO_ONE_NAT
+    machine-type: f1-micro
+    machine-image: https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/family/debian-8
+    min-instances: 1
+    max-instances: 1
+    target-utilization: 0.6
+    bucket: test-project-bucket
+    scopes:
+    - https://www.googleapis.com/auth/cloud-platform
+
+# [END all]

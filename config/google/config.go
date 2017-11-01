@@ -6,8 +6,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"strings"
-
 	config "github.com/Skarlso/go-furnace/config/common"
 )
 
@@ -37,8 +35,7 @@ func LoadImportFileContent(name string) []byte {
 
 // LoadSchemaForPath returns the content of possible schema files.
 func LoadSchemaForPath(name string) (bool, []byte) {
-	base := name[0:strings.LastIndex(name, ".")]
-	schema := filepath.Join(configPath, base+".schema")
+	schema := filepath.Join(configPath, name+".schema")
 	log.Println("Looking for schema file for: ", name)
 	log.Println("Schema to look for is: ", schema)
 	if _, err := os.Stat(schema); os.IsNotExist(err) {

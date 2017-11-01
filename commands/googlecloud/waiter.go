@@ -26,9 +26,6 @@ func WaitForDeploymentToFinish(d dm.Service, deploymentName string) {
 	var counter int
 	// This needs a timeout
 	for deploymentOp.Operation.Status == "RUNNING" || deploymentOp.Operation.Status == "PENDING" {
-		time.Sleep(1 * time.Duration(time.Second))
-		counter = (counter + 1) % len(config.Spinners[config.SPINNER])
-		fmt.Printf("\r[%s] Waiting for state: %s", yellow(string(config.Spinners[config.SPINNER][counter])), red("DONE"))
 		deploymentOp, err = project.Do()
 		if err != nil {
 			if err.(*googleapi.Error).Code != 404 {
@@ -38,5 +35,8 @@ func WaitForDeploymentToFinish(d dm.Service, deploymentName string) {
 				break
 			}
 		}
+		time.Sleep(1 * time.Duration(time.Second))
+		counter = (counter + 1) % len(config.Spinners[config.SPINNER])
+		fmt.Printf("\r[%s] Waiting for state: %s", yellow(string(config.Spinners[config.SPINNER][counter])), red("DONE"))
 	}
 }

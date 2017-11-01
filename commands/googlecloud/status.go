@@ -10,6 +10,7 @@ import (
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2/google"
 	dm "google.golang.org/api/deploymentmanager/v2"
+	"google.golang.org/api/googleapi"
 )
 
 // Status commands for google Deployment Manager
@@ -27,7 +28,13 @@ func (s *Status) Execute(opts *commander.CommandHelper) {
 	d, _ := dm.New(client)
 	project := d.Deployments.Get(fc.GOOGLEPROJECTNAME, deploymentName)
 	p, err := project.Do()
-	config.CheckError(err)
+	if err != nil {
+		if err.(*googleapi.Error).Code != 404 {
+			config.HandleFatal("error while getting deployment: ", err)
+		} else {
+			config.HandleFatal("Stack not found!", nil)
+		}
+	}
 	manifestID := p.Manifest[strings.LastIndex(p.Manifest, "/")+1 : len(p.Manifest)]
 	manifest := d.Manifests.Get(fc.GOOGLEPROJECTNAME, deploymentName, manifestID)
 	m, err := manifest.Do()
