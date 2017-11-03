@@ -54,7 +54,7 @@ func NewStatus(appName string) *commander.CommandWrapper {
 		Help: &commander.CommandDescriptor{
 			Name:             "status",
 			ShortDescription: "Get the status of an existing Deployment Management group.",
-			LongDescription:  `I'll write this later`,
+			LongDescription:  `Get the status of an existing Deployment Management group.`,
 			Arguments:        "",
 			Examples:         []string{"status"},
 		},

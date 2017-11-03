@@ -96,7 +96,7 @@ func NewCreate(appName string) *commander.CommandWrapper {
 		Help: &commander.CommandDescriptor{
 			Name:             "create",
 			ShortDescription: "Create a Google Deployment Manager",
-			LongDescription:  `I'll write this later`,
+			LongDescription:  `Using a pre-configured yaml file, create a collection of resources using Deployment Manager Service.`,
 			Arguments:        "",
 			Examples:         []string{"create"},
 		},
