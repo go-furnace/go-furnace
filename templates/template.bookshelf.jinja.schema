@@ -19,6 +19,10 @@ info:
   author: Google Inc.
   description: Creates a GCE Deployment
 
+imports:
+- name: startup-script
+  path: ../startup-script.sh
+
 required:
 - zone
 - machine-type

@@ -1,3 +1,6 @@
 [submodule "furnace-codedeploy-app"]
 	path = furnace-codedeploy-app
 	url = https://github.com/Skarlso/furnace-codedeploy-app.git
+[submodule "furnace-google-cloud-app"]
+	path = furnace-google-cloud-app
+	url = https://github.com/Skarlso/furnace-google-cloud-app.git

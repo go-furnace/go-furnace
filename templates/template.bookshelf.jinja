@@ -46,8 +46,11 @@ resources:
             scopes: {{ properties['scopes'] }}
       metadata:
         items:
-          - key: startup-script-url
-            value: gs://{{ properties["bucket"] }}/startup-script.sh
+          - key: startup-script
+{# [START startup] #}
+            value: |
+{{imports['startup-script']|indent(14, true)}}
+{# [END startup] #}
       networkInterfaces:
           - network: global/networks/default
             accessConfigs:
