@@ -249,7 +249,7 @@ For further examples checkout the AWS codedeploy example: [AwsLabs](https://gith
 
 Testing the project for development is simply by executing `make test`.
 
-## Google Cloud
+## Google Cloud
 
 Google Cloud integration is a work in progress. Expect further update as it continue to be implemented.
 
@@ -297,7 +297,7 @@ In order to use the templates, name the main template `google_template.yaml` and
 
 *Note: The following section describes how to deploy the sample Go application.*
 
-##### Setup
+##### Setup
 
 First, set the following environment property like this:
 
@@ -313,7 +313,7 @@ Everything else, like region, is configured through the provided Google Template
 
 ##### Startup Script
 
-###### Store your startup script in a bucket
+###### Store your startup script in a bucket
 
 A startup script is what's used in order to bootstrap the instances. Furnace doesn't interpolate a script if it is attached, so rather use a bucket which contains the startup script and use `startup-script-url` template variable to define its location like this:
 
@@ -332,7 +332,7 @@ Right now, furnace doesn't provide an import from a schema file. A future versio
 
 You could always just in-line the script in the template directly.
 
-### Creating a Deployment
+### Creating a Deployment
 
 After everything has been properly configure, execute:
 
