@@ -48,7 +48,7 @@ func deleteStack(stackname string, cfClient *CFClient) {
 	describeStackInput := &cloudformation.DescribeStacksInput{
 		StackName: aws.String(stackname),
 	}
-	WaitForFunctionWithStatusOutput("DELETE_COMPLETE", config.WAITFREQUENCY, func() {
+	waitForFunctionWithStatusOutput("DELETE_COMPLETE", config.WAITFREQUENCY, func() {
 		cfClient.Client.WaitUntilStackDeleteComplete(describeStackInput)
 	})
 }

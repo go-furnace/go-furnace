@@ -14,7 +14,7 @@ var red = color.New(color.FgRed).SprintFunc()
 var keyName = color.New(color.FgWhite, color.Bold).SprintFunc()
 
 // WaitForFunctionWithStatusOutput waits for a function to complete its action.
-func WaitForFunctionWithStatusOutput(state string, freq int, f func()) {
+func waitForFunctionWithStatusOutput(state string, freq int, f func()) {
 	var wg sync.WaitGroup
 	wg.Add(1)
 	done := make(chan bool)

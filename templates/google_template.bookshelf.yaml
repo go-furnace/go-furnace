@@ -14,12 +14,12 @@
 
 # [START all]
 imports:
-- name: simple_template.jinja
-  path: ./simple_template.jinja
+- name: template.jinja
+  path: ./template.jinja
 
 resources:
-- name: simple_template
-  type: simple_template.jinja
+- name: template
+  type: template.jinja
   properties:
     zone: europe-west3-a
     machine-type: f1-micro

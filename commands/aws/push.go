@@ -178,7 +178,7 @@ func push(appName string, asg string, client *CDClient) {
 	}
 	resp, err := client.Client.CreateDeployment(params)
 	config.CheckError(err)
-	WaitForFunctionWithStatusOutput("SUCCEEDED", config.WAITFREQUENCY, func() {
+	waitForFunctionWithStatusOutput("SUCCEEDED", config.WAITFREQUENCY, func() {
 		client.Client.WaitUntilDeploymentSuccessful(&codedeploy.GetDeploymentInput{
 			DeploymentId: resp.DeploymentId,
 		})

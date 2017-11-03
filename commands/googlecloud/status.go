@@ -19,7 +19,7 @@ type Status struct {
 
 // Execute runs the create command
 func (s *Status) Execute(opts *commander.CommandHelper) {
-	log.Println("Creating Deployment under project name: .", keyName(fc.GOOGLEPROJECTNAME))
+	log.Println("Looking for Deployment under project name: .", keyName(fc.GOOGLEPROJECTNAME))
 	deploymentName := config.STACKNAME
 	log.Println("Deployment name is: ", keyName(deploymentName))
 	ctx := context.Background()

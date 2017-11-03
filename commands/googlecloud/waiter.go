@@ -17,7 +17,7 @@ var yellow = color.New(color.FgYellow).SprintFunc()
 var red = color.New(color.FgRed).SprintFunc()
 
 // WaitForDeploymentToFinish waits for a google deployment to finish.
-func WaitForDeploymentToFinish(d dm.Service, deploymentName string) {
+func waitForDeploymentToFinish(d dm.Service, deploymentName string) {
 	project := d.Deployments.Get(googleconfig.GOOGLEPROJECTNAME, deploymentName)
 	deploymentOp, err := project.Do()
 	if err != nil {

@@ -28,7 +28,7 @@ func (d *Delete) Execute(opts *commander.CommandHelper) {
 	if err != nil {
 		log.Fatal("error while deleting deployment: ", err)
 	}
-	WaitForDeploymentToFinish(*d2, deploymentName)
+	waitForDeploymentToFinish(*d2, deploymentName)
 }
 
 // NewDelete Create a new create command

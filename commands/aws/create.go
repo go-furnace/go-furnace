@@ -72,7 +72,7 @@ func (cf *CFClient) waitForStackCreateCompleteStatus(stackname string) {
 	describeStackInput := &cloudformation.DescribeStacksInput{
 		StackName: aws.String(stackname),
 	}
-	WaitForFunctionWithStatusOutput("CREATE_COMPLETE", config.WAITFREQUENCY, func() {
+	waitForFunctionWithStatusOutput("CREATE_COMPLETE", config.WAITFREQUENCY, func() {
 		cf.Client.WaitUntilStackCreateComplete(describeStackInput)
 	})
 }

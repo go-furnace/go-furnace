@@ -32,7 +32,7 @@ func (c *Create) Execute(opts *commander.CommandHelper) {
 	ret := d.Deployments.Insert(fc.GOOGLEPROJECTNAME, deployments)
 	_, err = ret.Do()
 	config.CheckError(err)
-	WaitForDeploymentToFinish(*d, deploymentName)
+	waitForDeploymentToFinish(*d, deploymentName)
 }
 
 // Path contains all the jinja imports in the config.yml file.
