@@ -89,7 +89,7 @@ if that is not set, the default is used which is `CodeDeployServiceRole`. This d
 Furnace provides the following commands (which you can check by running `./furnace`):
 
 ```bash
-➜  go-furnace git:(master) ✗ ./furnace
+➜  go-furnace git:(master) ✗ ./furnace aws
 create                    Create a stack
 delete                    Delete a stack
 status                    Status of a stack.
@@ -153,7 +153,7 @@ export FURNACE_GIT_ACCOUNT=skarlso/furnace-codedeploy-app
 
 ##### S3
 
-To use S3 for deployment, push needs an additional flag like this: `furnace push --s3`. This requires the following
+To use S3 for deployment, push needs an additional flag like this: `furnace aws push --s3`. This requires the following
 two environment properties:
 
 ```bash
