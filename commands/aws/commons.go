@@ -1,4 +1,4 @@
-package commands
+package awscommands
 
 import (
 	"bufio"
@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/Skarlso/go-furnace/utils"
+	config "github.com/Skarlso/go-furnace/config/common"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
 	"github.com/fatih/color"
@@ -41,7 +41,7 @@ func readInputFrom(source *os.File) string {
 
 func (cf *CFClient) describeStacks(descStackInput *cloudformation.DescribeStacksInput) *cloudformation.DescribeStacksOutput {
 	descResp, err := cf.Client.DescribeStacks(descStackInput)
-	utils.CheckError(err)
+	config.CheckError(err)
 	return descResp
 }
 
@@ -51,6 +51,6 @@ func (cf *CFClient) validateTemplate(template []byte) *cloudformation.ValidateTe
 		TemplateBody: aws.String(string(template)),
 	}
 	resp, err := cf.Client.ValidateTemplate(validateParams)
-	utils.CheckError(err)
+	config.CheckError(err)
 	return resp
 }

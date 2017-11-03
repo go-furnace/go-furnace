@@ -1,4 +1,4 @@
-package commands
+package awscommands
 
 import (
 	"github.com/aws/aws-sdk-go/aws"

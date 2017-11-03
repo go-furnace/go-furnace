@@ -1,10 +1,10 @@
-package commands
+package awscommands
 
 import (
 	"log"
 
-	"github.com/Skarlso/go-furnace/config"
-	"github.com/Skarlso/go-furnace/utils"
+	awsconfig "github.com/Skarlso/go-furnace/config/aws"
+	config "github.com/Skarlso/go-furnace/config/common"
 	"github.com/Yitsushi/go-commander"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -22,7 +22,7 @@ func (c *DeleteApp) Execute(opts *commander.CommandHelper) {
 	if len(appName) < 1 {
 		appName = config.STACKNAME
 	}
-	sess := session.New(&aws.Config{Region: aws.String(config.REGION)})
+	sess := session.New(&aws.Config{Region: aws.String(awsconfig.REGION)})
 	cdClient := codedeploy.New(sess, nil)
 	client := CDClient{cdClient}
 	deleteApplication(appName, &client)
@@ -34,7 +34,7 @@ func deleteApplication(appName string, client *CDClient) {
 	_, err := client.Client.DeleteApplication(&codedeploy.DeleteApplicationInput{
 		ApplicationName: aws.String(appName),
 	})
-	utils.CheckError(err)
+	config.CheckError(err)
 }
 
 // NewDeleteApp Creates a new DeleteApp command.

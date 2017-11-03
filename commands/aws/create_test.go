@@ -1,4 +1,4 @@
-package commands
+package awscommands
 
 import (
 	"io"
@@ -12,8 +12,8 @@ import (
 
 	"log"
 
-	"github.com/Skarlso/go-furnace/config"
-	"github.com/Skarlso/go-furnace/utils"
+	awsconfig "github.com/Skarlso/go-furnace/config/aws"
+	config "github.com/Skarlso/go-furnace/config/common"
 	commander "github.com/Yitsushi/go-commander"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
@@ -27,7 +27,7 @@ type fakeCreateCFClient struct {
 }
 
 func init() {
-	utils.LogFatalf = log.Fatalf
+	config.LogFatalf = log.Fatalf
 }
 
 func (fc *fakeCreateCFClient) ValidateTemplate(input *cloudformation.ValidateTemplateInput) (*cloudformation.ValidateTemplateOutput, error) {
@@ -66,7 +66,7 @@ func TestCreateExecute(t *testing.T) {
 
 func TestCreateExecuteEmptyStack(t *testing.T) {
 	failed := false
-	utils.LogFatalf = func(s string, a ...interface{}) {
+	config.LogFatalf = func(s string, a ...interface{}) {
 		failed = true
 	}
 	config.WAITFREQUENCY = 0
@@ -99,7 +99,7 @@ func TestCreateStackReturnsWithError(t *testing.T) {
 	failed := false
 	expectedMessage := "failed to create stack"
 	var message string
-	utils.LogFatalf = func(s string, a ...interface{}) {
+	config.LogFatalf = func(s string, a ...interface{}) {
 		failed = true
 		message = a[0].(error).Error()
 	}
@@ -120,7 +120,7 @@ func TestCreateStackReturnsWithError(t *testing.T) {
 func TestDescribeStackReturnsWithError(t *testing.T) {
 	failed := false
 	var message string
-	utils.LogFatalf = func(s string, a ...interface{}) {
+	config.LogFatalf = func(s string, a ...interface{}) {
 		failed = true
 		if err, ok := a[0].(error); ok {
 			message = err.Error()
@@ -144,7 +144,7 @@ func TestValidateReturnsWithError(t *testing.T) {
 	failed := false
 	expectedMessage := "validation error occurred"
 	var message string
-	utils.LogFatalf = func(s string, a ...interface{}) {
+	config.LogFatalf = func(s string, a ...interface{}) {
 		failed = true
 		if err, ok := a[0].(error); ok {
 			message = err.Error()
@@ -256,11 +256,11 @@ func TestPreCreatePlugins(t *testing.T) {
 	runner := func() {
 		ran = true
 	}
-	plugins := config.Plugin{
+	plugins := awsconfig.Plugin{
 		Name: "testPlugin",
 		Run:  runner,
 	}
-	config.PluginRegistry[config.PRECREATE] = []config.Plugin{plugins}
+	awsconfig.PluginRegistry[config.PRECREATE] = []awsconfig.Plugin{plugins}
 	config.WAITFREQUENCY = 0
 	client := new(CFClient)
 	stackname := "NotEmptyStack"
@@ -277,11 +277,11 @@ func TestPostCreatePlugins(t *testing.T) {
 	runner := func() {
 		ran = true
 	}
-	plugins := config.Plugin{
+	plugins := awsconfig.Plugin{
 		Name: "testPlugin",
 		Run:  runner,
 	}
-	config.PluginRegistry[config.POSTCREATE] = []config.Plugin{plugins}
+	awsconfig.PluginRegistry[config.POSTCREATE] = []awsconfig.Plugin{plugins}
 	config.WAITFREQUENCY = 0
 	client := new(CFClient)
 	stackname := "NotEmptyStack"

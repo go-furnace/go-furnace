@@ -24,11 +24,7 @@ func init() {
 
 func main() {
 	registry := cmd.NewCommandRegistry()
-	registry.Register(commands.NewCreate)
-	registry.Register(commands.NewDelete)
-	registry.Register(commands.NewStatus)
-	registry.Register(commands.NewPush)
-	registry.Register(commands.NewDeleteApp)
-	registry.Register(commands.NewUpdate)
+	registry.Register(commands.NewAws)
+	registry.Register(commands.NewGoogle)
 	registry.Execute()
 }

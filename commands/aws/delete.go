@@ -1,10 +1,10 @@
-package commands
+package awscommands
 
 import (
 	"log"
 
-	"github.com/Skarlso/go-furnace/config"
-	"github.com/Skarlso/go-furnace/utils"
+	awsconfig "github.com/Skarlso/go-furnace/config/aws"
+	config "github.com/Skarlso/go-furnace/config/common"
 	"github.com/Yitsushi/go-commander"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -18,7 +18,7 @@ type Delete struct {
 
 // Execute defines what this command does.
 func (c *Delete) Execute(opts *commander.CommandHelper) {
-	sess := session.New(&aws.Config{Region: aws.String(config.REGION)})
+	sess := session.New(&aws.Config{Region: aws.String(awsconfig.REGION)})
 	cfClient := cloudformation.New(sess, nil)
 	client := CFClient{cfClient}
 	deleteExecute(opts, &client)
@@ -28,12 +28,12 @@ func deleteExecute(opts *commander.CommandHelper, client *CFClient) {
 	stackname := config.STACKNAME
 	cyan := color.New(color.FgCyan).SprintFunc()
 	log.Printf("Deleting CloudFormation stack with name: %s\n", cyan(stackname))
-	for _, p := range config.PluginRegistry[config.PREDELETE] {
+	for _, p := range awsconfig.PluginRegistry[awsconfig.PREDELETE] {
 		log.Println("Running plugin: ", p.Name)
 		p.Run.(func())()
 	}
 	deleteStack(stackname, client)
-	for _, p := range config.PluginRegistry[config.POSTDELETE] {
+	for _, p := range awsconfig.PluginRegistry[awsconfig.POSTDELETE] {
 		log.Println("Running plugin: ", p.Name)
 		p.Run.(func())()
 	}
@@ -44,11 +44,11 @@ func deleteStack(stackname string, cfClient *CFClient) {
 		StackName: aws.String(stackname),
 	}
 	_, err := cfClient.Client.DeleteStack(params)
-	utils.CheckError(err)
+	config.CheckError(err)
 	describeStackInput := &cloudformation.DescribeStacksInput{
 		StackName: aws.String(stackname),
 	}
-	utils.WaitForFunctionWithStatusOutput("DELETE_COMPLETE", config.WAITFREQUENCY, func() {
+	waitForFunctionWithStatusOutput("DELETE_COMPLETE", config.WAITFREQUENCY, func() {
 		cfClient.Client.WaitUntilStackDeleteComplete(describeStackInput)
 	})
 }

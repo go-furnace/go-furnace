@@ -1,15 +1,15 @@
-package config
+package awsconfig
 
 import (
 	"io/ioutil"
 	"log"
 	"os"
-	"os/user"
 	"path/filepath"
 	"plugin"
-	"strconv"
 
 	"strings"
+
+	config "github.com/Skarlso/go-furnace/config/common"
 )
 
 const (
@@ -29,17 +29,6 @@ const CODEDEPLOYROLE = "CodeDeployServiceRole"
 // REGION to operate in.
 var REGION string
 
-var configPath string
-
-// WAITFREQUENCY global wait frequency default.
-var WAITFREQUENCY = 1
-
-// STACKNAME is the default name for a stack.
-var STACKNAME = "FurnaceStack"
-
-// SPINNER is the index of which spinner to use. Defaults to 7.
-var SPINNER int
-
 // Plugin is a plugin to execute
 type Plugin struct {
 	Run  interface{}
@@ -49,31 +38,13 @@ type Plugin struct {
 // PluginRegistry is a registry of plugins for certain events
 var PluginRegistry map[string][]Plugin
 
-// Path retrieves the main configuration path.
-func Path() string {
-	// Get configuration path
-	usr, err := user.Current()
-	if err != nil {
-		log.Fatalf("Error occurred: %s", err.Error())
-	}
-	return filepath.Join(usr.HomeDir, ".config", "go-furnace")
-}
+var configPath string
 
 func init() {
-	configPath = Path()
-	REGION = os.Getenv("FURNACE_REGION")
-	spinner := os.Getenv("FURNACE_SPINNER")
-	if len(spinner) < 1 {
-		SPINNER = 7
-	} else {
-		SPINNER, _ = strconv.Atoi(spinner)
-	}
+	configPath = config.Path()
+	REGION = os.Getenv("AWS_FURNACE_REGION")
 	if len(REGION) < 1 {
-		log.Fatal("Please define a region to operate in with FURNACE_REGION exp: eu-central-1.")
-	}
-	stackname := os.Getenv("FURNACE_STACKNAME")
-	if len(stackname) > 0 {
-		STACKNAME = stackname
+		log.Fatal("Please define a region to operate in with AWS_FURNACE_REGION exp: eu-central-1.")
 	}
 	PluginRegistry = fillRegistry()
 }
@@ -122,8 +93,6 @@ func fillRegistry() map[string][]Plugin {
 // LoadCFStackConfig Load the CF stack configuration file into a []byte.
 func LoadCFStackConfig() []byte {
 	dat, err := ioutil.ReadFile(filepath.Join(configPath, "cloud_formation.json"))
-	if err != nil {
-		log.Fatalf("Error occurred: %s", err.Error())
-	}
+	config.CheckError(err)
 	return dat
 }

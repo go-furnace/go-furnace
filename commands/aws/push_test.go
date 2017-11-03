@@ -1,4 +1,4 @@
-package commands
+package awscommands
 
 import (
 	"errors"
@@ -7,8 +7,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/Skarlso/go-furnace/config"
-	"github.com/Skarlso/go-furnace/utils"
+	config "github.com/Skarlso/go-furnace/config/common"
 	commander "github.com/Yitsushi/go-commander"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -37,7 +36,7 @@ type fakePushCDClient struct {
 }
 
 func init() {
-	utils.LogFatalf = log.Fatalf
+	config.LogFatalf = log.Fatalf
 }
 
 func (fiam *fakePushIAMClient) GetRole(*iam.GetRoleInput) (*iam.GetRoleOutput, error) {
@@ -143,7 +142,7 @@ func TestDetermineDeploymentFailS3BucketNotSet(t *testing.T) {
 	failed := false
 	expectedMessage := "Please define FURNACE_S3BUCKET for the bucket to use."
 	var message string
-	utils.LogFatalf = func(s string, a ...interface{}) {
+	config.LogFatalf = func(s string, a ...interface{}) {
 		failed = true
 		message = s
 	}
@@ -163,7 +162,7 @@ func TestDetermineDeploymentFailS3KeyNotSet(t *testing.T) {
 	failed := false
 	expectedMessage := "Please define FURNACE_S3KEY for the application to deploy."
 	var message string
-	utils.LogFatalf = func(s string, a ...interface{}) {
+	config.LogFatalf = func(s string, a ...interface{}) {
 		failed = true
 		message = s
 	}
@@ -184,7 +183,7 @@ func TestDetermineDeploymentFailGitAccountNotSet(t *testing.T) {
 	failed := false
 	expectedMessage := "Please define a git account and project to deploy from in the form of: account/project under FURNACE_GIT_ACCOUNT."
 	var message string
-	utils.LogFatalf = func(s string, a ...interface{}) {
+	config.LogFatalf = func(s string, a ...interface{}) {
 		failed = true
 		message = s
 	}
@@ -204,7 +203,7 @@ func TestDetermineDeploymentFailGitRevisionNotSet(t *testing.T) {
 	failed := false
 	expectedMessage := "Please define the git commit hash to use for deploying under FURNACE_GIT_REVISION."
 	var message string
-	utils.LogFatalf = func(s string, a ...interface{}) {
+	config.LogFatalf = func(s string, a ...interface{}) {
 		failed = true
 		message = s
 	}
