@@ -9,6 +9,15 @@ Pre-built binaries are now available at: [Furnace Website](https://skarlso.githu
 
 ## Intro
 
+## Brief Explanation
+
+Here is a very short description of what Furnace does in a handy IKEA manual format.
+
+![Furnace1](img/ikea-furnace-1.png)
+![Furnace2](img/ikea-furnace-2.png)
+
+## In More Depth
+
 AWS Cloud Formation hosting with Go. This project utilizes the power of AWS CloudFormation and CodeDeploy in order to
 simply deploy an application into a robust, self-healing, redundant environment. The environment is configurable through
 the CloudFormation Template. A sample can be found in the `templates` folder.
