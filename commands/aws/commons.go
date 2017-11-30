@@ -19,7 +19,7 @@ func gatherParameters(source *os.File, params *cloudformation.ValidateTemplateOu
 	log.Println("Gathering parameters.")
 	for _, v := range params.Parameters {
 		var param cloudformation.Parameter
-		fmt.Printf("%s - '%s'(%s):", v.Description, keyName(v.ParameterKey), defaultValue(v.DefaultValue))
+		fmt.Printf("%s - '%s'(%s):", aws.StringValue(v.Description), keyName(aws.StringValue(v.ParameterKey)), defaultValue(aws.StringValue(v.DefaultValue)))
 		text := readInputFrom(source)
 		param.SetParameterKey(*v.ParameterKey)
 		text = strings.Trim(text, "\n")
