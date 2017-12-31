@@ -4,3 +4,5 @@ furnace
 *.swp
 cover.out
 .vscode
+tags
+vendor

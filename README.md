@@ -436,6 +436,10 @@ Layout:
   type: template.jinja
 ```
 
+## Dep
+
+Furnace is now using `dep` to manage it's dependencies.
+
 ## Contributions
 
 Contributions are very welcomed, ideas, questions, remarks, please don't hesitate to submit a ticket. On what to do,
