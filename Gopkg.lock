@@ -14,10 +14,10 @@
   version = "2.1.0"
 
 [[projects]]
-  name = "github.com/aws/aws-sdk-go"
-  packages = ["aws","aws/awserr","aws/awsutil","aws/client","aws/client/metadata","aws/corehandlers","aws/credentials","aws/credentials/ec2rolecreds","aws/credentials/endpointcreds","aws/credentials/stscreds","aws/defaults","aws/ec2metadata","aws/endpoints","aws/request","aws/session","aws/signer/v4","internal/shareddefaults","private/protocol","private/protocol/json/jsonutil","private/protocol/jsonrpc","private/protocol/query","private/protocol/query/queryutil","private/protocol/rest","private/protocol/xml/xmlutil","service/cloudformation","service/cloudformation/cloudformationiface","service/codedeploy","service/codedeploy/codedeployiface","service/iam","service/iam/iamiface","service/sts"]
-  revision = "5db34a6d9a78f5a3c6a713197aeb6bf159458211"
-  version = "v1.12.54"
+  name = "github.com/aws/aws-sdk-go-v2"
+  packages = ["aws","aws/awserr","aws/defaults","aws/ec2metadata","aws/ec2rolecreds","aws/endpointcreds","aws/endpoints","aws/external","aws/signer/v4","aws/stscreds","internal/awsutil","internal/sdk","private/protocol","private/protocol/json/jsonutil","private/protocol/jsonrpc","private/protocol/query","private/protocol/query/queryutil","private/protocol/rest","private/protocol/xml/xmlutil","service/cloudformation","service/cloudformation/cloudformationiface","service/codedeploy","service/codedeploy/codedeployiface","service/iam","service/iam/iamiface","service/sts"]
+  revision = "ac26486d921d336e20fec49e2afb348c801f0003"
+  version = "v2.0.0-preview.1"
 
 [[projects]]
   name = "github.com/fatih/color"
@@ -99,6 +99,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "93d0789a0214c6b431b97d6cb82f42ffd402261a9a75b4f07ea7be0bcd347f45"
+  inputs-digest = "0150d330baa1dde0f1cb84135aad1a7dd31fe8a01e3483eb9b4f2027f5a97dc9"
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -4,9 +4,10 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/service/codedeploy"
-	"github.com/aws/aws-sdk-go/service/codedeploy/codedeployiface"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/aws/awserr"
+	"github.com/aws/aws-sdk-go-v2/service/codedeploy"
+	"github.com/aws/aws-sdk-go-v2/service/codedeploy/codedeployiface"
 )
 
 type fakeDeleteAppCDClient struct {
@@ -15,8 +16,12 @@ type fakeDeleteAppCDClient struct {
 	awsErr awserr.Error
 }
 
-func (fd *fakeDeleteAppCDClient) DeleteApplication(*codedeploy.DeleteApplicationInput) (*codedeploy.DeleteApplicationOutput, error) {
-	return &codedeploy.DeleteApplicationOutput{}, fd.err
+func (fd *fakeDeleteAppCDClient) DeleteApplicationRequest(*codedeploy.DeleteApplicationInput) codedeploy.DeleteApplicationRequest {
+	return codedeploy.DeleteApplicationRequest{
+		Request: &aws.Request{
+			Data: &codedeploy.DeleteApplicationOutput{},
+		},
+	}
 }
 
 func TestDeletingApplication(t *testing.T) {

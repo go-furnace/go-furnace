@@ -10,9 +10,9 @@ import (
 
 	config "github.com/Skarlso/go-furnace/config/common"
 	commander "github.com/Yitsushi/go-commander"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/cloudformation"
-	"github.com/aws/aws-sdk-go/service/cloudformation/cloudformationiface"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/cloudformation"
+	"github.com/aws/aws-sdk-go-v2/service/cloudformation/cloudformationiface"
 )
 
 type fakeUpdateCFClient struct {
@@ -25,29 +25,46 @@ func init() {
 	config.LogFatalf = log.Fatalf
 }
 
-func (fc *fakeUpdateCFClient) ValidateTemplate(input *cloudformation.ValidateTemplateInput) (*cloudformation.ValidateTemplateOutput, error) {
-	if fc.stackname == "ValidationError" {
-		return &cloudformation.ValidateTemplateOutput{}, fc.err
+func (fc *fakeUpdateCFClient) ValidateTemplateRequest(input *cloudformation.ValidateTemplateInput) cloudformation.ValidateTemplateRequest {
+	return cloudformation.ValidateTemplateRequest{
+		Request: &aws.Request{
+			Data:  &cloudformation.ValidateTemplateOutput{},
+			Error: fc.err,
+		},
+		Input: input,
 	}
-	return &cloudformation.ValidateTemplateOutput{}, nil
 }
 
-func (fc *fakeUpdateCFClient) UpdateStack(input *cloudformation.UpdateStackInput) (*cloudformation.UpdateStackOutput, error) {
-	if fc.stackname == "NotEmptyStack" {
-		return &cloudformation.UpdateStackOutput{StackId: aws.String("DummyID")}, fc.err
+func (fc *fakeUpdateCFClient) UpdateStackRequest(input *cloudformation.UpdateStackInput) cloudformation.UpdateStackRequest {
+	return cloudformation.UpdateStackRequest{
+		Request: &aws.Request{
+			Data: &cloudformation.UpdateStackOutput{
+				StackId: aws.String("DummyID"),
+			},
+			Error: fc.err,
+		},
+		Input: input,
 	}
-	return &cloudformation.UpdateStackOutput{}, nil
 }
 
 func (fc *fakeUpdateCFClient) WaitUntilStackUpdateComplete(input *cloudformation.DescribeStacksInput) error {
 	return nil
 }
 
-func (fc *fakeUpdateCFClient) DescribeStacks(input *cloudformation.DescribeStacksInput) (*cloudformation.DescribeStacksOutput, error) {
-	if fc.stackname == "NotEmptyStack" || fc.stackname == "DescribeStackFailed" {
-		return NotEmptyStack, fc.err
+func (fc *fakeUpdateCFClient) DescribeStacksRequest(input *cloudformation.DescribeStacksInput) cloudformation.DescribeStacksRequest {
+	if fc.stackname == "NotEmptyStack" {
+		return cloudformation.DescribeStacksRequest{
+			Request: &aws.Request{
+				Data:  &NotEmptyStack,
+				Error: fc.err,
+			},
+		}
 	}
-	return &cloudformation.DescribeStacksOutput{}, nil
+	return cloudformation.DescribeStacksRequest{
+		Request: &aws.Request{
+			Data: &cloudformation.DescribeStacksOutput{},
+		},
+	}
 }
 
 func TestUpdateExecute(t *testing.T) {

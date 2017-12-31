@@ -7,8 +7,10 @@ import (
 	awsconfig "github.com/Skarlso/go-furnace/config/aws"
 	config "github.com/Skarlso/go-furnace/config/common"
 	commander "github.com/Yitsushi/go-commander"
-	"github.com/aws/aws-sdk-go/service/cloudformation"
-	"github.com/aws/aws-sdk-go/service/cloudformation/cloudformationiface"
+
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/cloudformation"
+	"github.com/aws/aws-sdk-go-v2/service/cloudformation/cloudformationiface"
 )
 
 type fakeDeleteCFClient struct {
@@ -17,8 +19,12 @@ type fakeDeleteCFClient struct {
 	err       error
 }
 
-func (fc *fakeDeleteCFClient) DeleteStack(*cloudformation.DeleteStackInput) (*cloudformation.DeleteStackOutput, error) {
-	return &cloudformation.DeleteStackOutput{}, fc.err
+func (fc *fakeDeleteCFClient) DeleteStackRequest(*cloudformation.DeleteStackInput) cloudformation.DeleteStackRequest {
+	return cloudformation.DeleteStackRequest{
+		Request: &aws.Request{
+			Data: &cloudformation.DeleteStackOutput{},
+		},
+	}
 }
 
 func (fc *fakeDeleteCFClient) WaitUntilStackDeleteComplete(input *cloudformation.DescribeStacksInput) error {

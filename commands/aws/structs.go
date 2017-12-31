@@ -1,11 +1,11 @@
 package awscommands
 
 import (
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/cloudformation"
-	"github.com/aws/aws-sdk-go/service/cloudformation/cloudformationiface"
-	"github.com/aws/aws-sdk-go/service/codedeploy/codedeployiface"
-	"github.com/aws/aws-sdk-go/service/iam/iamiface"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/cloudformation"
+	"github.com/aws/aws-sdk-go-v2/service/cloudformation/cloudformationiface"
+	"github.com/aws/aws-sdk-go-v2/service/codedeploy/codedeployiface"
+	"github.com/aws/aws-sdk-go-v2/service/iam/iamiface"
 )
 
 // CFClient abstraction for cloudFormation client.
@@ -24,11 +24,11 @@ type IAMClient struct {
 }
 
 // NotEmptyStack test structs which defines a non-empty stack.
-var NotEmptyStack = &cloudformation.DescribeStacksOutput{
-	Stacks: []*cloudformation.Stack{
+var NotEmptyStack = cloudformation.DescribeStacksOutput{
+	Stacks: []cloudformation.Stack{
 		{
 			StackName:   aws.String("TestStack"),
-			StackStatus: aws.String("CREATE_COMPLETE"),
+			StackStatus: cloudformation.StackStatusCreateComplete,
 		},
 	},
 }

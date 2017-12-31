@@ -3,8 +3,9 @@ package awscommands
 import (
 	"testing"
 
-	"github.com/aws/aws-sdk-go/service/cloudformation"
-	"github.com/aws/aws-sdk-go/service/cloudformation/cloudformationiface"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/cloudformation"
+	"github.com/aws/aws-sdk-go-v2/service/cloudformation/cloudformationiface"
 )
 
 type fakeStatusCFClient struct {
@@ -13,11 +14,20 @@ type fakeStatusCFClient struct {
 	err       error
 }
 
-func (fc *fakeStatusCFClient) DescribeStacks(input *cloudformation.DescribeStacksInput) (*cloudformation.DescribeStacksOutput, error) {
+func (fc *fakeStatusCFClient) DescribeStacksRequest(input *cloudformation.DescribeStacksInput) cloudformation.DescribeStacksRequest {
 	if fc.stackname == "NotEmptyStack" {
-		return NotEmptyStack, fc.err
+		return cloudformation.DescribeStacksRequest{
+			Request: &aws.Request{
+				Data:  NotEmptyStack,
+				Error: fc.err,
+			},
+		}
 	}
-	return &cloudformation.DescribeStacksOutput{}, fc.err
+	return cloudformation.DescribeStacksRequest{
+		Request: &aws.Request{
+			Data: &cloudformation.DescribeStacksOutput{},
+		},
+	}
 }
 
 func TestStatusCommandWithStackReturned(t *testing.T) {
