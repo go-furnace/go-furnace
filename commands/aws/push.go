@@ -8,12 +8,12 @@ import (
 	awsconfig "github.com/Skarlso/go-furnace/config/aws"
 	config "github.com/Skarlso/go-furnace/config/common"
 	"github.com/Yitsushi/go-commander"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/cloudformation"
-	"github.com/aws/aws-sdk-go/service/codedeploy"
-	"github.com/aws/aws-sdk-go/service/iam"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/aws/awserr"
+	"github.com/aws/aws-sdk-go-v2/aws/external"
+	"github.com/aws/aws-sdk-go-v2/service/cloudformation"
+	"github.com/aws/aws-sdk-go-v2/service/codedeploy"
+	"github.com/aws/aws-sdk-go-v2/service/iam"
 )
 
 // Push command.
@@ -29,12 +29,13 @@ var gitAccount string
 
 // Execute defines what this command does.
 func (c *Push) Execute(opts *commander.CommandHelper) {
-	sess := session.New(&aws.Config{Region: aws.String(awsconfig.REGION)})
-	cd := codedeploy.New(sess, nil)
+	cfg, err := external.LoadDefaultAWSConfig()
+	config.CheckError(err)
+	cd := codedeploy.New(cfg)
 	cdClient := CDClient{cd}
-	cf := cloudformation.New(sess, nil)
+	cf := cloudformation.New(cfg)
 	cfClient := CFClient{cf}
-	iam := iam.New(sess, nil)
+	iam := iam.New(cfg)
 	iamClient := IAMClient{iam}
 	pushExecute(opts, &cfClient, &cdClient, &iamClient)
 }
@@ -67,13 +68,13 @@ func determineDeployment() {
 		}
 		log.Println("S3 deployment will be used from bucket: ", codeDeployBucket)
 	} else {
-		gitAccount = os.Getenv("FURNACE_GIT_ACCOUNT")
-		gitRevision = os.Getenv("FURNACE_GIT_REVISION")
+		gitAccount = os.Getenv("AWS_FURNACE_GIT_ACCOUNT")
+		gitRevision = os.Getenv("AWS_FURNACE_GIT_REVISION")
 		if len(gitAccount) < 1 {
-			config.HandleFatal("Please define a git account and project to deploy from in the form of: account/project under FURNACE_GIT_ACCOUNT.", nil)
+			config.HandleFatal("Please define a git account and project to deploy from in the form of: account/project under AWS_FURNACE_GIT_ACCOUNT.", nil)
 		}
 		if len(gitRevision) < 1 {
-			config.HandleFatal("Please define the git commit hash to use for deploying under FURNACE_GIT_REVISION.", nil)
+			config.HandleFatal("Please define the git commit hash to use for deploying under AWS_FURNACE_GIT_REVISION.", nil)
 		}
 		log.Println("GitHub deployment will be used from account: ", gitAccount)
 	}
@@ -84,18 +85,19 @@ func createDeploymentGroup(appName string, role string, asg string, client *CDCl
 		ApplicationName:     aws.String(appName),
 		DeploymentGroupName: aws.String(appName + "DeploymentGroup"),
 		ServiceRoleArn:      aws.String(role),
-		AutoScalingGroups: []*string{
-			aws.String(asg),
+		AutoScalingGroups: []string{
+			asg,
 		},
 		LoadBalancerInfo: &codedeploy.LoadBalancerInfo{
-			ElbInfoList: []*codedeploy.ELBInfo{
+			ElbInfoList: []codedeploy.ELBInfo{
 				{
 					Name: aws.String("ElasticLoadBalancer"),
 				},
 			},
 		},
 	}
-	resp, err := client.Client.CreateDeploymentGroup(params)
+	req := client.Client.CreateDeploymentGroupRequest(params)
+	resp, err := req.Send()
 	if err != nil {
 		if awsErr, ok := err.(awserr.Error); ok {
 			if awsErr.Code() != codedeploy.ErrCodeDeploymentGroupAlreadyExistsException {
@@ -115,7 +117,8 @@ func createApplication(appName string, client *CDClient) error {
 	params := &codedeploy.CreateApplicationInput{
 		ApplicationName: aws.String(appName),
 	}
-	resp, err := client.Client.CreateApplication(params)
+	req := client.Client.CreateApplicationRequest(params)
+	resp, err := req.Send()
 	if err != nil {
 		if awsErr, ok := err.(awserr.Error); ok {
 			if awsErr.Code() != codedeploy.ErrCodeApplicationAlreadyExistsException {
@@ -137,11 +140,11 @@ func revisionLocation() *codedeploy.RevisionLocation {
 		rev = &codedeploy.RevisionLocation{
 			S3Location: &codedeploy.S3Location{
 				Bucket:     aws.String(codeDeployBucket),
-				BundleType: aws.String("zip"),
+				BundleType: "zip",
 				Key:        aws.String(s3Key),
 				// Version:    aws.String("VersionId"), TODO: This needs improvement
 			},
-			RevisionType: aws.String("S3"),
+			RevisionType: "S3",
 		}
 	} else {
 		rev = &codedeploy.RevisionLocation{
@@ -149,7 +152,7 @@ func revisionLocation() *codedeploy.RevisionLocation {
 				CommitId:   aws.String(gitRevision),
 				Repository: aws.String(gitAccount),
 			},
-			RevisionType: aws.String("GitHub"),
+			RevisionType: "GitHub",
 		}
 	}
 	return rev
@@ -163,20 +166,21 @@ func push(appName string, asg string, client *CDClient) {
 		DeploymentGroupName:           aws.String(appName + "DeploymentGroup"),
 		Revision:                      revisionLocation(),
 		TargetInstances: &codedeploy.TargetInstances{
-			AutoScalingGroups: []*string{
-				aws.String(asg),
+			AutoScalingGroups: []string{
+				asg,
 			},
-			TagFilters: []*codedeploy.EC2TagFilter{
+			TagFilters: []codedeploy.EC2TagFilter{
 				{
 					Key:   aws.String("fu_stage"),
-					Type:  aws.String("KEY_AND_VALUE"),
+					Type:  "KEY_AND_VALUE",
 					Value: aws.String(config.STACKNAME),
 				},
 			},
 		},
 		UpdateOutdatedInstancesOnly: aws.Bool(false),
 	}
-	resp, err := client.Client.CreateDeployment(params)
+	req := client.Client.CreateDeploymentRequest(params)
+	resp, err := req.Send()
 	config.CheckError(err)
 	waitForFunctionWithStatusOutput("SUCCEEDED", config.WAITFREQUENCY, func() {
 		client.Client.WaitUntilDeploymentSuccessful(&codedeploy.GetDeploymentInput{
@@ -184,18 +188,20 @@ func push(appName string, asg string, client *CDClient) {
 		})
 	})
 	fmt.Println()
-	deployment, err := client.Client.GetDeployment(&codedeploy.GetDeploymentInput{
+	deploymentRequest := client.Client.GetDeploymentRequest(&codedeploy.GetDeploymentInput{
 		DeploymentId: resp.DeploymentId,
 	})
+	deployment, err := deploymentRequest.Send()
 	config.CheckError(err)
-	log.Println("Deployment Status: ", *deployment.DeploymentInfo.Status)
+	log.Println("Deployment Status: ", deployment.DeploymentInfo.Status)
 }
 
 func getAutoScalingGroupKey(client *CFClient) string {
 	params := &cloudformation.ListStackResourcesInput{
 		StackName: aws.String(config.STACKNAME),
 	}
-	resp, err := client.Client.ListStackResources(params)
+	req := client.Client.ListStackResourcesRequest(params)
+	resp, err := req.Send()
 	config.CheckError(err)
 	for _, r := range resp.StackResourceSummaries {
 		if *r.ResourceType == "AWS::AutoScaling::AutoScalingGroup" {
@@ -209,7 +215,8 @@ func getCodeDeployRoleARN(roleName string, client *IAMClient) string {
 	params := &iam.GetRoleInput{
 		RoleName: aws.String(roleName),
 	}
-	resp, err := client.Client.GetRole(params)
+	req := client.Client.GetRoleRequest(params)
+	resp, err := req.Send()
 	config.CheckError(err)
 	return *resp.Role.Arn
 }

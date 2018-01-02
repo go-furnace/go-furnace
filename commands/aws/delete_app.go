@@ -3,12 +3,11 @@ package awscommands
 import (
 	"log"
 
-	awsconfig "github.com/Skarlso/go-furnace/config/aws"
 	config "github.com/Skarlso/go-furnace/config/common"
 	"github.com/Yitsushi/go-commander"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/codedeploy"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/aws/external"
+	"github.com/aws/aws-sdk-go-v2/service/codedeploy"
 	"github.com/fatih/color"
 )
 
@@ -22,8 +21,9 @@ func (c *DeleteApp) Execute(opts *commander.CommandHelper) {
 	if len(appName) < 1 {
 		appName = config.STACKNAME
 	}
-	sess := session.New(&aws.Config{Region: aws.String(awsconfig.REGION)})
-	cdClient := codedeploy.New(sess, nil)
+	cfg, err := external.LoadDefaultAWSConfig()
+	config.CheckError(err)
+	cdClient := codedeploy.New(cfg)
 	client := CDClient{cdClient}
 	deleteApplication(appName, &client)
 }
@@ -31,9 +31,10 @@ func (c *DeleteApp) Execute(opts *commander.CommandHelper) {
 func deleteApplication(appName string, client *CDClient) {
 	var yellow = color.New(color.FgYellow).SprintFunc()
 	log.Println("Deleting: ", yellow(appName))
-	_, err := client.Client.DeleteApplication(&codedeploy.DeleteApplicationInput{
+	req := client.Client.DeleteApplicationRequest(&codedeploy.DeleteApplicationInput{
 		ApplicationName: aws.String(appName),
 	})
+	_, err := req.Send()
 	config.CheckError(err)
 }
 

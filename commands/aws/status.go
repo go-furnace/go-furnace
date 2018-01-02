@@ -4,12 +4,11 @@ import (
 	"fmt"
 	"log"
 
-	awsconfig "github.com/Skarlso/go-furnace/config/aws"
 	config "github.com/Skarlso/go-furnace/config/common"
 	"github.com/Yitsushi/go-commander"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/cloudformation"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/aws/external"
+	"github.com/aws/aws-sdk-go-v2/service/cloudformation"
 	"github.com/fatih/color"
 )
 
@@ -20,7 +19,7 @@ type Status struct {
 // ResourceStatus defines a resource.
 type ResourceStatus struct {
 	// Status is the status of the resource
-	Status string
+	Status cloudformation.ResourceStatus
 	// PhysicalId of the resource
 	PhysicalID string
 	// LogicalId of the resource
@@ -32,8 +31,9 @@ type ResourceStatus struct {
 // Execute defines what this command does.
 func (c *Status) Execute(opts *commander.CommandHelper) {
 	stackname := config.STACKNAME
-	sess := session.New(&aws.Config{Region: aws.String(awsconfig.REGION)})
-	cfClient := cloudformation.New(sess, nil)
+	cfg, err := external.LoadDefaultAWSConfig()
+	config.CheckError(err)
+	cfClient := cloudformation.New(cfg)
 	client := CFClient{cfClient}
 	stack := stackStatus(stackname, &client)
 	info := color.New(color.FgWhite, color.Bold).SprintFunc()
@@ -43,7 +43,8 @@ func (c *Status) Execute(opts *commander.CommandHelper) {
 }
 
 func stackStatus(stackname string, cfClient *CFClient) *cloudformation.DescribeStacksOutput {
-	descResp, err := cfClient.Client.DescribeStacks(&cloudformation.DescribeStacksInput{StackName: aws.String(stackname)})
+	req := cfClient.Client.DescribeStacksRequest(&cloudformation.DescribeStacksInput{StackName: aws.String(stackname)})
+	descResp, err := req.Send()
 	config.CheckError(err)
 	fmt.Println()
 	return descResp
@@ -51,10 +52,11 @@ func stackStatus(stackname string, cfClient *CFClient) *cloudformation.DescribeS
 
 func stackResources(stackname string, cfClient *CFClient) []ResourceStatus {
 	resources := make([]ResourceStatus, 0)
-	descResp, err := cfClient.Client.DescribeStackResources(&cloudformation.DescribeStackResourcesInput{StackName: aws.String(stackname)})
+	req := cfClient.Client.DescribeStackResourcesRequest(&cloudformation.DescribeStackResourcesInput{StackName: aws.String(stackname)})
+	descResp, err := req.Send()
 	config.CheckError(err)
 	for _, r := range descResp.StackResources {
-		res := ResourceStatus{Status: *r.ResourceStatus, PhysicalID: *r.PhysicalResourceId, LogicalID: *r.LogicalResourceId, Type: *r.ResourceType}
+		res := ResourceStatus{Status: r.ResourceStatus, PhysicalID: *r.PhysicalResourceId, LogicalID: *r.LogicalResourceId, Type: *r.ResourceType}
 		resources = append(resources, res)
 	}
 	fmt.Println()

@@ -8,9 +8,9 @@ import (
 	awsconfig "github.com/Skarlso/go-furnace/config/aws"
 	config "github.com/Skarlso/go-furnace/config/common"
 	"github.com/Yitsushi/go-commander"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/cloudformation"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/aws/external"
+	"github.com/aws/aws-sdk-go-v2/service/cloudformation"
 	"github.com/fatih/color"
 )
 
@@ -21,8 +21,9 @@ type Create struct {
 // Execute defines what this command does.
 func (c *Create) Execute(opts *commander.CommandHelper) {
 	log.Println("Creating cloud formation session.")
-	sess := session.New(&aws.Config{Region: aws.String(awsconfig.REGION)})
-	cfClient := cloudformation.New(sess, nil)
+	cfg, err := external.LoadDefaultAWSConfig()
+	config.CheckError(err)
+	cfClient := cloudformation.New(cfg)
 	client := CFClient{cfClient}
 	createExecute(opts, &client)
 }
@@ -41,7 +42,7 @@ func createExecute(opts *commander.CommandHelper, client *CFClient) {
 	}
 	var red = color.New(color.FgRed).SprintFunc()
 	if stacks != nil {
-		log.Println("Stack state is: ", red(*stacks[0].StackStatus))
+		log.Println("Stack state is: ", red(stacks[0].StackStatus))
 	} else {
 		config.HandleFatal(fmt.Sprintf("No stacks found with name: %s", keyName(stackname)), nil)
 	}
@@ -49,23 +50,24 @@ func createExecute(opts *commander.CommandHelper, client *CFClient) {
 
 // create will create a full stack and encapsulate the functionality of
 // the create command.
-func create(stackname string, template []byte, cfClient *CFClient) []*cloudformation.Stack {
+func create(stackname string, template []byte, cfClient *CFClient) []cloudformation.Stack {
 	validResp := cfClient.validateTemplate(template)
 	stackParameters := gatherParameters(os.Stdin, validResp)
 	stackInputParams := &cloudformation.CreateStackInput{
-		StackName: aws.String(stackname),
-		Capabilities: []*string{
-			aws.String("CAPABILITY_IAM"),
-		},
+		StackName:    aws.String(stackname),
+		Capabilities: []cloudformation.Capability{cloudformation.CapabilityCapabilityIam},
 		Parameters:   stackParameters,
 		TemplateBody: aws.String(string(template)),
 	}
 	resp := cfClient.createStack(stackInputParams)
-	log.Println("Create stack response: ", resp.GoString())
+	log.Println("Create stack response: ", resp)
 	cfClient.waitForStackCreateCompleteStatus(stackname)
 	descResp := cfClient.describeStacks(&cloudformation.DescribeStacksInput{StackName: aws.String(stackname)})
 	fmt.Println()
-	return descResp.Stacks
+	if descResp != nil {
+		return descResp.Stacks
+	}
+	return nil
 }
 
 func (cf *CFClient) waitForStackCreateCompleteStatus(stackname string) {
@@ -79,7 +81,8 @@ func (cf *CFClient) waitForStackCreateCompleteStatus(stackname string) {
 
 func (cf *CFClient) createStack(stackInputParams *cloudformation.CreateStackInput) *cloudformation.CreateStackOutput {
 	log.Println("Creating Stack with name: ", keyName(*stackInputParams.StackName))
-	resp, err := cf.Client.CreateStack(stackInputParams)
+	req := cf.Client.CreateStackRequest(stackInputParams)
+	resp, err := req.Send()
 	config.CheckError(err)
 	return resp
 }

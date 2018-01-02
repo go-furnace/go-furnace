@@ -156,8 +156,8 @@ The default for a push is to locate a sample application on Github which will th
 For this, the following two options need to be defined:
 
 ```bash
-export FURNACE_GIT_REVISION=b80ea5b9dfefcd21e27a3e0f149ec73519d5a6f1
-export FURNACE_GIT_ACCOUNT=skarlso/furnace-codedeploy-app
+export AWS_FURNACE_GIT_REVISION=b80ea5b9dfefcd21e27a3e0f149ec73519d5a6f1
+export AWS_FURNACE_GIT_ACCOUNT=skarlso/furnace-codedeploy-app
 ```
 
 ##### S3

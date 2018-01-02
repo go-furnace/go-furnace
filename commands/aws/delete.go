@@ -6,9 +6,9 @@ import (
 	awsconfig "github.com/Skarlso/go-furnace/config/aws"
 	config "github.com/Skarlso/go-furnace/config/common"
 	"github.com/Yitsushi/go-commander"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/cloudformation"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/aws/external"
+	"github.com/aws/aws-sdk-go-v2/service/cloudformation"
 	"github.com/fatih/color"
 )
 
@@ -18,8 +18,9 @@ type Delete struct {
 
 // Execute defines what this command does.
 func (c *Delete) Execute(opts *commander.CommandHelper) {
-	sess := session.New(&aws.Config{Region: aws.String(awsconfig.REGION)})
-	cfClient := cloudformation.New(sess, nil)
+	cfg, err := external.LoadDefaultAWSConfig()
+	config.CheckError(err)
+	cfClient := cloudformation.New(cfg)
 	client := CFClient{cfClient}
 	deleteExecute(opts, &client)
 }
@@ -43,7 +44,8 @@ func deleteStack(stackname string, cfClient *CFClient) {
 	params := &cloudformation.DeleteStackInput{
 		StackName: aws.String(stackname),
 	}
-	_, err := cfClient.Client.DeleteStack(params)
+	req := cfClient.Client.DeleteStackRequest(params)
+	_, err := req.Send()
 	config.CheckError(err)
 	describeStackInput := &cloudformation.DescribeStacksInput{
 		StackName: aws.String(stackname),

@@ -9,14 +9,14 @@ import (
 
 	config "github.com/Skarlso/go-furnace/config/common"
 	commander "github.com/Yitsushi/go-commander"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/service/cloudformation"
-	"github.com/aws/aws-sdk-go/service/cloudformation/cloudformationiface"
-	"github.com/aws/aws-sdk-go/service/codedeploy"
-	"github.com/aws/aws-sdk-go/service/codedeploy/codedeployiface"
-	"github.com/aws/aws-sdk-go/service/iam"
-	"github.com/aws/aws-sdk-go/service/iam/iamiface"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/aws/awserr"
+	"github.com/aws/aws-sdk-go-v2/service/cloudformation"
+	"github.com/aws/aws-sdk-go-v2/service/cloudformation/cloudformationiface"
+	"github.com/aws/aws-sdk-go-v2/service/codedeploy"
+	"github.com/aws/aws-sdk-go-v2/service/codedeploy/codedeployiface"
+	"github.com/aws/aws-sdk-go-v2/service/iam"
+	"github.com/aws/aws-sdk-go-v2/service/iam/iamiface"
 )
 
 type fakePushCFClient struct {
@@ -39,70 +39,100 @@ func init() {
 	config.LogFatalf = log.Fatalf
 }
 
-func (fiam *fakePushIAMClient) GetRole(*iam.GetRoleInput) (*iam.GetRoleOutput, error) {
-	return &iam.GetRoleOutput{
-		Role: &iam.Role{
-			Arn: aws.String("CoolFakeRole"),
-		},
-	}, fiam.err
-}
-
-func (fc *fakePushCFClient) ListStackResources(input *cloudformation.ListStackResourcesInput) (*cloudformation.ListStackResourcesOutput, error) {
-	if "NoASG" == *input.StackName {
-		return &cloudformation.ListStackResourcesOutput{
-			StackResourceSummaries: []*cloudformation.StackResourceSummary{
-				{
-					ResourceType:       aws.String("NoASG"),
-					PhysicalResourceId: aws.String("arn::whatever"),
+func (fiam *fakePushIAMClient) GetRoleRequest(*iam.GetRoleInput) iam.GetRoleRequest {
+	return iam.GetRoleRequest{
+		Request: &aws.Request{
+			Data: &iam.GetRoleOutput{
+				Role: &iam.Role{
+					Arn: aws.String("CoolFakeRole"),
 				},
 			},
-		}, fc.err
+		},
 	}
-	return &cloudformation.ListStackResourcesOutput{
-		StackResourceSummaries: []*cloudformation.StackResourceSummary{
-			{
-				ResourceType:       aws.String("AWS::AutoScaling::AutoScalingGroup"),
-				PhysicalResourceId: aws.String("arn::whatever"),
+}
+
+func (fc *fakePushCFClient) ListStackResourcesRequest(input *cloudformation.ListStackResourcesInput) cloudformation.ListStackResourcesRequest {
+	var id *string
+	if "NoASG" == *input.StackName {
+		id = aws.String("NoASG")
+	} else {
+		id = aws.String("AWS::AutoScaling::AutoScalingGroup")
+	}
+	return cloudformation.ListStackResourcesRequest{
+		Request: &aws.Request{
+			Data: &cloudformation.ListStackResourcesOutput{
+				StackResourceSummaries: []cloudformation.StackResourceSummary{
+					{
+						ResourceType:       id,
+						PhysicalResourceId: aws.String("arn::whatever"),
+					},
+				},
+			},
+			Error: fc.err,
+		},
+	}
+}
+
+func (fd *fakePushCDClient) CreateDeploymentGroupRequest(input *codedeploy.CreateDeploymentGroupInput) codedeploy.CreateDeploymentGroupRequest {
+	var err error
+	if fd.awsErr != nil {
+		err = fd.awsErr
+	} else {
+		err = fd.err
+	}
+	return codedeploy.CreateDeploymentGroupRequest{
+		Request: &aws.Request{
+			Data:  &codedeploy.CreateDeploymentGroupOutput{},
+			Error: err,
+		},
+	}
+}
+
+func (fd *fakePushCDClient) CreateApplicationRequest(input *codedeploy.CreateApplicationInput) codedeploy.CreateApplicationRequest {
+	var err error
+	if fd.awsErr != nil {
+		err = fd.awsErr
+	} else {
+		err = fd.err
+	}
+	return codedeploy.CreateApplicationRequest{
+		Request: &aws.Request{
+			Data:  &codedeploy.CreateApplicationOutput{},
+			Error: err,
+		},
+	}
+}
+
+func (fd *fakePushCDClient) CreateDeploymentRequest(input *codedeploy.CreateDeploymentInput) codedeploy.CreateDeploymentRequest {
+	return codedeploy.CreateDeploymentRequest{
+		Request: &aws.Request{
+			Data: &codedeploy.CreateDeploymentOutput{
+				DeploymentId: aws.String("fakeID"),
 			},
 		},
-	}, fc.err
-}
-
-func (fd *fakePushCDClient) CreateDeploymentGroup(input *codedeploy.CreateDeploymentGroupInput) (*codedeploy.CreateDeploymentGroupOutput, error) {
-	if fd.awsErr != nil {
-		log.Println("Aws errorcode:", fd.awsErr.Code())
-		return nil, fd.awsErr
 	}
-	return &codedeploy.CreateDeploymentGroupOutput{}, fd.err
-}
-func (fd *fakePushCDClient) CreateApplication(input *codedeploy.CreateApplicationInput) (*codedeploy.CreateApplicationOutput, error) {
-	if fd.awsErr != nil {
-		log.Println("Aws errorcode:", fd.awsErr.Code())
-		return nil, fd.awsErr
-	}
-	return &codedeploy.CreateApplicationOutput{}, fd.err
-}
-
-func (fd *fakePushCDClient) CreateDeployment(input *codedeploy.CreateDeploymentInput) (*codedeploy.CreateDeploymentOutput, error) {
-	return &codedeploy.CreateDeploymentOutput{DeploymentId: aws.String("fakeID")}, fd.err
 }
 
 func (fd *fakePushCDClient) WaitUntilDeploymentSuccessful(input *codedeploy.GetDeploymentInput) error {
 	return fd.err
 }
 
-func (fd *fakePushCDClient) GetDeployment(input *codedeploy.GetDeploymentInput) (*codedeploy.GetDeploymentOutput, error) {
-	return &codedeploy.GetDeploymentOutput{
-		DeploymentInfo: &codedeploy.DeploymentInfo{
-			Status: aws.String("I'm fine"),
+func (fd *fakePushCDClient) GetDeploymentRequest(input *codedeploy.GetDeploymentInput) codedeploy.GetDeploymentRequest {
+	return codedeploy.GetDeploymentRequest{
+		Request: &aws.Request{
+			Data: &codedeploy.GetDeploymentOutput{
+				DeploymentInfo: &codedeploy.DeploymentInfo{
+					Status: codedeploy.DeploymentStatusCreated,
+				},
+			},
 		},
-	}, fd.err
+	}
 }
 
 func TestDetermineDeploymentGit(t *testing.T) {
 	s3Deploy = false
-	os.Setenv("FURNACE_GIT_ACCOUNT", "test/account")
-	os.Setenv("FURNACE_GIT_REVISION", "testrevision")
+	os.Setenv("AWS_FURNACE_GIT_ACCOUNT", "test/account")
+	os.Setenv("AWS_FURNACE_GIT_REVISION", "testrevision")
 	defer os.Clearenv()
 	determineDeployment()
 	if gitAccount != "test/account" {
@@ -114,6 +144,8 @@ func TestDetermineDeploymentGit(t *testing.T) {
 }
 
 func TestPushExecute(t *testing.T) {
+	os.Setenv("AWS_FURNACE_GIT_ACCOUNT", "testAccount")
+	os.Setenv("AWS_FURNACE_GIT_REVISION", "asdf12345")
 	iamClient := new(IAMClient)
 	iamClient.Client = &fakePushIAMClient{err: nil}
 	cdClient := new(CDClient)
@@ -181,13 +213,13 @@ func TestDetermineDeploymentFailS3KeyNotSet(t *testing.T) {
 func TestDetermineDeploymentFailGitAccountNotSet(t *testing.T) {
 	s3Deploy = false
 	failed := false
-	expectedMessage := "Please define a git account and project to deploy from in the form of: account/project under FURNACE_GIT_ACCOUNT."
+	expectedMessage := "Please define a git account and project to deploy from in the form of: account/project under AWS_FURNACE_GIT_ACCOUNT."
 	var message string
 	config.LogFatalf = func(s string, a ...interface{}) {
 		failed = true
 		message = s
 	}
-	os.Setenv("FURNACE_GIT_REVISION", "testrevision")
+	os.Setenv("AWS_FURNACE_GIT_REVISION", "testrevision")
 	defer os.Clearenv()
 	determineDeployment()
 	if !failed {
@@ -201,13 +233,13 @@ func TestDetermineDeploymentFailGitAccountNotSet(t *testing.T) {
 func TestDetermineDeploymentFailGitRevisionNotSet(t *testing.T) {
 	s3Deploy = false
 	failed := false
-	expectedMessage := "Please define the git commit hash to use for deploying under FURNACE_GIT_REVISION."
+	expectedMessage := "Please define the git commit hash to use for deploying under AWS_FURNACE_GIT_REVISION."
 	var message string
 	config.LogFatalf = func(s string, a ...interface{}) {
 		failed = true
 		message = s
 	}
-	os.Setenv("FURNACE_GIT_ACCOUNT", "test/account")
+	os.Setenv("AWS_FURNACE_GIT_ACCOUNT", "test/account")
 	defer os.Clearenv()
 	determineDeployment()
 	if !failed {
@@ -241,7 +273,7 @@ func TestCreateDeploymentGroupFailsOnDifferentError(t *testing.T) {
 	client.Client = &fakePushCDClient{err: nil, awsErr: awserr.New(codedeploy.ErrCodeDeploymentGroupNameRequiredException, "Different error", nil)}
 	err := createDeploymentGroup("dummyApp", "dummyRole", "dummyAsg", client)
 	if err == nil {
-		t.Fatal("error was not nil: ", err)
+		t.Fatal("error was nil: ", err)
 	}
 }
 
@@ -250,7 +282,7 @@ func TestCreateDeploymentGroupFailsOnNonAWSError(t *testing.T) {
 	client.Client = &fakePushCDClient{err: errors.New("non aws error"), awsErr: nil}
 	err := createDeploymentGroup("dummyApp", "dummyRole", "dummyAsg", client)
 	if err == nil {
-		t.Fatal("error was not nil: ", err)
+		t.Fatal("error was nil: ", err)
 	}
 }
 
@@ -277,7 +309,7 @@ func TestCreateApplicationFailsOnDifferentError(t *testing.T) {
 	client.Client = &fakePushCDClient{err: nil, awsErr: awserr.New(codedeploy.ErrCodeApplicationNameRequiredException, "Different error", nil)}
 	err := createApplication("dummyApp", client)
 	if err == nil {
-		t.Fatal("error was not nil: ", err)
+		t.Fatal("error was nil: ", err)
 	}
 }
 
@@ -286,7 +318,7 @@ func TestCreateApplicationFailsOnNonAWSError(t *testing.T) {
 	client.Client = &fakePushCDClient{err: errors.New("non aws error"), awsErr: nil}
 	err := createApplication("dummyApp", client)
 	if err == nil {
-		t.Fatal("error was not nil: ", err)
+		t.Fatal("error was nil: ", err)
 	}
 }
 
@@ -297,11 +329,11 @@ func TestRevisionLocationS3(t *testing.T) {
 	expected := &codedeploy.RevisionLocation{
 		S3Location: &codedeploy.S3Location{
 			Bucket:     aws.String("testBucket"),
-			BundleType: aws.String("zip"),
+			BundleType: codedeploy.BundleTypeZip,
 			Key:        aws.String("testKey"),
 			// Version:    aws.String("VersionId"), TODO: This needs improvement
 		},
-		RevisionType: aws.String("S3"),
+		RevisionType: codedeploy.RevisionLocationTypeS3,
 	}
 	actual := revisionLocation()
 	if !reflect.DeepEqual(actual, expected) {
@@ -319,7 +351,7 @@ func TestRevisionLocationGit(t *testing.T) {
 			CommitId:   aws.String(gitRevision),
 			Repository: aws.String(gitAccount),
 		},
-		RevisionType: aws.String("GitHub"),
+		RevisionType: "GitHub",
 	}
 	actual := revisionLocation()
 	if !reflect.DeepEqual(actual, expected) {

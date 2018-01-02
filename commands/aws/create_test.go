@@ -15,9 +15,9 @@ import (
 	awsconfig "github.com/Skarlso/go-furnace/config/aws"
 	config "github.com/Skarlso/go-furnace/config/common"
 	commander "github.com/Yitsushi/go-commander"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/cloudformation"
-	"github.com/aws/aws-sdk-go/service/cloudformation/cloudformationiface"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/cloudformation"
+	"github.com/aws/aws-sdk-go-v2/service/cloudformation/cloudformationiface"
 )
 
 type fakeCreateCFClient struct {
@@ -30,29 +30,47 @@ func init() {
 	config.LogFatalf = log.Fatalf
 }
 
-func (fc *fakeCreateCFClient) ValidateTemplate(input *cloudformation.ValidateTemplateInput) (*cloudformation.ValidateTemplateOutput, error) {
-	if fc.stackname == "ValidationError" {
-		return &cloudformation.ValidateTemplateOutput{}, fc.err
+func (fc *fakeCreateCFClient) ValidateTemplateRequest(input *cloudformation.ValidateTemplateInput) cloudformation.ValidateTemplateRequest {
+	return cloudformation.ValidateTemplateRequest{
+		Request: &aws.Request{
+			Data:  &cloudformation.ValidateTemplateOutput{},
+			Error: fc.err,
+		},
+		Input: input,
 	}
-	return &cloudformation.ValidateTemplateOutput{}, nil
 }
 
-func (fc *fakeCreateCFClient) CreateStack(input *cloudformation.CreateStackInput) (*cloudformation.CreateStackOutput, error) {
-	if fc.stackname == "NotEmptyStack" {
-		return &cloudformation.CreateStackOutput{StackId: aws.String("DummyID")}, fc.err
+func (fc *fakeCreateCFClient) CreateStackRequest(input *cloudformation.CreateStackInput) cloudformation.CreateStackRequest {
+	return cloudformation.CreateStackRequest{
+		Request: &aws.Request{
+			Data: &cloudformation.CreateStackOutput{
+				StackId: aws.String("DummyID"),
+			},
+			Error: fc.err,
+		},
+		Input: input,
 	}
-	return &cloudformation.CreateStackOutput{}, nil
+
 }
 
 func (fc *fakeCreateCFClient) WaitUntilStackCreateComplete(input *cloudformation.DescribeStacksInput) error {
 	return nil
 }
 
-func (fc *fakeCreateCFClient) DescribeStacks(input *cloudformation.DescribeStacksInput) (*cloudformation.DescribeStacksOutput, error) {
+func (fc *fakeCreateCFClient) DescribeStacksRequest(input *cloudformation.DescribeStacksInput) cloudformation.DescribeStacksRequest {
 	if fc.stackname == "NotEmptyStack" || fc.stackname == "DescribeStackFailed" {
-		return NotEmptyStack, fc.err
+		return cloudformation.DescribeStacksRequest{
+			Request: &aws.Request{
+				Data:  &NotEmptyStack,
+				Error: fc.err,
+			},
+		}
 	}
-	return &cloudformation.DescribeStacksOutput{}, nil
+	return cloudformation.DescribeStacksRequest{
+		Request: &aws.Request{
+			Data: &cloudformation.DescribeStacksOutput{},
+		},
+	}
 }
 
 func TestCreateExecute(t *testing.T) {
@@ -183,7 +201,7 @@ func TestGatheringParametersWithoutSpecifyingUserInputShouldUseDefaultValue(t *t
 	}
 	defer in.Close()
 	validOutput := &cloudformation.ValidateTemplateOutput{
-		Parameters: []*cloudformation.TemplateParameter{
+		Parameters: []cloudformation.TemplateParameter{
 			{
 				DefaultValue: aws.String("DefaultValue"),
 				Description:  aws.String("Description"),
@@ -220,7 +238,7 @@ func TestGatheringParametersWithUserInputShouldUseInput(t *testing.T) {
 	}
 	// Setup the input
 	validOutput := &cloudformation.ValidateTemplateOutput{
-		Parameters: []*cloudformation.TemplateParameter{
+		Parameters: []cloudformation.TemplateParameter{
 			{
 				DefaultValue: aws.String("DefaultValue"),
 				Description:  aws.String("Description"),

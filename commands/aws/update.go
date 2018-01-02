@@ -8,9 +8,9 @@ import (
 	awsconfig "github.com/Skarlso/go-furnace/config/aws"
 	config "github.com/Skarlso/go-furnace/config/common"
 	"github.com/Yitsushi/go-commander"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/cloudformation"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/aws/external"
+	"github.com/aws/aws-sdk-go-v2/service/cloudformation"
 	"github.com/fatih/color"
 )
 
@@ -21,8 +21,9 @@ type Update struct {
 // Execute defines what this command does.
 func (c *Update) Execute(opts *commander.CommandHelper) {
 	log.Println("Creating cloud formation session.")
-	sess := session.New(&aws.Config{Region: aws.String(awsconfig.REGION)})
-	cfClient := cloudformation.New(sess, nil)
+	cfg, err := external.LoadDefaultAWSConfig()
+	config.CheckError(err)
+	cfClient := cloudformation.New(cfg)
 	client := CFClient{cfClient}
 	updateExecute(opts, &client)
 }
@@ -33,28 +34,31 @@ func updateExecute(opts *commander.CommandHelper, client *CFClient) {
 	stacks := update(stackname, template, client)
 	var red = color.New(color.FgRed).SprintFunc()
 	if stacks != nil {
-		log.Println("Stack state is: ", red(*stacks[0].StackStatus))
+		log.Println("Stack state is: ", red(stacks[0].StackStatus))
 	} else {
 		config.HandleFatal(fmt.Sprintf("No stacks found with name: %s", keyName(stackname)), nil)
 	}
 }
 
-func update(stackname string, template []byte, cfClient *CFClient) []*cloudformation.Stack {
+func update(stackname string, template []byte, cfClient *CFClient) []cloudformation.Stack {
 	validResp := cfClient.validateTemplate(template)
 	stackParameters := gatherParameters(os.Stdin, validResp)
 	stackInputParams := &cloudformation.UpdateStackInput{
 		StackName: aws.String(stackname),
-		Capabilities: []*string{
-			aws.String("CAPABILITY_IAM"),
+		Capabilities: []cloudformation.Capability{
+			cloudformation.CapabilityCapabilityIam,
 		},
 		Parameters:   stackParameters,
 		TemplateBody: aws.String(string(template)),
 	}
 	resp := cfClient.updateStack(stackInputParams)
-	log.Println("Update stack response: ", resp.GoString())
+	log.Println("Update stack response: ", resp)
 	cfClient.waitForStackUpdateComplete(stackname)
 	descResp := cfClient.describeStacks(&cloudformation.DescribeStacksInput{StackName: aws.String(stackname)})
 	fmt.Println()
+	if descResp == nil {
+		return nil
+	}
 	return descResp.Stacks
 }
 
@@ -69,7 +73,8 @@ func (cf *CFClient) waitForStackUpdateComplete(stackname string) {
 
 func (cf *CFClient) updateStack(stackInputParams *cloudformation.UpdateStackInput) *cloudformation.UpdateStackOutput {
 	log.Println("Updating Stack with name: ", keyName(*stackInputParams.StackName))
-	resp, err := cf.Client.UpdateStack(stackInputParams)
+	req := cf.Client.UpdateStackRequest(stackInputParams)
+	resp, err := req.Send()
 	config.CheckError(err)
 	return resp
 }
