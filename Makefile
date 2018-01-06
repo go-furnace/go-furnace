@@ -3,7 +3,7 @@
 build-all:
 	make -C aws && make -C gcp
 
-test-all:
+test:
 	go test ./...
 
 get-deps-all:

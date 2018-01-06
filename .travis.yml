@@ -9,7 +9,7 @@ before_install:
     - mkdir -p $HOME/.config/go-furnace
     - cp $TRAVIS_BUILD_DIR/templates/cloud_formation.template $HOME/.config/go-furnace
 
-install: make get-deps
+install: make get-deps-all
 
 script:
     - $HOME/gopath/bin/goveralls -service=travis-ci
