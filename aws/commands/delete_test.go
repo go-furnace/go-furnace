@@ -1,11 +1,11 @@
-package awscommands
+package commands
 
 import (
 	"reflect"
 	"testing"
 
-	awsconfig "github.com/Skarlso/go-furnace/config/aws"
-	config "github.com/Skarlso/go-furnace/config/common"
+	awsconfig "github.com/Skarlso/go-furnace/aws/config"
+	config "github.com/Skarlso/go-furnace/config"
 	commander "github.com/Yitsushi/go-commander"
 
 	"github.com/aws/aws-sdk-go-v2/aws"

@@ -1,11 +1,11 @@
-package awscommands
+package commands
 
 import (
 	"fmt"
 	"sync"
 	"time"
 
-	config "github.com/Skarlso/go-furnace/config/common"
+	config "github.com/Skarlso/go-furnace/config"
 	"github.com/fatih/color"
 )
 

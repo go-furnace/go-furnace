@@ -1,4 +1,4 @@
-package awscommands
+package commands
 
 import (
 	"reflect"
@@ -8,7 +8,7 @@ import (
 
 	"log"
 
-	config "github.com/Skarlso/go-furnace/config/common"
+	config "github.com/Skarlso/go-furnace/config"
 	commander "github.com/Yitsushi/go-commander"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/cloudformation"

@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	config "github.com/Skarlso/go-furnace/config/common"
+	config "github.com/Skarlso/go-furnace/config"
 )
 
 var configPath string

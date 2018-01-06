@@ -1,4 +1,4 @@
-package awscommands
+package commands
 
 import (
 	"reflect"

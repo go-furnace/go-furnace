@@ -1,4 +1,4 @@
-package awscommands
+package commands
 
 import (
 	"bufio"
@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	config "github.com/Skarlso/go-furnace/config/common"
+	config "github.com/Skarlso/go-furnace/config"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/cloudformation"
 	"github.com/fatih/color"

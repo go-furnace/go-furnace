@@ -1,11 +1,11 @@
-package googlecloud
+package commands
 
 import (
 	"log"
 	"strings"
 
-	config "github.com/Skarlso/go-furnace/config/common"
-	fc "github.com/Skarlso/go-furnace/config/google"
+	config "github.com/Skarlso/go-furnace/config"
+	fc "github.com/Skarlso/go-furnace/gcp/config"
 	"github.com/Yitsushi/go-commander"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2/google"

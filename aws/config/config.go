@@ -9,7 +9,7 @@ import (
 
 	"strings"
 
-	config "github.com/Skarlso/go-furnace/config/common"
+	config "github.com/Skarlso/go-furnace/config"
 )
 
 const (

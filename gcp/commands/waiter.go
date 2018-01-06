@@ -1,12 +1,12 @@
-package googlecloud
+package commands
 
 import (
 	"fmt"
 	"log"
 	"time"
 
-	config "github.com/Skarlso/go-furnace/config/common"
-	googleconfig "github.com/Skarlso/go-furnace/config/google"
+	config "github.com/Skarlso/go-furnace/config"
+	googleconfig "github.com/Skarlso/go-furnace/gcp/config"
 	"github.com/fatih/color"
 	dm "google.golang.org/api/deploymentmanager/v2"
 	"google.golang.org/api/googleapi"

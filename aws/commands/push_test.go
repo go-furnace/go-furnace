@@ -1,4 +1,4 @@
-package awscommands
+package commands
 
 import (
 	"errors"
@@ -7,7 +7,7 @@ import (
 	"reflect"
 	"testing"
 
-	config "github.com/Skarlso/go-furnace/config/common"
+	config "github.com/Skarlso/go-furnace/config"
 	commander "github.com/Yitsushi/go-commander"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/aws/awserr"
