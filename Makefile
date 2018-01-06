@@ -6,7 +6,7 @@ BINARY=furnace
 
 
 build:
-	go build -i -o ${BINARY}
+	go build -ldflags="-s -w" -i -o ${BINARY}
 
 osx:
 	go build -i -o ${BINARY}-osx
