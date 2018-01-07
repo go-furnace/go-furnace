@@ -7,4 +7,4 @@ test:
 	go test ./...
 
 get-deps-all:
-	make dep ensure -C aws && make dep ensure -C gcp
+	make get-dep -C aws && make get-dep -C gcp
