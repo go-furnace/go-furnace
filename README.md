@@ -440,6 +440,12 @@ Layout:
 
 Furnace is now using `dep` to manage it's dependencies.
 
+## Separate binaries
+
+In order to try and minimize the binary size of furnace, it has separate binaries for each service it provides.
+
+You can find `furnace-aws` under `aws` and `furnace-gcp` under `gcp`. This way, if you plan on using only aws you don't need to worry about dependencies for Google, and vica-versa.
+
 ## Contributions
 
 Contributions are very welcomed, ideas, questions, remarks, please don't hesitate to submit a ticket. On what to do,

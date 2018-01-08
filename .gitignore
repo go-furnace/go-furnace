@@ -1,4 +1,3 @@
-furnace
 .tags*
 .DS_Store
 *.swp
@@ -6,3 +5,5 @@ cover.out
 .vscode
 tags
 vendor
+furnace-aws
+furnace-gcp
