@@ -26,7 +26,7 @@ func (c *Delete) Execute(opts *commander.CommandHelper) {
 }
 
 func deleteExecute(opts *commander.CommandHelper, client *CFClient) {
-	stackname := config.STACKNAME
+	stackname := awsconfig.Config.Main.Stackname
 	cyan := color.New(color.FgCyan).SprintFunc()
 	log.Printf("Deleting CloudFormation stack with name: %s\n", cyan(stackname))
 	for _, p := range awsconfig.PluginRegistry[awsconfig.PREDELETE] {

@@ -29,7 +29,7 @@ func (c *Create) Execute(opts *commander.CommandHelper) {
 }
 
 func createExecute(opts *commander.CommandHelper, client *CFClient) {
-	stackname := config.STACKNAME
+	stackname := awsconfig.Config.Main.Stackname
 	template := awsconfig.LoadCFStackConfig()
 	for _, p := range awsconfig.PluginRegistry[awsconfig.PRECREATE] {
 		log.Println("Running plugin: ", p.Name)

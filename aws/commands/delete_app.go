@@ -3,6 +3,7 @@ package commands
 import (
 	"log"
 
+	awsconfig "github.com/Skarlso/go-furnace/aws/config"
 	config "github.com/Skarlso/go-furnace/config"
 	"github.com/Yitsushi/go-commander"
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -19,7 +20,7 @@ type DeleteApp struct {
 func (c *DeleteApp) Execute(opts *commander.CommandHelper) {
 	appName := opts.Arg(0)
 	if len(appName) < 1 {
-		appName = config.STACKNAME
+		appName = awsconfig.Config.Main.Stackname
 	}
 	cfg, err := external.LoadDefaultAWSConfig()
 	config.CheckError(err)

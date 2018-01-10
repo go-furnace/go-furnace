@@ -3,14 +3,35 @@ package awsconfig
 import (
 	"io/ioutil"
 	"log"
-	"os"
 	"path/filepath"
 	"plugin"
+
+	"gopkg.in/yaml.v2"
 
 	"strings"
 
 	config "github.com/Skarlso/go-furnace/config"
 )
+
+// Configuration object with all the properties that AWS needs.
+type Configuration struct {
+	Main struct {
+		Stackname string `yaml:"stackname"`
+		Spinner   int    `yaml:"spinner"`
+	} `yaml:"main"`
+	Aws struct {
+		CodeDeployRole     string `yaml:"code_deploy_role"`
+		Region             string `yaml:"region"`
+		EnablePluginSystem bool   `yaml:"enable_plugin_system"`
+		TemplateName       string `yaml:"template_name"`
+		CodeDeploy         struct {
+			S3Bucket    string `yaml:"code_deploy_s3_bucket, omitempty"`
+			S3Key       string `yaml:"code_deploy_s3_key, omitempty"`
+			GitAccount  string `yaml:"git_account, omitempty"`
+			GitRevision string `yaml:"git_revision, omitempty"`
+		} `yaml:"code_deploy"`
+	} `yaml:"aws"`
+}
 
 const (
 	// PRECREATE Event name for plugins
@@ -23,11 +44,8 @@ const (
 	POSTDELETE = "post_delete"
 )
 
-// CODEDEPLOYROLE is the default name of the codedeploy role.
-const CODEDEPLOYROLE = "CodeDeployServiceRole"
-
-// REGION to operate in.
-var REGION string
+// Config is the loaded configuration entity.
+var Config Configuration
 
 // Plugin is a plugin to execute
 type Plugin struct {
@@ -42,17 +60,20 @@ var configPath string
 
 func init() {
 	configPath = config.Path()
-	REGION = os.Getenv("AWS_FURNACE_REGION")
-	if len(REGION) < 1 {
-		log.Fatal("Please define a region to operate in with AWS_FURNACE_REGION exp: eu-central-1.")
-	}
+	Config.loadConfiguration()
 	PluginRegistry = fillRegistry()
 }
 
+func (c *Configuration) loadConfiguration() {
+	content, err := ioutil.ReadFile(filepath.Join(configPath, "furnace_config.yaml"))
+	config.HandleFatal("unable to load configuration file", err)
+	err = yaml.Unmarshal(content, c)
+	config.HandleFatal("couldn't unmarshall yaml content", err)
+}
+
 func fillRegistry() map[string][]Plugin {
-	enable := os.Getenv("FURNACE_ENABLE_PLUGIN_SYSTEM")
 	ret := make(map[string][]Plugin)
-	if len(enable) < 1 {
+	if !Config.Aws.EnablePluginSystem {
 		return ret
 	}
 	// log.Println("Filling plugin registry.")
@@ -92,7 +113,7 @@ func fillRegistry() map[string][]Plugin {
 
 // LoadCFStackConfig Load the CF stack configuration file into a []byte.
 func LoadCFStackConfig() []byte {
-	dat, err := ioutil.ReadFile(filepath.Join(configPath, "cloud_formation.template"))
+	dat, err := ioutil.ReadFile(filepath.Join(configPath, Config.Aws.TemplateName))
 	config.CheckError(err)
 	return dat
 }

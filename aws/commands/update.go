@@ -29,7 +29,7 @@ func (c *Update) Execute(opts *commander.CommandHelper) {
 }
 
 func updateExecute(opts *commander.CommandHelper, client *CFClient) {
-	stackname := config.STACKNAME
+	stackname := awsconfig.Config.Main.Stackname
 	template := awsconfig.LoadCFStackConfig()
 	stacks := update(stackname, template, client)
 	var red = color.New(color.FgRed).SprintFunc()

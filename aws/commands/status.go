@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	awsconfig "github.com/Skarlso/go-furnace/aws/config"
 	config "github.com/Skarlso/go-furnace/config"
 	"github.com/Yitsushi/go-commander"
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -30,7 +31,7 @@ type ResourceStatus struct {
 
 // Execute defines what this command does.
 func (c *Status) Execute(opts *commander.CommandHelper) {
-	stackname := config.STACKNAME
+	stackname := awsconfig.Config.Main.Stackname
 	cfg, err := external.LoadDefaultAWSConfig()
 	config.CheckError(err)
 	cfClient := cloudformation.New(cfg)

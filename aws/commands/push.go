@@ -3,7 +3,6 @@ package commands
 import (
 	"fmt"
 	"log"
-	"os"
 
 	awsconfig "github.com/Skarlso/go-furnace/aws/config"
 	config "github.com/Skarlso/go-furnace/config"
@@ -43,7 +42,7 @@ func (c *Push) Execute(opts *commander.CommandHelper) {
 func pushExecute(opts *commander.CommandHelper, cfClient *CFClient, cdClient *CDClient, iamClient *IAMClient) {
 	appName := opts.Arg(1)
 	if len(appName) < 1 {
-		appName = config.STACKNAME
+		appName = awsconfig.Config.Main.Stackname
 	}
 	s3Deploy = opts.Flags["s3"]
 	determineDeployment()
@@ -58,18 +57,18 @@ func pushExecute(opts *commander.CommandHelper, cfClient *CFClient, cdClient *CD
 
 func determineDeployment() {
 	if s3Deploy {
-		codeDeployBucket = os.Getenv("FURNACE_S3BUCKET")
+		codeDeployBucket = awsconfig.Config.Aws.S3Bucket
 		if len(codeDeployBucket) < 1 {
-			config.HandleFatal("Please define FURNACE_S3BUCKET for the bucket to use.", nil)
+			config.HandleFatal("Please define S3BUCKET for the bucket to use.", nil)
 		}
-		s3Key = os.Getenv("FURNACE_S3KEY")
+		s3Key = awsconfig.Config.Aws.S3Key
 		if len(s3Key) < 1 {
-			config.HandleFatal("Please define FURNACE_S3KEY for the application to deploy.", nil)
+			config.HandleFatal("Please define S3KEY for the application to deploy.", nil)
 		}
 		log.Println("S3 deployment will be used from bucket: ", codeDeployBucket)
 	} else {
-		gitAccount = os.Getenv("AWS_FURNACE_GIT_ACCOUNT")
-		gitRevision = os.Getenv("AWS_FURNACE_GIT_REVISION")
+		gitAccount = awsconfig.Config.Aws.GitAccount
+		gitRevision = awsconfig.Config.Aws.GitRevision
 		if len(gitAccount) < 1 {
 			config.HandleFatal("Please define a git account and project to deploy from in the form of: account/project under AWS_FURNACE_GIT_ACCOUNT.", nil)
 		}

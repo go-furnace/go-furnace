@@ -17,17 +17,6 @@ var Spinners = []string{`←↖↑↗→↘↓↙`,
 	`⣾⣽⣻⢿⡿⣟⣯⣷`,
 	`|/-\`}
 
-const (
-	// PRECREATE Event name for plugins
-	PRECREATE = "pre_create"
-	// POSTCREATE Event name for plugins
-	POSTCREATE = "post_create"
-	// PREDELETE Event name for plugins
-	PREDELETE = "pre_delete"
-	// POSTDELETE Event name for plugins
-	POSTDELETE = "post_delete"
-)
-
 // WAITFREQUENCY global wait frequency default.
 var WAITFREQUENCY = 1
 

@@ -9,6 +9,10 @@ import (
 	config "github.com/Skarlso/go-furnace/config"
 )
 
+// Configuration object with all the properties that GCP needs.
+type Configuration struct {
+}
+
 var configPath string
 
 // GOOGLEPROJECTNAME The name of the google project to do the deployment in.

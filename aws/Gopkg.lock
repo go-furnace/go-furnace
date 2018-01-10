@@ -4,8 +4,8 @@
 [[projects]]
   name = "github.com/Skarlso/go-furnace"
   packages = ["config"]
-  revision = "4eb302ed74846e6a77f97860c4c2956f0d622b4c"
-  version = "v2.0.0"
+  revision = "bca692062372707c4fbe06f591a124fb23204a14"
+  version = "v2.0.1"
 
 [[projects]]
   name = "github.com/Yitsushi/go-commander"
@@ -60,9 +60,15 @@
   packages = ["unix"]
   revision = "dd9ec17814d5b1de388ebe438ec013d57d8b3779"
 
+[[projects]]
+  branch = "v2"
+  name = "gopkg.in/yaml.v2"
+  packages = ["."]
+  revision = "d670f9405373e636a5a2765eea47fac0c9bc91a4"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "3bea8370181d498957de01dae7522de81584dfa4b3cb87c3c79f33d3a3954eed"
+  inputs-digest = "e5a06283efb99bfa8353b70ba207b834a17a18b13dc96a49665231812294b156"
   solver-name = "gps-cdcl"
   solver-version = 1
