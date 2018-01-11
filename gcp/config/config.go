@@ -7,25 +7,47 @@ import (
 	"path/filepath"
 
 	config "github.com/Skarlso/go-furnace/config"
+	yaml "gopkg.in/yaml.v1"
 )
 
 // Configuration object with all the properties that GCP needs.
 type Configuration struct {
+	Main struct {
+		ProjectName string `yaml:"project_name"`
+		Spinner     int    `yaml:"spinner"`
+	} `yaml:"main"`
+	Gcp struct {
+		TemplateName string `yaml:"template_name"`
+		StackName    string `yaml:"stack_name"`
+	} `yaml:"gcp"`
 }
+
+// Config is the loaded configuration entity.
+var Config Configuration
 
 var configPath string
 
-// GOOGLEPROJECTNAME The name of the google project to do the deployment in.
-var GOOGLEPROJECTNAME string
+var defaultConfig = "gcp_furnace_config.yaml"
 
 func init() {
-	GOOGLEPROJECTNAME = os.Getenv("GOOGLE_PROJECT_NAME")
 	configPath = config.Path()
+	fileName := filepath.Join(configPath, defaultConfig)
+	if _, err := os.Stat(fileName); err == nil {
+		Config.LoadConfiguration(fileName)
+	}
+}
+
+// LoadConfiguration loads a yaml file which sets fields for Configuration struct
+func (c *Configuration) LoadConfiguration(configFile string) {
+	content, err := ioutil.ReadFile(configFile)
+	config.CheckError(err)
+	err = yaml.Unmarshal(content, c)
+	config.CheckError(err)
 }
 
 // LoadGoogleStackConfig Loads the google stack configuration file.
 func LoadGoogleStackConfig() []byte {
-	dat, err := ioutil.ReadFile(filepath.Join(configPath, "google_template.yaml"))
+	dat, err := ioutil.ReadFile(filepath.Join(configPath, Config.Gcp.TemplateName))
 	config.CheckError(err)
 	return dat
 }

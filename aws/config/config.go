@@ -3,6 +3,7 @@ package config
 import (
 	"io/ioutil"
 	"log"
+	"os"
 	"path/filepath"
 	"plugin"
 
@@ -62,7 +63,10 @@ var defaultConfig = "aws_furnace_config.yaml"
 
 func init() {
 	configPath = config.Path()
-	Config.LoadConfiguration(filepath.Join(configPath, defaultConfig))
+	fileName := filepath.Join(configPath, defaultConfig)
+	if _, err := os.Stat(fileName); err == nil {
+		Config.LoadConfiguration(fileName)
+	}
 	PluginRegistry = fillRegistry()
 }
 
