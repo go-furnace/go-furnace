@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"errors"
 	"log"
 
 	awsconfig "github.com/Skarlso/go-furnace/aws/config"
@@ -26,6 +27,13 @@ func (c *Delete) Execute(opts *commander.CommandHelper) {
 }
 
 func deleteExecute(opts *commander.CommandHelper, client *CFClient) {
+	if _, ok := opts.Opts["config"]; ok {
+		file := opts.Opts["config"]
+		if len(file) < 1 {
+			config.HandleFatal("Please provide a filename with option -c", errors.New("missing filename"))
+		}
+		awsconfig.Config.LoadConfiguration(file)
+	}
 	stackname := awsconfig.Config.Main.Stackname
 	cyan := color.New(color.FgCyan).SprintFunc()
 	log.Printf("Deleting CloudFormation stack with name: %s\n", cyan(stackname))
@@ -63,8 +71,8 @@ func NewDelete(appName string) *commander.CommandWrapper {
 			Name:             "delete",
 			ShortDescription: "Delete a stack",
 			LongDescription:  `Delete a stack with a given name.`,
-			Arguments:        "",
-			Examples:         []string{""},
+			Arguments:        "[--config=configFile]",
+			Examples:         []string{"--config=configFile"},
 		},
 	}
 }

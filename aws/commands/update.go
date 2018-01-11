@@ -87,8 +87,8 @@ func NewUpdate(appName string) *commander.CommandWrapper {
 			Name:             "update",
 			ShortDescription: "Update a stack",
 			LongDescription:  `Update a stack with new parameters.`,
-			Arguments:        "",
-			Examples:         []string{""},
+			Arguments:        "[--config=configFile]",
+			Examples:         []string{"--config=configFile"},
 		},
 	}
 }

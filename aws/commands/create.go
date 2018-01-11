@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -29,6 +30,13 @@ func (c *Create) Execute(opts *commander.CommandHelper) {
 }
 
 func createExecute(opts *commander.CommandHelper, client *CFClient) {
+	if _, ok := opts.Opts["config"]; ok {
+		file := opts.Opts["config"]
+		if len(file) < 1 {
+			config.HandleFatal("Please provide a filename with option -c", errors.New("missing filename"))
+		}
+		awsconfig.Config.LoadConfiguration(file)
+	}
 	stackname := awsconfig.Config.Main.Stackname
 	template := awsconfig.LoadCFStackConfig()
 	for _, p := range awsconfig.PluginRegistry[awsconfig.PRECREATE] {
@@ -95,8 +103,8 @@ func NewCreate(appName string) *commander.CommandWrapper {
 			Name:             "create",
 			ShortDescription: "Create a stack",
 			LongDescription:  `Create a stack on which to deploy code later on. By default FurnaceStack is used as name.`,
-			Arguments:        "",
-			Examples:         []string{""},
+			Arguments:        "[--config=configFile]",
+			Examples:         []string{"--config=configFile"},
 		},
 	}
 }

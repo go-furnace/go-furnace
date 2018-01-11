@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"errors"
 	"fmt"
 	"log"
 
@@ -40,6 +41,13 @@ func (c *Push) Execute(opts *commander.CommandHelper) {
 }
 
 func pushExecute(opts *commander.CommandHelper, cfClient *CFClient, cdClient *CDClient, iamClient *IAMClient) {
+	if _, ok := opts.Flags["c"]; ok {
+		if len(opts.Args)-1 <= 0 {
+			config.HandleFatal("Please provide a filename with option -c", errors.New("missing filename"))
+		}
+		file := opts.Arg(len(opts.Args) - 1)
+		awsconfig.Config.LoadConfiguration(file)
+	}
 	appName := opts.Arg(1)
 	if len(appName) < 1 {
 		appName = awsconfig.Config.Main.Stackname
@@ -47,7 +55,7 @@ func pushExecute(opts *commander.CommandHelper, cfClient *CFClient, cdClient *CD
 	s3Deploy = opts.Flags["s3"]
 	determineDeployment()
 	asgName := getAutoScalingGroupKey(cfClient)
-	role := getCodeDeployRoleARN(awsconfig.CODEDEPLOYROLE, iamClient)
+	role := getCodeDeployRoleARN(awsconfig.Config.Aws.CodeDeployRole, iamClient)
 	err := createApplication(appName, cdClient)
 	config.CheckError(err)
 	err = createDeploymentGroup(appName, role, asgName, cdClient)
@@ -57,23 +65,23 @@ func pushExecute(opts *commander.CommandHelper, cfClient *CFClient, cdClient *CD
 
 func determineDeployment() {
 	if s3Deploy {
-		codeDeployBucket = awsconfig.Config.Aws.S3Bucket
+		codeDeployBucket = awsconfig.Config.Aws.CodeDeploy.S3Bucket
 		if len(codeDeployBucket) < 1 {
 			config.HandleFatal("Please define S3BUCKET for the bucket to use.", nil)
 		}
-		s3Key = awsconfig.Config.Aws.S3Key
+		s3Key = awsconfig.Config.Aws.CodeDeploy.S3Key
 		if len(s3Key) < 1 {
 			config.HandleFatal("Please define S3KEY for the application to deploy.", nil)
 		}
 		log.Println("S3 deployment will be used from bucket: ", codeDeployBucket)
 	} else {
-		gitAccount = awsconfig.Config.Aws.GitAccount
-		gitRevision = awsconfig.Config.Aws.GitRevision
+		gitAccount = awsconfig.Config.Aws.CodeDeploy.GitAccount
+		gitRevision = awsconfig.Config.Aws.CodeDeploy.GitRevision
 		if len(gitAccount) < 1 {
-			config.HandleFatal("Please define a git account and project to deploy from in the form of: account/project under AWS_FURNACE_GIT_ACCOUNT.", nil)
+			config.HandleFatal("Please define a git account and project to deploy from in the form of: account/project under GIT_ACCOUNT.", nil)
 		}
 		if len(gitRevision) < 1 {
-			config.HandleFatal("Please define the git commit hash to use for deploying under AWS_FURNACE_GIT_REVISION.", nil)
+			config.HandleFatal("Please define the git commit hash to use for deploying under GIT_REVISION.", nil)
 		}
 		log.Println("GitHub deployment will be used from account: ", gitAccount)
 	}
@@ -228,8 +236,8 @@ func NewPush(appName string) *commander.CommandWrapper {
 			Name:             "push",
 			ShortDescription: "Push to stack",
 			LongDescription:  `Push a version of the application to a stack`,
-			Arguments:        "appName [-s3]",
-			Examples:         []string{"", "appName", "appName -s3", "-s3", "appName"},
+			Arguments:        "appName [-s3] [--config=configFile]",
+			Examples:         []string{"", "appName", "appName -s3", "-s3", "appName", "--config=configFile"},
 		},
 	}
 }

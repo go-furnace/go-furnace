@@ -258,8 +258,8 @@ func TestGatheringParametersWithUserInputShouldUseInput(t *testing.T) {
 
 func TestNewCreate(t *testing.T) {
 	wrapper := NewCreate("furnace")
-	if wrapper.Help.Arguments != "" ||
-		!reflect.DeepEqual(wrapper.Help.Examples, []string{""}) ||
+	if wrapper.Help.Arguments != "[--config=configFile]" ||
+		!reflect.DeepEqual(wrapper.Help.Examples, []string{"--config=configFile"}) ||
 		wrapper.Help.LongDescription != `Create a stack on which to deploy code later on. By default FurnaceStack is used as name.` ||
 		wrapper.Help.ShortDescription != "Create a stack" {
 		t.Log(wrapper.Help.LongDescription)
@@ -278,7 +278,7 @@ func TestPreCreatePlugins(t *testing.T) {
 		Name: "testPlugin",
 		Run:  runner,
 	}
-	awsconfig.PluginRegistry[config.PRECREATE] = []awsconfig.Plugin{plugins}
+	awsconfig.PluginRegistry[awsconfig.PRECREATE] = []awsconfig.Plugin{plugins}
 	config.WAITFREQUENCY = 0
 	client := new(CFClient)
 	stackname := "NotEmptyStack"
@@ -299,7 +299,7 @@ func TestPostCreatePlugins(t *testing.T) {
 		Name: "testPlugin",
 		Run:  runner,
 	}
-	awsconfig.PluginRegistry[config.POSTCREATE] = []awsconfig.Plugin{plugins}
+	awsconfig.PluginRegistry[awsconfig.POSTCREATE] = []awsconfig.Plugin{plugins}
 	config.WAITFREQUENCY = 0
 	client := new(CFClient)
 	stackname := "NotEmptyStack"

@@ -1,4 +1,4 @@
-package awsconfig
+package config
 
 import (
 	"io/ioutil"
@@ -25,10 +25,10 @@ type Configuration struct {
 		EnablePluginSystem bool   `yaml:"enable_plugin_system"`
 		TemplateName       string `yaml:"template_name"`
 		CodeDeploy         struct {
-			S3Bucket    string `yaml:"code_deploy_s3_bucket, omitempty"`
-			S3Key       string `yaml:"code_deploy_s3_key, omitempty"`
-			GitAccount  string `yaml:"git_account, omitempty"`
-			GitRevision string `yaml:"git_revision, omitempty"`
+			S3Bucket    string `yaml:"code_deploy_s3_bucket,omitempty"`
+			S3Key       string `yaml:"code_deploy_s3_key,omitempty"`
+			GitAccount  string `yaml:"git_account,omitempty"`
+			GitRevision string `yaml:"git_revision,omitempty"`
 		} `yaml:"code_deploy"`
 	} `yaml:"aws"`
 }
@@ -58,17 +58,20 @@ var PluginRegistry map[string][]Plugin
 
 var configPath string
 
+var defaultConfig = "aws_furnace_config.yaml"
+
 func init() {
 	configPath = config.Path()
-	Config.loadConfiguration()
+	Config.LoadConfiguration(filepath.Join(configPath, defaultConfig))
 	PluginRegistry = fillRegistry()
 }
 
-func (c *Configuration) loadConfiguration() {
-	content, err := ioutil.ReadFile(filepath.Join(configPath, "furnace_config.yaml"))
-	config.HandleFatal("unable to load configuration file", err)
+// LoadConfiguration loads a yaml file which sets fields for Configuration struct
+func (c *Configuration) LoadConfiguration(configFile string) {
+	content, err := ioutil.ReadFile(configFile)
+	config.CheckError(err)
 	err = yaml.Unmarshal(content, c)
-	config.HandleFatal("couldn't unmarshall yaml content", err)
+	config.CheckError(err)
 }
 
 func fillRegistry() map[string][]Plugin {

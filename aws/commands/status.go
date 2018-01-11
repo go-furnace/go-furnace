@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"errors"
 	"fmt"
 	"log"
 
@@ -31,6 +32,13 @@ type ResourceStatus struct {
 
 // Execute defines what this command does.
 func (c *Status) Execute(opts *commander.CommandHelper) {
+	if _, ok := opts.Flags["c"]; ok {
+		if len(opts.Args)-1 <= 0 {
+			config.HandleFatal("Please provide a filename with option -c", errors.New("missing filename"))
+		}
+		file := opts.Arg(len(opts.Args) - 1)
+		awsconfig.Config.LoadConfiguration(file)
+	}
 	stackname := awsconfig.Config.Main.Stackname
 	cfg, err := external.LoadDefaultAWSConfig()
 	config.CheckError(err)
@@ -94,8 +102,8 @@ func NewStatus(appName string) *commander.CommandWrapper {
 			Name:             "status",
 			ShortDescription: "Status of a stack.",
 			LongDescription:  `Get detailed status of the stack.`,
-			Arguments:        "",
-			Examples:         []string{""},
+			Arguments:        "[--config=configFile]",
+			Examples:         []string{"--config=configFile"},
 		},
 	}
 }

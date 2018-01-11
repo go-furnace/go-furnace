@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"errors"
 	"log"
 
 	awsconfig "github.com/Skarlso/go-furnace/aws/config"
@@ -18,6 +19,13 @@ type DeleteApp struct {
 
 // Execute defines what this command does.
 func (c *DeleteApp) Execute(opts *commander.CommandHelper) {
+	if _, ok := opts.Opts["config"]; ok {
+		file := opts.Opts["config"]
+		if len(file) < 1 {
+			config.HandleFatal("Please provide a filename with option -c", errors.New("missing filename"))
+		}
+		awsconfig.Config.LoadConfiguration(file)
+	}
 	appName := opts.Arg(0)
 	if len(appName) < 1 {
 		appName = awsconfig.Config.Main.Stackname
