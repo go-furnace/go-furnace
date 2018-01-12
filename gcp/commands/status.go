@@ -1,8 +1,8 @@
 package commands
 
 import (
-	"errors"
 	"log"
+	"os"
 	"strings"
 
 	config "github.com/Skarlso/go-furnace/config"
@@ -20,12 +20,12 @@ type Status struct {
 
 // Execute runs the create command
 func (s *Status) Execute(opts *commander.CommandHelper) {
-	if _, ok := opts.Opts["config"]; ok {
-		file := opts.Opts["config"]
-		if len(file) < 1 {
-			config.HandleFatal("Please provide a filename with option -c", errors.New("missing filename"))
+	configName := opts.Arg(0)
+	if len(configName) > 0 {
+		dir, _ := os.Getwd()
+		if err := fc.LoadConfigFileIfExists(dir, configName); err != nil {
+			config.HandleFatal(configName, err)
 		}
-		fc.Config.LoadConfiguration(file)
 	}
 	log.Println("Looking for Deployment under project name: .", keyName(fc.Config.Main.ProjectName))
 	deploymentName := fc.Config.Gcp.StackName

@@ -85,7 +85,7 @@ func (c *Configuration) LoadConfiguration(configFile string) {
 	config.CheckError(err)
 }
 
-// LoadConfigFileIfExists Recusively search backwards from the current directory
+// LoadConfigFileIfExists Search backwards from the current directory
 // for a furnace config file with the given prefix of `file`. If found,
 // the Configuration `Config` will be loaded with values gathered from
 // the file described by that config. If none is found, nothing happens.

@@ -1,8 +1,8 @@
 package commands
 
 import (
-	"errors"
 	"log"
+	"os"
 
 	config "github.com/Skarlso/go-furnace/config"
 	fc "github.com/Skarlso/go-furnace/gcp/config"
@@ -18,12 +18,12 @@ type Delete struct {
 
 // Execute runs the create command
 func (d *Delete) Execute(opts *commander.CommandHelper) {
-	if _, ok := opts.Opts["config"]; ok {
-		file := opts.Opts["config"]
-		if len(file) < 1 {
-			config.HandleFatal("Please provide a filename with option -c", errors.New("missing filename"))
+	configName := opts.Arg(0)
+	if len(configName) > 0 {
+		dir, _ := os.Getwd()
+		if err := fc.LoadConfigFileIfExists(dir, configName); err != nil {
+			config.HandleFatal(configName, err)
 		}
-		fc.Config.LoadConfiguration(file)
 	}
 	deploymentName := fc.Config.Gcp.StackName
 	log.Println("Deleteing Deployment Under Project: ", keyName(fc.Config.Main.ProjectName))
@@ -47,8 +47,8 @@ func NewDelete(appName string) *commander.CommandWrapper {
 			Name:             "delete",
 			ShortDescription: "Delete a Google Deployment Manager",
 			LongDescription:  `Delete a deployment under a given project id.`,
-			Arguments:        "[--config=configFile]",
-			Examples:         []string{"delete [--config=configFile]"},
+			Arguments:        "custom-config",
+			Examples:         []string{"", "custom-config"},
 		},
 	}
 }
