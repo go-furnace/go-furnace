@@ -79,32 +79,78 @@ For other targets, please consult the Makefile.
 
 ### Configuration
 
-Furnace has two stack related environment properties and a couple more which are shown later.
+Furnace uses convention for configuration and YAML. This works as follows.
+
+Since furnace is a distributable binary, it looks for a configuration called `.teststack.furnace` in the current running
+directory. If it fails to find one, it will go up one level and search there, until it can't go any more up. It will leave
+out `\` or searching. This is achieved by simply running `furnace-aws create teststack`. Or `furnace-aws status teststack`.
+If the file doesn't exists, furnace will throw an error.
+
+The parameter is optional. If not provided, furnace will look for it's default configuration files under `~/.config/go-furnace`.
+
+That file contains a single entry, looking like this:
 
 ```bash
-export AWS_FURNACE_REGION=eu-central-1
-# If this is not defined, a default will be used which is FurnaceStack
-export FURNACE_STACKNAME=FurnaceStack
+stacks/aws_config.yaml
 ```
 
-Furnace also requires the CloudFormation template to be placed under `~/.config/go-furnace`.
+This entry tells Furnace where to look for its configuration yaml file. The configuration file for AWS looks like this:
+
+```yaml
+main:
+  stackname: FurnaceStack
+  spinner: 1
+aws:
+  code_deploy_role: CodeDeployServiceRole
+  region: us-east-1
+  enable_plugin_system: false
+  template_name: cloud_formation.template
+  app_name: furnace_app
+  code_deploy:
+    # Only needed in case S3 is used for code deployment
+    code_deploy_s3_bucket: furnace_code_bucket
+    # The name of the zip file in case it's on a bucket
+    code_deploy_s3_key: furnace_deploy_app
+    # In case a Git Repository is used for the application, define these two settings
+    git_account: Skarlso/furnace-codedeploy-app
+    git_revision: b89451234...
+```
+
+The configuration file for GCP looks like this:
+
+```yaml
+main:
+  project_name: test-123
+  spinner: 1
+gcp:
+  template_name: google_template.yaml
+  stack_name: test2-stack
+```
+
+Notice that the name of the template file does not contain a directory. The template file must be located next to configuration
+file.
+
+As a fall-back and default, `~/.config/go-furnace` directory is used.
 
 CodeDeploy further requires an IAM policy on the current user in order to be able to handle ASG and deploying to the EC2 instances.
 For this, a regular IAM role can be created from the AWS console. The name of the IAM profile can be configured later when pushing,
-if that is not set, the default is used which is `CodeDeployServiceRole`. This default can be found under `config.CODEDEPLOYROLE`.
+if that is not set, the default is used which is `CodeDeployServiceRole`.
 
-### Commands
+This configuration allows for multiple stacks for a single project as long as the corresponding `.furnace` file exists.
+
+### AWS Commands
 
 Furnace provides the following commands (which you can check by running `./furnace`):
 
 ```bash
-➜  go-furnace git:(master) ✗ ./furnace aws
-create                    Create a stack
-delete                    Delete a stack
-status                    Status of a stack.
-push appName [-s3]        Push to stack
-delete-application name   Deletes an Application
-help [command]            Display this help or a command specific help
+❯ ./furnace-aws help
+delete custom-config               Delete a stack
+push custom-config [-s3]           Push to stack
+delete-application custom-config   Deletes an Application
+update custom-config               Update a stack
+status custom-config               Status of a stack.
+create configfile                  Create a stack
+help [command]                     Display this help or a command specific help
 ```
 
 Create and Delete will wait for the these actions to complete via a Waiter function. The waiters spinner type
@@ -153,22 +199,9 @@ Push works with two revision locations.
 
 The default for a push is to locate a sample application on Github which will then be deployed.
 
-For this, the following two options need to be defined:
-
-```bash
-export AWS_FURNACE_GIT_REVISION=b80ea5b9dfefcd21e27a3e0f149ec73519d5a6f1
-export AWS_FURNACE_GIT_ACCOUNT=skarlso/furnace-codedeploy-app
-```
-
 ##### S3
 
-To use S3 for deployment, push needs an additional flag like this: `furnace aws push --s3`. This requires the following
-two environment properties:
-
-```bash
-export FURNACE_S3KEY=app.zip
-export FURNACE_S3BUCKET=furnace-codedeploy-bucket
-```
+To use S3 for deployment, push needs an additional flag like this: `furnace-aws push --s3`.
 
 Bucket is a unique bucket which is used to store a zipped version of the application. The key is the name of the object.
 Access to the bucket needs to be defined in the CloudFormation template via an IAM Role. A sample is provided in the
@@ -194,8 +227,6 @@ The status command displays information about the stack.
 ## Plugins
 
 ### Experimental Plug-in System
-
-To enable the plugin system, please set the environment property `FURNACE_ENABLE_PLUGIN_SYSTEM`.
 
 To use the plugin system, please look at the example plugins in project [furnace-plugins](https://github.com/Skarlso/furnace-plugins).
 At the moment, plugins are not receiving the environment for further manipulations; however, this will be remedied.
@@ -263,14 +294,14 @@ Testing the project for development is simply by executing `make test`.
 Google Cloud integration is a work in progress. Expect further update as it continue to be implemented.
 
 Currently the supported and fully functional commands are:
-* `create`
-* `delete`
-* `status`
 
-Future commands will be:
-
-* `update`
-* `push` - this is debatable since Google Cloud works on the premise that if you have an update to the application it will destroy the instances and create new ones with the new version.
+```bash
+❯ ./furnace-gcp help
+delete custom-config           Delete a Google Deployment Manager
+status [--config=configFile]   Get the status of an existing Deployment Management group.
+create custom-config           Create a Google Deployment Manager
+help [command]                 Display this help or a command specific help
+```
 
 ### Authentication with Google
 
@@ -308,13 +339,7 @@ In order to use the templates, name the main template `google_template.yaml` and
 
 ##### Setup
 
-First, set the following environment property like this:
-
-```bash
-export GOOGLE_PROJECT_NAME=testproject-123456
-```
-
-It should be set to your desired project name's ID with which to work with.
+Project-ID should be set to your desired project name's ID with which to work with.
 
 ##### Update the template
 
@@ -346,14 +371,14 @@ You could always just in-line the script in the template directly.
 After everything has been properly configure, execute:
 
 ```bash
-./furnace google create
+./furnace-gcp create
 ```
 
 This will display information like this:
 
 ```bash
 ~/golang/src/github.com/Skarlso/go-furnace extend_with_subcommand*
-❯ ./furnace google create
+❯ ./furnace-gcp create
 2017/11/03 07:14:47 Creating Deployment under project name: . testplatform-180405
 2017/11/03 07:14:47 Deployment name is:  furnace-stack
 2017/11/03 07:14:47 Found the following import files:  [{./simple_template.jinja simple_template.jinja}]
@@ -368,14 +393,14 @@ This will display information like this:
 Once the stack is no longer needed, run the following command:
 
 ```bash
-./furnace google delete
+./furnace-gcp delete
 ```
 
 Which will output this information:
 
 ```bash
 ~/golang/src/github.com/Skarlso/go-furnace extend_with_subcommand* 51s
-❯ ./furnace google delete
+❯ ./furnace-gcp delete
 2017/11/03 07:17:38 Deleteing Deployment Under Project:  testplatform-180405
 [-] Waiting for state: DONE
 Stack terminated!
@@ -386,14 +411,14 @@ Stack terminated!
 Status can be retrieved using the following command:
 
 ```bash
-./furnace google status
+./furnace-gcp status
 ```
 
 This will output information about the deployment including the manifest file which includes all of the created resources with the deployment. This will look like the following output:
 
 ```bash
 ~/golang/src/github.com/Skarlso/go-furnace extend_with_subcommand* 1m 8s
-❯ ./furnace google status
+❯ ./furnace-gcp status
 2017/11/01 21:37:39 Status of Deployment under project name: . testplatform-180405
 2017/11/01 21:37:39 Deployment name is:  furnace-stack
 2017/11/01 21:37:41 Description:
