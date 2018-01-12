@@ -1,8 +1,8 @@
 package commands
 
 import (
-	"errors"
 	"log"
+	"os"
 
 	awsconfig "github.com/Skarlso/go-furnace/aws/config"
 	config "github.com/Skarlso/go-furnace/config"
@@ -19,17 +19,15 @@ type DeleteApp struct {
 
 // Execute defines what this command does.
 func (c *DeleteApp) Execute(opts *commander.CommandHelper) {
-	if _, ok := opts.Opts["config"]; ok {
-		file := opts.Opts["config"]
-		if len(file) < 1 {
-			config.HandleFatal("Please provide a filename with option -c", errors.New("missing filename"))
+	configName := opts.Arg(0)
+	if len(configName) > 0 {
+		dir, _ := os.Getwd()
+		if err := awsconfig.LoadConfigFileIfExists(dir, configName); err != nil {
+			config.HandleFatal(configName, err)
 		}
-		awsconfig.Config.LoadConfiguration(file)
 	}
-	appName := opts.Arg(0)
-	if len(appName) < 1 {
-		appName = awsconfig.Config.Main.Stackname
-	}
+
+	appName := awsconfig.Config.Aws.AppName
 	cfg, err := external.LoadDefaultAWSConfig()
 	config.CheckError(err)
 	cdClient := codedeploy.New(cfg)
@@ -55,8 +53,8 @@ func NewDeleteApp(appName string) *commander.CommandWrapper {
 			Name:             "delete-application",
 			ShortDescription: "Deletes an Application",
 			LongDescription:  `Deletes a CodeDeploy Application complete with DeploymenyGroup and Deploys.`,
-			Arguments:        "name",
-			Examples:         []string{"delete-application", "delete-application CustomApplicationName"},
+			Arguments:        "custom-config",
+			Examples:         []string{"", "custom-config"},
 		},
 	}
 }

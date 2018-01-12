@@ -32,8 +32,8 @@ func TestDeletingApplication(t *testing.T) {
 
 func TestDeleteAppCreate(t *testing.T) {
 	wrapper := NewDeleteApp("furnace")
-	if wrapper.Help.Arguments != "name" ||
-		!reflect.DeepEqual(wrapper.Help.Examples, []string{"delete-application", "delete-application CustomApplicationName"}) ||
+	if wrapper.Help.Arguments != "custom-config" ||
+		!reflect.DeepEqual(wrapper.Help.Examples, []string{"", "custom-config"}) ||
 		wrapper.Help.LongDescription != `Deletes a CodeDeploy Application complete with DeploymenyGroup and Deploys.` ||
 		wrapper.Help.ShortDescription != "Deletes an Application" {
 		t.Log(wrapper.Help.LongDescription)

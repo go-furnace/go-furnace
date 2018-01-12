@@ -131,8 +131,8 @@ func TestUpdateStackReturnsWithError(t *testing.T) {
 
 func TestUpdateCreate(t *testing.T) {
 	wrapper := NewUpdate("furnace")
-	if wrapper.Help.Arguments != "[--config=configFile]" ||
-		!reflect.DeepEqual(wrapper.Help.Examples, []string{"--config=configFile"}) ||
+	if wrapper.Help.Arguments != "custom-config" ||
+		!reflect.DeepEqual(wrapper.Help.Examples, []string{"", "custom-config"}) ||
 		wrapper.Help.LongDescription != `Update a stack with new parameters.` ||
 		wrapper.Help.ShortDescription != "Update a stack" {
 		t.Log(wrapper.Help.LongDescription)

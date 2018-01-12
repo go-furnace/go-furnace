@@ -29,6 +29,13 @@ func (c *Update) Execute(opts *commander.CommandHelper) {
 }
 
 func updateExecute(opts *commander.CommandHelper, client *CFClient) {
+	configName := opts.Arg(0)
+	if len(configName) > 0 {
+		dir, _ := os.Getwd()
+		if err := awsconfig.LoadConfigFileIfExists(dir, configName); err != nil {
+			config.HandleFatal(configName, err)
+		}
+	}
 	stackname := awsconfig.Config.Main.Stackname
 	template := awsconfig.LoadCFStackConfig()
 	stacks := update(stackname, template, client)
@@ -87,8 +94,8 @@ func NewUpdate(appName string) *commander.CommandWrapper {
 			Name:             "update",
 			ShortDescription: "Update a stack",
 			LongDescription:  `Update a stack with new parameters.`,
-			Arguments:        "[--config=configFile]",
-			Examples:         []string{"--config=configFile"},
+			Arguments:        "custom-config",
+			Examples:         []string{"", "custom-config"},
 		},
 	}
 }

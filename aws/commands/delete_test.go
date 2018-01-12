@@ -92,8 +92,8 @@ func TestPostDeletePlugins(t *testing.T) {
 
 func TestDeleteCreate(t *testing.T) {
 	wrapper := NewDelete("furnace")
-	if wrapper.Help.Arguments != "[--config=configFile]" ||
-		!reflect.DeepEqual(wrapper.Help.Examples, []string{"--config=configFile"}) ||
+	if wrapper.Help.Arguments != "custom-config" ||
+		!reflect.DeepEqual(wrapper.Help.Examples, []string{"", "custom-config"}) ||
 		wrapper.Help.LongDescription != `Delete a stack with a given name.` ||
 		wrapper.Help.ShortDescription != "Delete a stack" {
 		t.Log(wrapper.Help.LongDescription)

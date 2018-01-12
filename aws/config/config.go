@@ -31,6 +31,7 @@ type Configuration struct {
 		Region             string `yaml:"region"`
 		EnablePluginSystem bool   `yaml:"enable_plugin_system"`
 		TemplateName       string `yaml:"template_name"`
+		AppName            string `yaml:"app_name"`
 		CodeDeploy         struct {
 			S3Bucket    string `yaml:"code_deploy_s3_bucket,omitempty"`
 			S3Key       string `yaml:"code_deploy_s3_key,omitempty"`
@@ -70,7 +71,9 @@ var defaultConfig = "aws_furnace_config.yaml"
 
 func init() {
 	configPath = config.Path()
-	templatePath = filepath.Join(configPath, defaultConfig)
+	defaultConfigPath := filepath.Join(configPath, defaultConfig)
+	Config.LoadConfiguration(defaultConfigPath)
+	templatePath = filepath.Join(configPath, Config.Aws.TemplateName)
 	PluginRegistry = fillRegistry()
 }
 
@@ -82,10 +85,11 @@ func (c *Configuration) LoadConfiguration(configFile string) {
 	config.CheckError(err)
 }
 
-// Recusively search backwards from the current directory for a furnace config file
-// with the given prefix of `file`. If found, the Configuration `Config` will be
-// loaded with values gathered from the file described by that config.
-// If none is found, nothing happens. The default file remains loaded.
+// LoadConfigFileIfExists Recusively search backwards from the current directory
+// for a furnace config file with the given prefix of `file`. If found,
+// the Configuration `Config` will be loaded with values gathered from
+// the file described by that config. If none is found, nothing happens.
+// The default file remains loaded.
 //
 // returns an error if the file is not found.
 func LoadConfigFileIfExists(dir string, file string) error {

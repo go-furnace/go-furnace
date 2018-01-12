@@ -1,9 +1,9 @@
 package commands
 
 import (
-	"errors"
 	"fmt"
 	"log"
+	"os"
 
 	awsconfig "github.com/Skarlso/go-furnace/aws/config"
 	config "github.com/Skarlso/go-furnace/config"
@@ -41,17 +41,14 @@ func (c *Push) Execute(opts *commander.CommandHelper) {
 }
 
 func pushExecute(opts *commander.CommandHelper, cfClient *CFClient, cdClient *CDClient, iamClient *IAMClient) {
-	if _, ok := opts.Flags["c"]; ok {
-		if len(opts.Args)-1 <= 0 {
-			config.HandleFatal("Please provide a filename with option -c", errors.New("missing filename"))
+	configName := opts.Arg(0)
+	if len(configName) > 0 {
+		dir, _ := os.Getwd()
+		if err := awsconfig.LoadConfigFileIfExists(dir, configName); err != nil {
+			config.HandleFatal(configName, err)
 		}
-		file := opts.Arg(len(opts.Args) - 1)
-		awsconfig.Config.LoadConfiguration(file)
 	}
-	appName := opts.Arg(1)
-	if len(appName) < 1 {
-		appName = awsconfig.Config.Main.Stackname
-	}
+	appName := awsconfig.Config.Aws.AppName
 	s3Deploy = opts.Flags["s3"]
 	determineDeployment()
 	asgName := getAutoScalingGroupKey(cfClient)
@@ -236,8 +233,8 @@ func NewPush(appName string) *commander.CommandWrapper {
 			Name:             "push",
 			ShortDescription: "Push to stack",
 			LongDescription:  `Push a version of the application to a stack`,
-			Arguments:        "appName [-s3] [--config=configFile]",
-			Examples:         []string{"", "appName", "appName -s3", "-s3", "appName", "--config=configFile"},
+			Arguments:        "custom-config [-s3]",
+			Examples:         []string{"", "custom-config", "custom-config -s3", "-s3"},
 		},
 	}
 }

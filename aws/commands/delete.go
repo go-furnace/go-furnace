@@ -1,8 +1,8 @@
 package commands
 
 import (
-	"errors"
 	"log"
+	"os"
 
 	awsconfig "github.com/Skarlso/go-furnace/aws/config"
 	config "github.com/Skarlso/go-furnace/config"
@@ -27,12 +27,12 @@ func (c *Delete) Execute(opts *commander.CommandHelper) {
 }
 
 func deleteExecute(opts *commander.CommandHelper, client *CFClient) {
-	if _, ok := opts.Opts["config"]; ok {
-		file := opts.Opts["config"]
-		if len(file) < 1 {
-			config.HandleFatal("Please provide a filename with option -c", errors.New("missing filename"))
+	configName := opts.Arg(0)
+	if len(configName) > 0 {
+		dir, _ := os.Getwd()
+		if err := awsconfig.LoadConfigFileIfExists(dir, configName); err != nil {
+			config.HandleFatal(configName, err)
 		}
-		awsconfig.Config.LoadConfiguration(file)
 	}
 	stackname := awsconfig.Config.Main.Stackname
 	cyan := color.New(color.FgCyan).SprintFunc()
@@ -71,8 +71,8 @@ func NewDelete(appName string) *commander.CommandWrapper {
 			Name:             "delete",
 			ShortDescription: "Delete a stack",
 			LongDescription:  `Delete a stack with a given name.`,
-			Arguments:        "[--config=configFile]",
-			Examples:         []string{"--config=configFile"},
+			Arguments:        "custom-config",
+			Examples:         []string{"", "custom-config"},
 		},
 	}
 }

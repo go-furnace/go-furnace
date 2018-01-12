@@ -408,8 +408,8 @@ func TestGetCodeDeployRoleARN(t *testing.T) {
 
 func TestPushCreate(t *testing.T) {
 	wrapper := NewPush("furnace")
-	if wrapper.Help.Arguments != "appName [-s3] [--config=configFile]" ||
-		!reflect.DeepEqual(wrapper.Help.Examples, []string{"", "appName", "appName -s3", "-s3", "appName", "--config=configFile"}) ||
+	if wrapper.Help.Arguments != "custom-config [-s3]" ||
+		!reflect.DeepEqual(wrapper.Help.Examples, []string{"", "custom-config", "custom-config -s3", "-s3"}) ||
 		wrapper.Help.LongDescription != `Push a version of the application to a stack` ||
 		wrapper.Help.ShortDescription != "Push to stack" {
 		t.Log(wrapper.Help.LongDescription)
