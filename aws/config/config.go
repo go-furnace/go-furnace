@@ -14,6 +14,10 @@ import (
 	config "github.com/Skarlso/go-furnace/config"
 )
 
+// TODO: Create a main config which defines a furnace config location
+// This was, when running ./furnace-aws create asdf -> it would look for asdf
+// as a configuration file. Like asdf_furnace_config.yaml
+
 // Configuration object with all the properties that AWS needs.
 type Configuration struct {
 	Main struct {
