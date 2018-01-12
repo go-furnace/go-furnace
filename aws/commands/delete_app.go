@@ -26,7 +26,6 @@ func (c *DeleteApp) Execute(opts *commander.CommandHelper) {
 			config.HandleFatal(configName, err)
 		}
 	}
-
 	appName := awsconfig.Config.Aws.AppName
 	cfg, err := external.LoadDefaultAWSConfig()
 	config.CheckError(err)
