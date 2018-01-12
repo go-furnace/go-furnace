@@ -1,9 +1,11 @@
 package config
 
 import (
+	"errors"
 	"io/ioutil"
 	"log"
 	"os"
+	"path"
 	"path/filepath"
 	"plugin"
 
@@ -62,15 +64,13 @@ type Plugin struct {
 var PluginRegistry map[string][]Plugin
 
 var configPath string
+var templatePath string
 
 var defaultConfig = "aws_furnace_config.yaml"
 
 func init() {
 	configPath = config.Path()
-	fileName := filepath.Join(configPath, defaultConfig)
-	if _, err := os.Stat(fileName); err == nil {
-		Config.LoadConfiguration(fileName)
-	}
+	templatePath = filepath.Join(configPath, defaultConfig)
 	PluginRegistry = fillRegistry()
 }
 
@@ -80,6 +80,30 @@ func (c *Configuration) LoadConfiguration(configFile string) {
 	config.CheckError(err)
 	err = yaml.Unmarshal(content, c)
 	config.CheckError(err)
+}
+
+// Recusively search backwards from the current directory for a furnace config file
+// with the given prefix of `file`. If found, the Configuration `Config` will be
+// loaded with values gathered from the file described by that config.
+// If none is found, nothing happens. The default file remains loaded.
+//
+// returns an error if the file is not found.
+func LoadConfigFileIfExists(dir string, file string) error {
+	separatorIndex := strings.LastIndex(dir, "/")
+	for separatorIndex != 0 {
+		if _, err := os.Stat(filepath.Join(dir, "."+file+".furnace")); err == nil {
+			configLocation, _ := ioutil.ReadFile(filepath.Join(dir, "."+file+".furnace"))
+			configPath = dir
+			Config.LoadConfiguration(filepath.Join(configPath, string(configLocation)))
+			templateBase := path.Dir(string(configLocation))
+			templatePath = filepath.Join(configPath, templateBase, Config.Aws.TemplateName)
+			return nil
+		}
+		separatorIndex = strings.LastIndex(dir, string(os.PathSeparator))
+		dir = dir[0:separatorIndex]
+	}
+
+	return errors.New("failed to find configuration file for stack " + file)
 }
 
 func fillRegistry() map[string][]Plugin {
@@ -124,7 +148,7 @@ func fillRegistry() map[string][]Plugin {
 
 // LoadCFStackConfig Load the CF stack configuration file into a []byte.
 func LoadCFStackConfig() []byte {
-	dat, err := ioutil.ReadFile(filepath.Join(configPath, Config.Aws.TemplateName))
+	dat, err := ioutil.ReadFile(templatePath)
 	config.CheckError(err)
 	return dat
 }

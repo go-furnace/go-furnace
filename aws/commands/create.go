@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -30,13 +29,14 @@ func (c *Create) Execute(opts *commander.CommandHelper) {
 }
 
 func createExecute(opts *commander.CommandHelper, client *CFClient) {
-	if _, ok := opts.Opts["config"]; ok {
-		file := opts.Opts["config"]
-		if len(file) < 1 {
-			config.HandleFatal("Please provide a filename with option -c", errors.New("missing filename"))
+	configName := opts.Arg(0)
+	if len(configName) > 0 {
+		dir, _ := os.Getwd()
+		if err := awsconfig.LoadConfigFileIfExists(dir, configName); err != nil {
+			config.HandleFatal(configName, err)
 		}
-		awsconfig.Config.LoadConfiguration(file)
 	}
+
 	stackname := awsconfig.Config.Main.Stackname
 	template := awsconfig.LoadCFStackConfig()
 	for _, p := range awsconfig.PluginRegistry[awsconfig.PRECREATE] {
