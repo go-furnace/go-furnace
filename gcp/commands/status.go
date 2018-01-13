@@ -2,6 +2,7 @@ package commands
 
 import (
 	"log"
+	"os"
 	"strings"
 
 	config "github.com/Skarlso/go-furnace/config"
@@ -19,14 +20,21 @@ type Status struct {
 
 // Execute runs the create command
 func (s *Status) Execute(opts *commander.CommandHelper) {
-	log.Println("Looking for Deployment under project name: .", keyName(fc.GOOGLEPROJECTNAME))
-	deploymentName := config.STACKNAME
+	configName := opts.Arg(0)
+	if len(configName) > 0 {
+		dir, _ := os.Getwd()
+		if err := fc.LoadConfigFileIfExists(dir, configName); err != nil {
+			config.HandleFatal(configName, err)
+		}
+	}
+	log.Println("Looking for Deployment under project name: .", keyName(fc.Config.Main.ProjectName))
+	deploymentName := fc.Config.Gcp.StackName
 	log.Println("Deployment name is: ", keyName(deploymentName))
 	ctx := context.Background()
 	client, err := google.DefaultClient(ctx, dm.NdevCloudmanScope)
 	config.CheckError(err)
 	d, _ := dm.New(client)
-	project := d.Deployments.Get(fc.GOOGLEPROJECTNAME, deploymentName)
+	project := d.Deployments.Get(fc.Config.Main.ProjectName, deploymentName)
 	p, err := project.Do()
 	if err != nil {
 		if err.(*googleapi.Error).Code != 404 {
@@ -36,7 +44,7 @@ func (s *Status) Execute(opts *commander.CommandHelper) {
 		}
 	}
 	manifestID := p.Manifest[strings.LastIndex(p.Manifest, "/")+1 : len(p.Manifest)]
-	manifest := d.Manifests.Get(fc.GOOGLEPROJECTNAME, deploymentName, manifestID)
+	manifest := d.Manifests.Get(fc.Config.Main.ProjectName, deploymentName, manifestID)
 	m, err := manifest.Do()
 	config.CheckError(err)
 	log.Println("Description: ", p.Description)
@@ -55,8 +63,8 @@ func NewStatus(appName string) *commander.CommandWrapper {
 			Name:             "status",
 			ShortDescription: "Get the status of an existing Deployment Management group.",
 			LongDescription:  `Get the status of an existing Deployment Management group.`,
-			Arguments:        "",
-			Examples:         []string{"status"},
+			Arguments:        "[--config=configFile]",
+			Examples:         []string{"status [--config=configFile]"},
 		},
 	}
 }

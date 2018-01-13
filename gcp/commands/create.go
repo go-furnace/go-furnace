@@ -2,6 +2,7 @@ package commands
 
 import (
 	"log"
+	"os"
 	"path/filepath"
 
 	config "github.com/Skarlso/go-furnace/config"
@@ -19,8 +20,15 @@ type Create struct {
 
 // Execute runs the create command
 func (c *Create) Execute(opts *commander.CommandHelper) {
-	log.Println("Creating Deployment under project name: .", keyName(fc.GOOGLEPROJECTNAME))
-	deploymentName := config.STACKNAME
+	configName := opts.Arg(0)
+	if len(configName) > 0 {
+		dir, _ := os.Getwd()
+		if err := fc.LoadConfigFileIfExists(dir, configName); err != nil {
+			config.HandleFatal(configName, err)
+		}
+	}
+	log.Println("Creating Deployment under project name: .", keyName(fc.Config.Main.ProjectName))
+	deploymentName := fc.Config.Gcp.StackName
 	log.Println("Deployment name is: ", keyName(deploymentName))
 	ctx := context.Background()
 	client, err := google.DefaultClient(ctx, dm.NdevCloudmanScope)
@@ -29,10 +37,10 @@ func (c *Create) Execute(opts *commander.CommandHelper) {
 	}
 	d, _ := dm.New(client)
 	deployments := constructDeploymen(deploymentName)
-	ret := d.Deployments.Insert(fc.GOOGLEPROJECTNAME, deployments)
+	ret := d.Deployments.Insert(fc.Config.Main.ProjectName, deployments)
 	_, err = ret.Do()
 	config.CheckError(err)
-	waitForDeploymentToFinish(*d, deploymentName)
+	waitForDeploymentToFinish(*d, fc.Config.Main.ProjectName, deploymentName)
 }
 
 // Path contains all the jinja imports in the config.yml file.
@@ -97,8 +105,8 @@ func NewCreate(appName string) *commander.CommandWrapper {
 			Name:             "create",
 			ShortDescription: "Create a Google Deployment Manager",
 			LongDescription:  `Using a pre-configured yaml file, create a collection of resources using Deployment Manager Service.`,
-			Arguments:        "",
-			Examples:         []string{"create"},
+			Arguments:        "custom-config",
+			Examples:         []string{"", "custom-config"},
 		},
 	}
 }

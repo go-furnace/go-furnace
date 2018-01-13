@@ -8,6 +8,7 @@ import (
 
 	"log"
 
+	awsconfig "github.com/Skarlso/go-furnace/aws/config"
 	config "github.com/Skarlso/go-furnace/config"
 	commander "github.com/Yitsushi/go-commander"
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -76,6 +77,36 @@ func TestUpdateExecute(t *testing.T) {
 	updateExecute(opts, client)
 }
 
+func TestUpdateExecuteWitCustomStack(t *testing.T) {
+	config.WAITFREQUENCY = 0
+	client := new(CFClient)
+	stackname := "NotEmptyStack"
+	client.Client = &fakeUpdateCFClient{err: nil, stackname: stackname}
+	opts := &commander.CommandHelper{}
+	opts.Args = append(opts.Args, "teststack")
+	updateExecute(opts, client)
+	if awsconfig.Config.Main.Stackname != "MyStack" {
+		t.Fatal("test did not load the file requested.")
+	}
+}
+
+func TestUpdateExecuteWitCustomStackNotFound(t *testing.T) {
+	failed := false
+	config.LogFatalf = func(s string, a ...interface{}) {
+		failed = true
+	}
+	config.WAITFREQUENCY = 0
+	client := new(CFClient)
+	stackname := "NotEmptyStack"
+	client.Client = &fakeUpdateCFClient{err: nil, stackname: stackname}
+	opts := &commander.CommandHelper{}
+	opts.Args = append(opts.Args, "notfound")
+	updateExecute(opts, client)
+	if !failed {
+		t.Error("Expected outcome to fail. Did not fail.")
+	}
+}
+
 func TestUpdateExecuteEmptyStack(t *testing.T) {
 	failed := false
 	config.LogFatalf = func(s string, a ...interface{}) {
@@ -131,8 +162,8 @@ func TestUpdateStackReturnsWithError(t *testing.T) {
 
 func TestUpdateCreate(t *testing.T) {
 	wrapper := NewUpdate("furnace")
-	if wrapper.Help.Arguments != "" ||
-		!reflect.DeepEqual(wrapper.Help.Examples, []string{""}) ||
+	if wrapper.Help.Arguments != "custom-config" ||
+		!reflect.DeepEqual(wrapper.Help.Examples, []string{"", "custom-config"}) ||
 		wrapper.Help.LongDescription != `Update a stack with new parameters.` ||
 		wrapper.Help.ShortDescription != "Update a stack" {
 		t.Log(wrapper.Help.LongDescription)

@@ -29,7 +29,15 @@ func (c *Create) Execute(opts *commander.CommandHelper) {
 }
 
 func createExecute(opts *commander.CommandHelper, client *CFClient) {
-	stackname := config.STACKNAME
+	configName := opts.Arg(0)
+	if len(configName) > 0 {
+		dir, _ := os.Getwd()
+		if err := awsconfig.LoadConfigFileIfExists(dir, configName); err != nil {
+			config.HandleFatal(configName, err)
+		}
+	}
+
+	stackname := awsconfig.Config.Main.Stackname
 	template := awsconfig.LoadCFStackConfig()
 	for _, p := range awsconfig.PluginRegistry[awsconfig.PRECREATE] {
 		log.Println("Running plugin: ", p.Name)
@@ -95,8 +103,8 @@ func NewCreate(appName string) *commander.CommandWrapper {
 			Name:             "create",
 			ShortDescription: "Create a stack",
 			LongDescription:  `Create a stack on which to deploy code later on. By default FurnaceStack is used as name.`,
-			Arguments:        "",
-			Examples:         []string{""},
+			Arguments:        "custom-config",
+			Examples:         []string{"", "custom-config"},
 		},
 	}
 }

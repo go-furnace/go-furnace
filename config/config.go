@@ -2,7 +2,6 @@ package config
 
 import (
 	"log"
-	"os"
 	"os/user"
 	"path/filepath"
 )
@@ -16,17 +15,6 @@ var Spinners = []string{`←↖↑↗→↘↓↙`,
 	`◐◓◑◒`,
 	`⣾⣽⣻⢿⡿⣟⣯⣷`,
 	`|/-\`}
-
-const (
-	// PRECREATE Event name for plugins
-	PRECREATE = "pre_create"
-	// POSTCREATE Event name for plugins
-	POSTCREATE = "post_create"
-	// PREDELETE Event name for plugins
-	PREDELETE = "pre_delete"
-	// POSTDELETE Event name for plugins
-	POSTDELETE = "post_delete"
-)
 
 // WAITFREQUENCY global wait frequency default.
 var WAITFREQUENCY = 1
@@ -58,11 +46,4 @@ func Path() string {
 	usr, err := user.Current()
 	CheckError(err)
 	return filepath.Join(usr.HomeDir, ".config", "go-furnace")
-}
-
-func init() {
-	stackname := os.Getenv("FURNACE_STACKNAME")
-	if len(stackname) > 0 {
-		STACKNAME = stackname
-	}
 }

@@ -10,8 +10,8 @@
 [[projects]]
   name = "github.com/Skarlso/go-furnace"
   packages = ["config"]
-  revision = "4eb302ed74846e6a77f97860c4c2956f0d622b4c"
-  version = "v2.0.0"
+  revision = "74680d220c0e60b24d2150b9fe8ec0f6c57ac21b"
+  version = "v2.0.4"
 
 [[projects]]
   name = "github.com/Yitsushi/go-commander"
@@ -53,7 +53,7 @@
   branch = "master"
   name = "golang.org/x/net"
   packages = ["context","context/ctxhttp"]
-  revision = "42fe2e1c20de1054d3d30f82cc9fb5b41e2e3767"
+  revision = "5ccada7d0a7ba9aeb5d3aca8d3501b4c2a509fec"
 
 [[projects]]
   branch = "master"
@@ -65,13 +65,13 @@
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "dd9ec17814d5b1de388ebe438ec013d57d8b3779"
+  revision = "810d7000345868fc619eb81f46307107118f4ae1"
 
 [[projects]]
   branch = "master"
   name = "google.golang.org/api"
   packages = ["deploymentmanager/v2","gensupport","googleapi","googleapi/internal/uritemplates"]
-  revision = "b1c0f9b3aa8fac163224fab909402d49c6dce50a"
+  revision = "37df4fabefb044819e927f44b8487d4cd926d06c"
 
 [[projects]]
   name = "google.golang.org/appengine"
@@ -88,6 +88,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "5fe620cc9fc693f7c180b01d784144cc1e681a0433ee65341bdc91b32316bc6d"
+  inputs-digest = "1b7dde71ea9754db0022657c73ec71d683e387ae185fd99e0e16ecabf2ffc76c"
   solver-name = "gps-cdcl"
   solver-version = 1

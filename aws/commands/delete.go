@@ -2,6 +2,7 @@ package commands
 
 import (
 	"log"
+	"os"
 
 	awsconfig "github.com/Skarlso/go-furnace/aws/config"
 	config "github.com/Skarlso/go-furnace/config"
@@ -26,7 +27,14 @@ func (c *Delete) Execute(opts *commander.CommandHelper) {
 }
 
 func deleteExecute(opts *commander.CommandHelper, client *CFClient) {
-	stackname := config.STACKNAME
+	configName := opts.Arg(0)
+	if len(configName) > 0 {
+		dir, _ := os.Getwd()
+		if err := awsconfig.LoadConfigFileIfExists(dir, configName); err != nil {
+			config.HandleFatal(configName, err)
+		}
+	}
+	stackname := awsconfig.Config.Main.Stackname
 	cyan := color.New(color.FgCyan).SprintFunc()
 	log.Printf("Deleting CloudFormation stack with name: %s\n", cyan(stackname))
 	for _, p := range awsconfig.PluginRegistry[awsconfig.PREDELETE] {
@@ -63,8 +71,8 @@ func NewDelete(appName string) *commander.CommandWrapper {
 			Name:             "delete",
 			ShortDescription: "Delete a stack",
 			LongDescription:  `Delete a stack with a given name.`,
-			Arguments:        "",
-			Examples:         []string{""},
+			Arguments:        "custom-config",
+			Examples:         []string{"", "custom-config"},
 		},
 	}
 }

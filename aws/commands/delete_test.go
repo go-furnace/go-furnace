@@ -48,6 +48,36 @@ func TestDeleteExecute(t *testing.T) {
 	deleteExecute(opts, client)
 }
 
+func TestDeleteExecuteWithExtraStack(t *testing.T) {
+	config.WAITFREQUENCY = 0
+	client := new(CFClient)
+	stackname := "ToDeleteStack"
+	client.Client = &fakeDeleteCFClient{err: nil, stackname: stackname}
+	opts := &commander.CommandHelper{}
+	opts.Args = append(opts.Args, "teststack")
+	deleteExecute(opts, client)
+	if awsconfig.Config.Main.Stackname != "MyStack" {
+		t.Fatal("test did not load the file requested.")
+	}
+}
+
+func TestDeleteExecuteWithExtraStackNotFound(t *testing.T) {
+	failed := false
+	config.LogFatalf = func(s string, a ...interface{}) {
+		failed = true
+	}
+	config.WAITFREQUENCY = 0
+	client := new(CFClient)
+	stackname := "ToDeleteStack"
+	client.Client = &fakeDeleteCFClient{err: nil, stackname: stackname}
+	opts := &commander.CommandHelper{}
+	opts.Args = append(opts.Args, "notfound")
+	deleteExecute(opts, client)
+	if !failed {
+		t.Error("Expected outcome to fail. Did not fail.")
+	}
+}
+
 func TestPreDeletePlugins(t *testing.T) {
 	ran := false
 	runner := func() {
@@ -57,7 +87,7 @@ func TestPreDeletePlugins(t *testing.T) {
 		Name: "testPlugin",
 		Run:  runner,
 	}
-	awsconfig.PluginRegistry[config.PREDELETE] = []awsconfig.Plugin{plugins}
+	awsconfig.PluginRegistry[awsconfig.PREDELETE] = []awsconfig.Plugin{plugins}
 	config.WAITFREQUENCY = 0
 	client := new(CFClient)
 	stackname := "ToDeleteStack"
@@ -78,7 +108,7 @@ func TestPostDeletePlugins(t *testing.T) {
 		Name: "testPlugin",
 		Run:  runner,
 	}
-	awsconfig.PluginRegistry[config.POSTDELETE] = []awsconfig.Plugin{plugins}
+	awsconfig.PluginRegistry[awsconfig.POSTDELETE] = []awsconfig.Plugin{plugins}
 	config.WAITFREQUENCY = 0
 	client := new(CFClient)
 	stackname := "ToDeleteStack"
@@ -92,8 +122,8 @@ func TestPostDeletePlugins(t *testing.T) {
 
 func TestDeleteCreate(t *testing.T) {
 	wrapper := NewDelete("furnace")
-	if wrapper.Help.Arguments != "" ||
-		!reflect.DeepEqual(wrapper.Help.Examples, []string{""}) ||
+	if wrapper.Help.Arguments != "custom-config" ||
+		!reflect.DeepEqual(wrapper.Help.Examples, []string{"", "custom-config"}) ||
 		wrapper.Help.LongDescription != `Delete a stack with a given name.` ||
 		wrapper.Help.ShortDescription != "Delete a stack" {
 		t.Log(wrapper.Help.LongDescription)

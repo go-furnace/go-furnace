@@ -3,7 +3,9 @@ package commands
 import (
 	"fmt"
 	"log"
+	"os"
 
+	awsconfig "github.com/Skarlso/go-furnace/aws/config"
 	config "github.com/Skarlso/go-furnace/config"
 	"github.com/Yitsushi/go-commander"
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -30,7 +32,14 @@ type ResourceStatus struct {
 
 // Execute defines what this command does.
 func (c *Status) Execute(opts *commander.CommandHelper) {
-	stackname := config.STACKNAME
+	configName := opts.Arg(0)
+	if len(configName) > 0 {
+		dir, _ := os.Getwd()
+		if err := awsconfig.LoadConfigFileIfExists(dir, configName); err != nil {
+			config.HandleFatal(configName, err)
+		}
+	}
+	stackname := awsconfig.Config.Main.Stackname
 	cfg, err := external.LoadDefaultAWSConfig()
 	config.CheckError(err)
 	cfClient := cloudformation.New(cfg)
@@ -93,8 +102,8 @@ func NewStatus(appName string) *commander.CommandWrapper {
 			Name:             "status",
 			ShortDescription: "Status of a stack.",
 			LongDescription:  `Get detailed status of the stack.`,
-			Arguments:        "",
-			Examples:         []string{""},
+			Arguments:        "custom-config",
+			Examples:         []string{"", "custom-config"},
 		},
 	}
 }

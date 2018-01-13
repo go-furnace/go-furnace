@@ -1,0 +1,17 @@
+main:
+  stackname: FurnaceStack
+  spinner: 1
+aws:
+  code_deploy_role: CodeDeployServiceRole
+  region: us-east-1
+  enable_plugin_system: false
+  template_name: cloud_formation.template
+  app_name: furnace_app
+  code_deploy:
+    # Only needed in case S3 is used for code deployment
+    code_deploy_s3_bucket: furnace_code_bucket
+    # The name of the zip file in case it's on a bucket
+    code_deploy_s3_key: furnace_deploy_app
+    # In case a Git Repository is used for the application, define these two settings
+    git_account: Skarlso/furnace-codedeploy-app
+    git_revision: b89451234...

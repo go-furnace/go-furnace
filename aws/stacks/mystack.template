@@ -1,0 +1,299 @@
+{
+    "Parameters": {
+        "InstanceType": {
+            "Description": "WebServer EC2 instance type",
+            "Type": "String",
+            "Default": "t2.nano"
+        },
+        "KeyName": {
+            "Description": "Name of an existing EC2 KeyPair to enable SSH access to the instances",
+            "Type": "AWS::EC2::KeyPair::KeyName",
+            "Default": "UserKeyPair",
+            "ConstraintDescription": "must be the name of an existing EC2 KeyPair."
+        },
+        "SSHLocation": {
+            "Description": "The IP address range that can be used to SSH to the EC2 instances",
+            "Type": "String",
+            "MinLength": "9",
+            "MaxLength": "18",
+            "Default": "0.0.0.0/0",
+            "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+            "ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+        },
+        "CodeDeployBucket" : {
+            "Type" : "String",
+            "Description" : "The S3 bucket for CodeDeploy to deploy from.",
+            "Default": "None"
+        },
+    },
+    "Mappings": {
+        "RegionMap": {
+            "eu-central-1": {
+                "ami": "ami-af0fc0c0"
+            }
+        }
+    },
+    "Resources": {
+        "VPC" : {
+            "Type" : "AWS::EC2::VPC",
+            "Properties" : {
+                "CidrBlock" : "10.100.0.0/16",
+                "Tags" : [
+                    { "Key" : "Name", "Value" : "FurnaceStack" }
+                ]
+            }
+        },
+        "InternetGateway" : {
+            "Type" : "AWS::EC2::InternetGateway"
+        },
+        "VPCGatewayAttachment" : {
+            "Type" : "AWS::EC2::VPCGatewayAttachment",
+            "Properties" : {
+                "InternetGatewayId" : { "Ref" : "InternetGateway" },
+                "VpcId" : { "Ref" : "VPC" }
+            }
+        },
+        "SubnetZone1" : {
+            "Type" : "AWS::EC2::Subnet",
+            "Properties" : {
+                "AvailabilityZone" : "eu-central-1a",
+                "CidrBlock" : "10.100.10.0/26",
+                "VpcId" : { "Ref" : "VPC" }
+            }
+        },
+        "RouteTable" : {
+            "Type" : "AWS::EC2::RouteTable",
+            "Properties" : {
+                "VpcId" : { "Ref" : "VPC" }
+            }
+        },
+        "Route" : {
+            "Type" : "AWS::EC2::Route",
+            "Properties" : {
+                "RouteTableId" : { "Ref" : "RouteTable" },
+                "DestinationCidrBlock" : "0.0.0.0/0",
+                "GatewayId" : { "Ref" : "InternetGateway" }
+            }
+        },
+        "SubnetRouteTableAssociationZone1" : {
+            "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties" : {
+            "RouteTableId" : { "Ref" : "RouteTable" },
+                "SubnetId" : { "Ref" : "SubnetZone1" }
+            }
+        },
+        "InstanceProfile" : {
+            "Type" : "AWS::IAM::InstanceProfile",
+            "Properties" : {
+                "Path" : "/",
+                "Roles" : [
+                    { "Ref" : "Role" }
+                ]
+            }
+        },
+        "Role" : {
+            "Type" : "AWS::IAM::Role",
+            "Properties" : {
+                "Path" : "/",
+                "AssumeRolePolicyDocument" : {
+                    "Version" : "2012-10-17",
+                    "Statement" : [
+                        {
+                            "Effect" : "Allow",
+                            "Principal" : {
+                                "Service" : [ "ec2.amazonaws.com" ]
+                            },
+                            "Action" : [ "sts:AssumeRole" ]
+                        }
+                    ]
+                },
+                "Policies" : [ {
+                    "PolicyName" : "CodeDeployS3Access",
+                    "PolicyDocument" : {
+                        "Version" : "2012-10-17",
+                        "Statement" : [
+                            {
+                                "Effect" : "Allow",
+                                "Action" : [
+                                    "s3:GetObject"
+                                ],
+                                "Resource" : { "Fn::Join" : [ "", [ "arn:aws:s3:::", { "Ref" : "CodeDeployBucket" }, "/*" ] ] }
+                            }
+                        ]
+                    }
+                }]
+            }
+        },
+        "AutoScalingGroup": {
+            "Type": "AWS::AutoScaling::AutoScalingGroup",
+            "DependsOn" : [ "VPCGatewayAttachment" ],
+            "Properties": {
+                "AvailabilityZones": [
+                    "eu-central-1a"
+                ],
+                "LaunchConfigurationName": {
+                    "Ref": "LaunchConfig"
+                },
+                "MinSize": "1",
+                "MaxSize": "1",
+                "HealthCheckGracePeriod" : "300",
+                "HealthCheckType" : "ELB",
+                "LoadBalancerNames": [
+                    {
+                        "Ref": "ElasticLoadBalancer"
+                    }
+                ],
+                "VPCZoneIdentifier" : [
+                    { "Ref" : "SubnetZone1" }
+                ],
+                "Tags" : [
+                    {
+                        "Key" : "fu_stage",
+                        "Value" : { "Ref": "AWS::StackName" },
+                        "PropagateAtLaunch" : true
+                    }
+                ]
+            },
+            "UpdatePolicy": {
+                "AutoScalingRollingUpdate": {
+                    "MinInstancesInService": "1",
+                    "MaxBatchSize": "1"
+                }
+            }
+        },
+        "LaunchConfig": {
+            "Type": "AWS::AutoScaling::LaunchConfiguration",
+            "Properties": {
+                "AssociatePublicIpAddress" : true,
+                "IamInstanceProfile" : { "Ref" : "InstanceProfile" },
+                "KeyName": {
+                    "Ref": "KeyName"
+                },
+                "ImageId": {
+                    "Fn::FindInMap": [
+                        "RegionMap",
+                        {
+                            "Ref": "AWS::Region"
+                        },
+                        "ami"
+                    ]
+                },
+                "SecurityGroups": [
+                    {
+                        "Ref": "SecurityGroup"
+                    }
+                ],
+                "InstanceType": {
+                    "Ref": "InstanceType"
+                },
+                "UserData" : {
+                    "Fn::Base64" : { "Fn::Join" : [ "\n", [
+                        "#!/bin/bash -v",
+                        "sudo yum -y update",
+                        "sudo yum -y install ruby wget",
+                        "cd /home/ec2-user/",
+                        "wget https://aws-codedeploy-eu-central-1.s3.amazonaws.com/latest/install",
+                        "chmod +x ./install",
+                        "sudo ./install auto",
+                        "sudo service codedeploy-agent start",
+                        "sudo yum -y install httpd",
+                        "echo '<html><body>healthy</body></html>' >> /var/www/html/healthy.html",
+                        "sudo service httpd start"
+                    ] ] }
+                }
+            }
+        },
+        "SecurityGroupElb": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "VpcId" : { "Ref" : "VPC" },
+                "GroupDescription": "SecurityGroupElb",
+                "SecurityGroupIngress": [
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "80",
+                        "ToPort": "80",
+                        "CidrIp": "0.0.0.0/0"
+                    }
+                ]
+            }
+        },
+        "ElasticLoadBalancer": {
+            "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
+            "Properties": {
+                "Scheme": "internet-facing",
+                "CrossZone": "false",
+                "SecurityGroups": [
+                    {
+                        "Ref": "SecurityGroupElb"
+                    }
+                ],
+                "Listeners": [
+                    {
+                        "LoadBalancerPort": "80",
+                        "InstancePort": "80",
+                        "Protocol": "HTTP"
+                    }
+                ],
+                "HealthCheck": {
+                    "Target": "HTTP:80/healthy.html",
+                    "HealthyThreshold": "2",
+                    "UnhealthyThreshold": "5",
+                    "Interval": "10",
+                    "Timeout": "5"
+                },
+                "Subnets" : [
+                    { "Ref" : "SubnetZone1" }
+                ]
+            }
+        },
+        "SecurityGroup" : {
+            "Type" : "AWS::EC2::SecurityGroup",
+            "Properties" : {
+                "VpcId" : { "Ref" : "VPC" },
+                "GroupDescription" : "SecurityGroup",
+                "SecurityGroupIngress" : [
+                    {
+                        "IpProtocol" : "tcp",
+                        "FromPort" : "80",
+                        "ToPort" : "80",
+                        "SourceSecurityGroupId" : { "Ref" : "SecurityGroupElb" }
+                    },
+                    {
+                        "IpProtocol" : "tcp",
+                        "FromPort" : "443",
+                        "ToPort" : "443",
+                        "SourceSecurityGroupId" : { "Ref" : "SecurityGroupElb" }
+                    }
+                ],
+                "SecurityGroupEgress" : [
+                    {
+                        "IpProtocol" : "-1",
+                        "FromPort" : "-1",
+                        "ToPort" : "-1",
+                        "CidrIp" : "0.0.0.0/0"
+                    }
+                ]
+            }
+        }
+    },
+    "Outputs": {
+        "URL": {
+            "Description": "URL of the website",
+            "Value": {
+                "Fn::Join": [
+                    "",
+                    [
+                        "http://",
+                        {
+                            "Fn::GetAtt": [
+                                "ElasticLoadBalancer",
+                                "DNSName"
+                            ]
+                        }
+                    ]
+                ]
+            }
+        }
+    }
+}

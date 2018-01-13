@@ -7,6 +7,7 @@ import (
 	"reflect"
 	"testing"
 
+	awsconfig "github.com/Skarlso/go-furnace/aws/config"
 	config "github.com/Skarlso/go-furnace/config"
 	commander "github.com/Yitsushi/go-commander"
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -131,9 +132,12 @@ func (fd *fakePushCDClient) GetDeploymentRequest(input *codedeploy.GetDeployment
 
 func TestDetermineDeploymentGit(t *testing.T) {
 	s3Deploy = false
-	os.Setenv("AWS_FURNACE_GIT_ACCOUNT", "test/account")
-	os.Setenv("AWS_FURNACE_GIT_REVISION", "testrevision")
-	defer os.Clearenv()
+	awsconfig.Config = awsconfig.Configuration{}
+	awsconfig.Config.Aws.CodeDeploy.GitAccount = "test/account"
+	awsconfig.Config.Aws.CodeDeploy.GitRevision = "testrevision"
+	// os.Setenv("AWS_FURNACE_GIT_ACCOUNT", "test/account")
+	// os.Setenv("AWS_FURNACE_GIT_REVISION", "testrevision")
+	// defer os.Clearenv()
 	determineDeployment()
 	if gitAccount != "test/account" {
 		t.Fatalf("git account was not equal to test/account. Was: %s\n", gitAccount)
@@ -144,8 +148,9 @@ func TestDetermineDeploymentGit(t *testing.T) {
 }
 
 func TestPushExecute(t *testing.T) {
-	os.Setenv("AWS_FURNACE_GIT_ACCOUNT", "testAccount")
-	os.Setenv("AWS_FURNACE_GIT_REVISION", "asdf12345")
+	awsconfig.Config = awsconfig.Configuration{}
+	awsconfig.Config.Aws.CodeDeploy.GitAccount = "test/account"
+	awsconfig.Config.Aws.CodeDeploy.GitRevision = "testrevision"
 	iamClient := new(IAMClient)
 	iamClient.Client = &fakePushIAMClient{err: nil}
 	cdClient := new(CDClient)
@@ -156,11 +161,51 @@ func TestPushExecute(t *testing.T) {
 	pushExecute(opts, cfClient, cdClient, iamClient)
 }
 
+func TestPushExecuteWithStackConfig(t *testing.T) {
+	awsconfig.Config = awsconfig.Configuration{}
+	awsconfig.Config.Aws.CodeDeploy.GitAccount = "test/account"
+	awsconfig.Config.Aws.CodeDeploy.GitRevision = "testrevision"
+	iamClient := new(IAMClient)
+	iamClient.Client = &fakePushIAMClient{err: nil}
+	cdClient := new(CDClient)
+	cdClient.Client = &fakePushCDClient{err: nil, awsErr: nil}
+	cfClient := new(CFClient)
+	cfClient.Client = &fakePushCFClient{err: nil}
+	opts := &commander.CommandHelper{}
+	opts.Args = append(opts.Args, "teststack")
+	pushExecute(opts, cfClient, cdClient, iamClient)
+	if awsconfig.Config.Main.Stackname != "MyStack" {
+		t.Fatal("test did not load the file requested.")
+	}
+}
+
+func TestPushExecuteWithStackConfigNotFound(t *testing.T) {
+	failed := false
+	config.LogFatalf = func(s string, a ...interface{}) {
+		failed = true
+	}
+	awsconfig.Config = awsconfig.Configuration{}
+	awsconfig.Config.Aws.CodeDeploy.GitAccount = "test/account"
+	awsconfig.Config.Aws.CodeDeploy.GitRevision = "testrevision"
+	iamClient := new(IAMClient)
+	iamClient.Client = &fakePushIAMClient{err: nil}
+	cdClient := new(CDClient)
+	cdClient.Client = &fakePushCDClient{err: nil, awsErr: nil}
+	cfClient := new(CFClient)
+	cfClient.Client = &fakePushCFClient{err: nil}
+	opts := &commander.CommandHelper{}
+	opts.Args = append(opts.Args, "notfound")
+	pushExecute(opts, cfClient, cdClient, iamClient)
+	if !failed {
+		t.Error("Expected outcome to fail. Did not fail.")
+	}
+}
+
 func TestDetermineDeploymentS3(t *testing.T) {
 	s3Deploy = true
-	os.Setenv("FURNACE_S3BUCKET", "testBucket")
-	os.Setenv("FURNACE_S3KEY", "testKey")
-	defer os.Clearenv()
+	awsconfig.Config = awsconfig.Configuration{}
+	awsconfig.Config.Aws.CodeDeploy.S3Bucket = "testBucket"
+	awsconfig.Config.Aws.CodeDeploy.S3Key = "testKey"
 	determineDeployment()
 	if s3Key != "testKey" {
 		t.Fatalf("s3 key was not set. Was: %s\n", s3Key)
@@ -172,14 +217,16 @@ func TestDetermineDeploymentS3(t *testing.T) {
 
 func TestDetermineDeploymentFailS3BucketNotSet(t *testing.T) {
 	failed := false
-	expectedMessage := "Please define FURNACE_S3BUCKET for the bucket to use."
+	expectedMessage := "Please define S3BUCKET for the bucket to use."
 	var message string
 	config.LogFatalf = func(s string, a ...interface{}) {
 		failed = true
 		message = s
 	}
 	s3Deploy = true
-	os.Setenv("FURNACE_S3KEY", "testKey")
+	awsconfig.Config = awsconfig.Configuration{}
+	awsconfig.Config.Aws.CodeDeploy.S3Bucket = ""
+	awsconfig.Config.Aws.CodeDeploy.S3Key = "key"
 	defer os.Clearenv()
 	determineDeployment()
 	if !failed {
@@ -192,15 +239,16 @@ func TestDetermineDeploymentFailS3BucketNotSet(t *testing.T) {
 
 func TestDetermineDeploymentFailS3KeyNotSet(t *testing.T) {
 	failed := false
-	expectedMessage := "Please define FURNACE_S3KEY for the application to deploy."
+	expectedMessage := "Please define S3KEY for the application to deploy."
 	var message string
 	config.LogFatalf = func(s string, a ...interface{}) {
 		failed = true
 		message = s
 	}
 	s3Deploy = true
-	os.Setenv("FURNACE_S3BUCKET", "testBucket")
-	defer os.Clearenv()
+	awsconfig.Config = awsconfig.Configuration{}
+	awsconfig.Config.Aws.CodeDeploy.S3Bucket = "testbucket"
+	awsconfig.Config.Aws.CodeDeploy.S3Key = ""
 	determineDeployment()
 	if !failed {
 		t.Error("should have failed execution")
@@ -213,13 +261,15 @@ func TestDetermineDeploymentFailS3KeyNotSet(t *testing.T) {
 func TestDetermineDeploymentFailGitAccountNotSet(t *testing.T) {
 	s3Deploy = false
 	failed := false
-	expectedMessage := "Please define a git account and project to deploy from in the form of: account/project under AWS_FURNACE_GIT_ACCOUNT."
+	expectedMessage := "Please define a git account and project to deploy from in the form of: account/project under GIT_ACCOUNT."
 	var message string
 	config.LogFatalf = func(s string, a ...interface{}) {
 		failed = true
 		message = s
 	}
-	os.Setenv("AWS_FURNACE_GIT_REVISION", "testrevision")
+	awsconfig.Config = awsconfig.Configuration{}
+	awsconfig.Config.Aws.CodeDeploy.GitRevision = "revision"
+	awsconfig.Config.Aws.CodeDeploy.GitAccount = ""
 	defer os.Clearenv()
 	determineDeployment()
 	if !failed {
@@ -233,14 +283,15 @@ func TestDetermineDeploymentFailGitAccountNotSet(t *testing.T) {
 func TestDetermineDeploymentFailGitRevisionNotSet(t *testing.T) {
 	s3Deploy = false
 	failed := false
-	expectedMessage := "Please define the git commit hash to use for deploying under AWS_FURNACE_GIT_REVISION."
+	expectedMessage := "Please define the git commit hash to use for deploying under GIT_REVISION."
 	var message string
 	config.LogFatalf = func(s string, a ...interface{}) {
 		failed = true
 		message = s
 	}
-	os.Setenv("AWS_FURNACE_GIT_ACCOUNT", "test/account")
-	defer os.Clearenv()
+	awsconfig.Config = awsconfig.Configuration{}
+	awsconfig.Config.Aws.CodeDeploy.GitAccount = "account"
+	awsconfig.Config.Aws.CodeDeploy.GitRevision = ""
 	determineDeployment()
 	if !failed {
 		t.Error("should have failed execution")
@@ -343,8 +394,9 @@ func TestRevisionLocationS3(t *testing.T) {
 
 func TestRevisionLocationGit(t *testing.T) {
 	s3Deploy = false
-	os.Setenv("FURNACE_S3BUCKET", "testBucket")
-	os.Setenv("FURNACE_S3KEY", "testKey")
+	awsconfig.Config = awsconfig.Configuration{}
+	awsconfig.Config.Aws.CodeDeploy.S3Bucket = "testbucket"
+	awsconfig.Config.Aws.CodeDeploy.S3Key = "testkey"
 	defer os.Clearenv()
 	expected := &codedeploy.RevisionLocation{
 		GitHubLocation: &codedeploy.GitHubLocation{
@@ -396,8 +448,8 @@ func TestGetCodeDeployRoleARN(t *testing.T) {
 
 func TestPushCreate(t *testing.T) {
 	wrapper := NewPush("furnace")
-	if wrapper.Help.Arguments != "appName [-s3]" ||
-		!reflect.DeepEqual(wrapper.Help.Examples, []string{"", "appName", "appName -s3", "-s3", "appName"}) ||
+	if wrapper.Help.Arguments != "custom-config [-s3]" ||
+		!reflect.DeepEqual(wrapper.Help.Examples, []string{"", "custom-config", "custom-config -s3", "-s3"}) ||
 		wrapper.Help.LongDescription != `Push a version of the application to a stack` ||
 		wrapper.Help.ShortDescription != "Push to stack" {
 		t.Log(wrapper.Help.LongDescription)
