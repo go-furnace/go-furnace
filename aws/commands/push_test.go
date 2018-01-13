@@ -161,6 +161,24 @@ func TestPushExecute(t *testing.T) {
 	pushExecute(opts, cfClient, cdClient, iamClient)
 }
 
+func TestPushExecuteWithStackConfig(t *testing.T) {
+	awsconfig.Config = awsconfig.Configuration{}
+	awsconfig.Config.Aws.CodeDeploy.GitAccount = "test/account"
+	awsconfig.Config.Aws.CodeDeploy.GitRevision = "testrevision"
+	iamClient := new(IAMClient)
+	iamClient.Client = &fakePushIAMClient{err: nil}
+	cdClient := new(CDClient)
+	cdClient.Client = &fakePushCDClient{err: nil, awsErr: nil}
+	cfClient := new(CFClient)
+	cfClient.Client = &fakePushCFClient{err: nil}
+	opts := &commander.CommandHelper{}
+	opts.Args = append(opts.Args, "teststack")
+	pushExecute(opts, cfClient, cdClient, iamClient)
+	if awsconfig.Config.Main.Stackname != "MyStack" {
+		t.Fatal("test did not load the file requested.")
+	}
+}
+
 func TestDetermineDeploymentS3(t *testing.T) {
 	s3Deploy = true
 	awsconfig.Config = awsconfig.Configuration{}

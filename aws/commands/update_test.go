@@ -8,6 +8,7 @@ import (
 
 	"log"
 
+	awsconfig "github.com/Skarlso/go-furnace/aws/config"
 	config "github.com/Skarlso/go-furnace/config"
 	commander "github.com/Yitsushi/go-commander"
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -74,6 +75,19 @@ func TestUpdateExecute(t *testing.T) {
 	client.Client = &fakeUpdateCFClient{err: nil, stackname: stackname}
 	opts := &commander.CommandHelper{}
 	updateExecute(opts, client)
+}
+
+func TestUpdateExecuteWitCustomStack(t *testing.T) {
+	config.WAITFREQUENCY = 0
+	client := new(CFClient)
+	stackname := "NotEmptyStack"
+	client.Client = &fakeUpdateCFClient{err: nil, stackname: stackname}
+	opts := &commander.CommandHelper{}
+	opts.Args = append(opts.Args, "teststack")
+	updateExecute(opts, client)
+	if awsconfig.Config.Main.Stackname != "MyStack" {
+		t.Fatal("test did not load the file requested.")
+	}
 }
 
 func TestUpdateExecuteEmptyStack(t *testing.T) {

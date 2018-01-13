@@ -82,6 +82,19 @@ func TestCreateExecute(t *testing.T) {
 	createExecute(opts, client)
 }
 
+func TestCreateExecuteWithStackFile(t *testing.T) {
+	config.WAITFREQUENCY = 0
+	client := new(CFClient)
+	stackname := "NotEmptyStack"
+	client.Client = &fakeCreateCFClient{err: nil, stackname: stackname}
+	opts := &commander.CommandHelper{}
+	opts.Args = append(opts.Args, "teststack")
+	createExecute(opts, client)
+	if awsconfig.Config.Main.Stackname != "MyStack" {
+		t.Fatal("test did not load the file requested.")
+	}
+}
+
 func TestCreateExecuteEmptyStack(t *testing.T) {
 	failed := false
 	config.LogFatalf = func(s string, a ...interface{}) {

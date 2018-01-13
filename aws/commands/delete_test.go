@@ -48,6 +48,19 @@ func TestDeleteExecute(t *testing.T) {
 	deleteExecute(opts, client)
 }
 
+func TestDeleteExecuteWithExtraStack(t *testing.T) {
+	config.WAITFREQUENCY = 0
+	client := new(CFClient)
+	stackname := "ToDeleteStack"
+	client.Client = &fakeDeleteCFClient{err: nil, stackname: stackname}
+	opts := &commander.CommandHelper{}
+	opts.Args = append(opts.Args, "teststack")
+	deleteExecute(opts, client)
+	if awsconfig.Config.Main.Stackname != "MyStack" {
+		t.Fatal("test did not load the file requested.")
+	}
+}
+
 func TestPreDeletePlugins(t *testing.T) {
 	ran := false
 	runner := func() {
