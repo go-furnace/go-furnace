@@ -19,6 +19,13 @@ type DeleteApp struct {
 
 // Execute defines what this command does.
 func (c *DeleteApp) Execute(opts *commander.CommandHelper) {
+	appName, cfg := gatherConfig(opts)
+	cdClient := codedeploy.New(cfg)
+	client := CDClient{cdClient}
+	deleteApplication(appName, &client)
+}
+
+func gatherConfig(opts *commander.CommandHelper) (string, aws.Config) {
 	configName := opts.Arg(0)
 	if len(configName) > 0 {
 		dir, _ := os.Getwd()
@@ -29,9 +36,7 @@ func (c *DeleteApp) Execute(opts *commander.CommandHelper) {
 	appName := awsconfig.Config.Aws.AppName
 	cfg, err := external.LoadDefaultAWSConfig()
 	config.CheckError(err)
-	cdClient := codedeploy.New(cfg)
-	client := CDClient{cdClient}
-	deleteApplication(appName, &client)
+	return appName, cfg
 }
 
 func deleteApplication(appName string, client *CDClient) {

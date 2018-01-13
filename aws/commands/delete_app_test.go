@@ -5,6 +5,8 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/Yitsushi/go-commander"
+
 	config "github.com/Skarlso/go-furnace/config"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/aws/awserr"
@@ -24,6 +26,35 @@ func (fd *fakeDeleteAppCDClient) DeleteApplicationRequest(*codedeploy.DeleteAppl
 			Data:  &codedeploy.DeleteApplicationOutput{},
 			Error: fd.err,
 		},
+	}
+}
+
+func TestGatherConfig(t *testing.T) {
+	failed := false
+	config.LogFatalf = func(s string, a ...interface{}) {
+		failed = true
+	}
+	client := new(CDClient)
+	client.Client = &fakeDeleteAppCDClient{err: nil, awsErr: nil}
+	opts := &commander.CommandHelper{}
+	gatherConfig(opts)
+	if failed {
+		t.Fatal("should not have failed")
+	}
+}
+
+func TestGatherConfigCustomStack(t *testing.T) {
+	failed := false
+	config.LogFatalf = func(s string, a ...interface{}) {
+		failed = true
+	}
+	client := new(CDClient)
+	client.Client = &fakeDeleteAppCDClient{err: nil, awsErr: nil}
+	opts := &commander.CommandHelper{}
+	opts.Args = append(opts.Args, "fakeapp")
+	gatherConfig(opts)
+	if !failed {
+		t.Fatal("should have failed")
 	}
 }
 
