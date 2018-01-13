@@ -61,6 +61,23 @@ func TestDeleteExecuteWithExtraStack(t *testing.T) {
 	}
 }
 
+func TestDeleteExecuteWithExtraStackNotFound(t *testing.T) {
+	failed := false
+	config.LogFatalf = func(s string, a ...interface{}) {
+		failed = true
+	}
+	config.WAITFREQUENCY = 0
+	client := new(CFClient)
+	stackname := "ToDeleteStack"
+	client.Client = &fakeDeleteCFClient{err: nil, stackname: stackname}
+	opts := &commander.CommandHelper{}
+	opts.Args = append(opts.Args, "notfound")
+	deleteExecute(opts, client)
+	if !failed {
+		t.Error("Expected outcome to fail. Did not fail.")
+	}
+}
+
 func TestPreDeletePlugins(t *testing.T) {
 	ran := false
 	runner := func() {

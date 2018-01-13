@@ -90,6 +90,23 @@ func TestUpdateExecuteWitCustomStack(t *testing.T) {
 	}
 }
 
+func TestUpdateExecuteWitCustomStackNotFound(t *testing.T) {
+	failed := false
+	config.LogFatalf = func(s string, a ...interface{}) {
+		failed = true
+	}
+	config.WAITFREQUENCY = 0
+	client := new(CFClient)
+	stackname := "NotEmptyStack"
+	client.Client = &fakeUpdateCFClient{err: nil, stackname: stackname}
+	opts := &commander.CommandHelper{}
+	opts.Args = append(opts.Args, "notfound")
+	updateExecute(opts, client)
+	if !failed {
+		t.Error("Expected outcome to fail. Did not fail.")
+	}
+}
+
 func TestUpdateExecuteEmptyStack(t *testing.T) {
 	failed := false
 	config.LogFatalf = func(s string, a ...interface{}) {

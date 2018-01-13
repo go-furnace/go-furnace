@@ -95,6 +95,23 @@ func TestCreateExecuteWithStackFile(t *testing.T) {
 	}
 }
 
+func TestCreateExecuteWithStackFileNotFound(t *testing.T) {
+	failed := false
+	config.LogFatalf = func(s string, a ...interface{}) {
+		failed = true
+	}
+	config.WAITFREQUENCY = 0
+	client := new(CFClient)
+	stackname := "NotEmptyStack"
+	client.Client = &fakeCreateCFClient{err: nil, stackname: stackname}
+	opts := &commander.CommandHelper{}
+	opts.Args = append(opts.Args, "notpresent")
+	createExecute(opts, client)
+	if !failed {
+		t.Error("Expected outcome to fail. Did not fail.")
+	}
+}
+
 func TestCreateExecuteEmptyStack(t *testing.T) {
 	failed := false
 	config.LogFatalf = func(s string, a ...interface{}) {
