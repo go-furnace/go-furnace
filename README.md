@@ -83,18 +83,19 @@ Furnace uses convention for configuration and YAML. This works as follows.
 
 Since furnace is a distributable binary, it looks for a configuration called `.teststack.furnace` in the current running
 directory. If it fails to find one, it will go up one level and search there, until it can't go any more up. It will leave
-out `\` or searching. This is achieved by simply running `furnace-aws create teststack`. Or `furnace-aws status teststack`.
+out `\` for searching. This is achieved by simply running `furnace-aws create teststack`. Or `furnace-aws status teststack`.
 If the file doesn't exists, furnace will throw an error.
 
 The parameter is optional. If not provided, furnace will look for it's default configuration files under `~/.config/go-furnace`.
 
-That file contains a single entry, looking like this:
+The `.teststack.furnace` file contains a single entry, looking like this:
 
 ```bash
 stacks/aws_config.yaml
 ```
 
-This entry tells Furnace where to look for its configuration yaml file. The configuration file for AWS looks like this:
+This entry tells Furnace where to look for the given stack's configuration yaml file.
+The configuration file for AWS looks like this:
 
 ```yaml
 main:
@@ -127,16 +128,11 @@ gcp:
   stack_name: test2-stack
 ```
 
-Notice that the name of the template file does not contain a directory. The template file must be located next to configuration
-file.
+Notice that the name of the stack template file does not contain a directory. The stack template file must be located next to configuration file.
 
-As a fall-back and default, `~/.config/go-furnace` directory is used.
+CodeDeploy further requires an IAM policy on the current user in order to be able to handle ASG and deploying to the EC2 instances. For this, a regular IAM role can be created from the AWS console. The name of the IAM profile can be configured later when pushing, if that is not set, the default is used which is `CodeDeployServiceRole`. This role can also be created via the CloudFormation stack template.
 
-CodeDeploy further requires an IAM policy on the current user in order to be able to handle ASG and deploying to the EC2 instances.
-For this, a regular IAM role can be created from the AWS console. The name of the IAM profile can be configured later when pushing,
-if that is not set, the default is used which is `CodeDeployServiceRole`.
-
-This configuration allows for multiple stacks for a single project as long as the corresponding `.furnace` file exists.
+This setup allows for multiple stacks for a single project as long as the corresponding `.furnace` file exists; giving much more flexibility to the user.
 
 ### AWS Commands
 
@@ -149,7 +145,7 @@ push custom-config [-s3]           Push to stack
 delete-application custom-config   Deletes an Application
 update custom-config               Update a stack
 status custom-config               Status of a stack.
-create configfile                  Create a stack
+create custom-config                  Create a stack
 help [command]                     Display this help or a command specific help
 ```
 

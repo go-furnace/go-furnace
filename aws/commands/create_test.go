@@ -258,7 +258,7 @@ func TestGatheringParametersWithUserInputShouldUseInput(t *testing.T) {
 
 func TestNewCreate(t *testing.T) {
 	wrapper := NewCreate("furnace")
-	if wrapper.Help.Arguments != "configfile" ||
+	if wrapper.Help.Arguments != "custom-config" ||
 		!reflect.DeepEqual(wrapper.Help.Examples, []string{"", "custom-config"}) ||
 		wrapper.Help.LongDescription != `Create a stack on which to deploy code later on. By default FurnaceStack is used as name.` ||
 		wrapper.Help.ShortDescription != "Create a stack" {
