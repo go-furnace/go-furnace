@@ -6,10 +6,10 @@ BINARY=furnace-gcp
 
 
 build:
-	go build -ldflags="-s -w" -i -o ${BINARY}
+	go build -ldflags="-s -w" -i -o ../cmd/${BINARY}
 
 osx:
-	go build -i -o ${BINARY}-osx
+	go build -i -o ../cmd/${BINARY}-osx
 
 test:
 	go test ./...
@@ -18,12 +18,12 @@ get-deps:
 	dep ensure
 
 clean:
-	if [ -f ${BINARY} ]; then rm ${BINARY}; fi
+	if [ -f ${BINARY} ]; then rm ../cmd/${BINARY}; fi
 
 linux:
-	env GOOS=linux GOARCH=arm go build -o ${BINARY}-linux
+	env GOOS=linux GOARCH=arm go build -o ../cmd/${BINARY}-linux
 
 windows:
-	env GOOS=windows GOARCH=386 go build -o ${BINARY}-windows.exe
+	env GOOS=windows GOARCH=386 go build -o ../cmd/${BINARY}-windows.exe
 
 all: osx linux windows

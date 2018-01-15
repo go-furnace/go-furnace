@@ -8,3 +8,4 @@ test:
 
 get-deps-all:
 	make get-deps -C aws && make get-deps -C gcp
+
