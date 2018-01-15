@@ -1,4 +1,4 @@
-BINARY=furnace-gcp
+BINARY=furnace-aws
 
 .DEFAULT_GOAL := build
 
@@ -18,7 +18,7 @@ get-deps:
 	dep ensure
 
 clean:
-	if [ -f ${BINARY} ]; then rm ../cmd/${BINARY}; fi
+	go clean -i
 
 linux:
 	env GOOS=linux GOARCH=arm go build -o ../cmd/${BINARY}-linux

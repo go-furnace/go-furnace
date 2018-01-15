@@ -5,5 +5,5 @@ cover.out
 .vscode
 tags
 vendor
-furnace-aws
-furnace-gcp
+cmd/furnace-aws
+cmd/furnace-gcp

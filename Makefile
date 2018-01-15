@@ -1,11 +1,16 @@
 .DEFAULT_GOAL := build-all
 
 build-all:
-	make -C aws && make -C gcp
+	make -C furnace-aws && make -C furnace-gcp
 
 test:
 	go test ./...
 
 get-deps-all:
-	make get-deps -C aws && make get-deps -C gcp
+	make get-deps -C furnace-aws && make get-deps -C furnace-gcp
 
+install-all:
+	go install ./...
+
+clean-all:
+	make clean -C furnace-aws && make clean -C furnace-gcp

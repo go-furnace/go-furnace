@@ -8,8 +8,8 @@ import (
 
 	"log"
 
-	awsconfig "github.com/Skarlso/go-furnace/aws/config"
 	config "github.com/Skarlso/go-furnace/config"
+	awsconfig "github.com/Skarlso/go-furnace/furnace-aws/config"
 	commander "github.com/Yitsushi/go-commander"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/cloudformation"

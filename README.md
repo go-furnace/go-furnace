@@ -26,6 +26,48 @@ The application to be deployed is handled via GitHub, or S3.
 
 A sample application is provider under the `furnace-codedeploy-app` folder.
 
+## Installing Binaries
+
+### Go Install
+
+To install all generated binaries at once, run:
+
+```bash
+# Download / Clone the latest version
+# cd into go-furnace
+make install-all
+```
+
+This will install all dependencies and both binaries to `$GOPATH/bin` folder.
+
+### Make commands
+
+You can also build the commands which will be output into the `cmd` sub-folder.
+
+```bash
+# Simply run make from the root folder
+make
+```
+
+### Building for different environment
+
+Convinient targets are provided for linux and windows binaries.
+
+```bash
+make linux
+make windows
+```
+
+These are only available from the package folders respectively.
+
+### Clean
+
+In case `make install` is used, a clean-up target is also provided.
+
+```bash
+make clean-all
+```
+
 ## AWS
 
 ### CloudFormation

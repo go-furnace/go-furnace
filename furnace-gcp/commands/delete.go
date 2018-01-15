@@ -5,7 +5,7 @@ import (
 	"os"
 
 	config "github.com/Skarlso/go-furnace/config"
-	fc "github.com/Skarlso/go-furnace/gcp/config"
+	fc "github.com/Skarlso/go-furnace/furnace-gcp/config"
 	"github.com/Yitsushi/go-commander"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2/google"
