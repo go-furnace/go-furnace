@@ -26,9 +26,9 @@ The application to be deployed is handled via GitHub, or S3.
 
 A sample application is provider under the `furnace-codedeploy-app` folder.
 
-## Installing Binaries
+## Installing Binaries
 
-### Go Install
+### Go Install
 
 To install all generated binaries at once, run:
 
@@ -49,7 +49,7 @@ You can also build the commands which will be output into the `cmd` sub-folder.
 make
 ```
 
-### Building for different environment
+### Building for different environment
 
 Convinient targets are provided for linux and windows binaries.
 
