@@ -5,6 +5,8 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/Skarlso/go-furnace/config"
 )
 
 // func TestLoadConfigFileIfExists(t *testing.T) {
@@ -71,5 +73,23 @@ aws:
 	err = LoadConfigFileIfExists(location2, "testdiffdir")
 	if err != nil {
 		t.Fatal("failed to load config file: ", err)
+	}
+}
+
+func TestLoadCFStackConfigNoError(t *testing.T) {
+	tempFile, _ := ioutil.TempFile(os.TempDir(), "test_file")
+	templatePath = tempFile.Name()
+	LoadCFStackConfig()
+}
+
+func TestLoadCFStackConfigError(t *testing.T) {
+	failed := false
+	config.LogFatalf = func(format string, v ...interface{}) {
+		failed = true
+	}
+	templatePath = ""
+	LoadCFStackConfig()
+	if !failed {
+		t.Fatal("should have failed while trying to load template file which doesn't exists")
 	}
 }
