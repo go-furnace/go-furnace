@@ -13,6 +13,6 @@ Resources:
     Name: MyDroplet
     Type: Droplet
     Image:
-      Slug: ubuntu-14-04-x6
+      Slug: ubuntu-14-04-x64
     Size: 512mb
     Region: nyc3
