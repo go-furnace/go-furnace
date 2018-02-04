@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/Skarlso/go-furnace/config"
+	doconfig "github.com/Skarlso/go-furnace/furnace-do/config"
 	"github.com/Skarlso/yogsothoth/yogsot"
 	yog "github.com/Skarlso/yogsothoth/yogsot"
 	commander "github.com/Yitsushi/go-commander"
@@ -16,25 +17,19 @@ type Create struct {
 
 // Execute defines what this command does.
 func (c *Create) Execute(opts *commander.CommandHelper) {
-	yogClient := yog.NewClient(os.Getenv("DO_TOKEN"))
-	template := `
-Parameters:
-  StackName:
-    Description: The name of the stack to deploy
-    Type: String
-    Default: FurnaceStack
-  Port:
-    Description: Test port
-    Type: Number
-    Default: 80
+	configName := opts.Arg(0)
+	if len(configName) > 0 {
+		dir, _ := os.Getwd()
+		if err := doconfig.LoadConfigFileIfExists(dir, configName); err != nil {
+			config.HandleFatal(configName, err)
+		}
+	}
+	template := doconfig.LoadDoStackConfig()
+	yogClient := yog.NewClient(doconfig.Config.Do.Token)
 
-Resources:
-  Droplet:
-    Name: MyDroplet
-    Type: Droplet`
 	req := yogsot.CreateStackRequest{
 		StackName:    "FurnaceStack",
-		TemplateBody: []byte(template),
+		TemplateBody: template,
 	}
 	res, err := yogClient.CreateStack(req)
 	if err != nil {
