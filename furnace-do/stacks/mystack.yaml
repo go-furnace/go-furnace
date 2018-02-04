@@ -1,0 +1,4 @@
+do:
+  template_name: mystack.template
+  stack_name: DoTestStack
+  token: asdf

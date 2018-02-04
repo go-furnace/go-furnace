@@ -1,0 +1,18 @@
+Parameters:
+  StackName:
+    Description: The name of the stack to deploy
+    Type: String
+    Default: FurnaceStack
+  Port:
+    Description: Test port
+    Type: Number
+    Default: 80
+
+Resources:
+  Droplet:
+    Name: MyDroplet
+    Type: Droplet
+    Image:
+      Slug: ubuntu-14-04-x64
+    Size: 512mb
+    Region: nyc3

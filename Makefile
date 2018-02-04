@@ -7,7 +7,7 @@ test:
 	go test ./...
 
 get-deps-all:
-	make get-deps -C furnace-aws && make get-deps -C furnace-gcp
+	make get-deps -C furnace-aws && make get-deps -C furnace-gcp && make get-deps -C furnace-do
 
 install-all:
 	go install ./...
