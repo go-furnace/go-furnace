@@ -2,6 +2,7 @@ package commands
 
 import (
 	"log"
+	"os"
 
 	"github.com/Skarlso/go-furnace/config"
 	"github.com/Skarlso/yogsothoth/yogsot"
@@ -15,7 +16,7 @@ type Create struct {
 
 // Execute defines what this command does.
 func (c *Create) Execute(opts *commander.CommandHelper) {
-	yogClient := yog.NewClient()
+	yogClient := yog.NewClient(os.Getenv("DO_TOKEN"))
 	template := `
 Parameters:
   StackName:
