@@ -4,7 +4,7 @@ main:
 aws:
   code_deploy_role: CodeDeployServiceRole
   region: us-east-1
-  enable_plugin_system: false
+  enable_plugin_system: true
   template_name: mystack.template
   code_deploy:
     # Only needed in case S3 is used for code deployment
