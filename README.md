@@ -454,6 +454,7 @@ Status can be retrieved using the following command:
 
 This will output information about the deployment including the manifest file which includes all of the created resources with the deployment. This will look like the following output:
 
+
 ```bash
 ~/golang/src/github.com/Skarlso/go-furnace extend_with_subcommand* 1m 8s
 ❯ ./furnace-gcp status
@@ -499,7 +500,7 @@ Layout:
   type: template.jinja
 ```
 
-## DigitalOcean
+## DigitalOcean
 
 Furnace now supports DigitalOcean. This is really through a library called [Yogsothoth](https://github.com/Skarlso/yogsothoth). Yogsothoth aims to provide the same experience to DigitalOcean assets that does CloudFormation for AWS services.
 
@@ -507,7 +508,7 @@ This means, that there is a configuration template that describes a set of resou
 
 This library is in Alpha and only supports Droplets for now. Slowly more resources and features will be available much like the templates of CF and GCP.
 
-### Commands
+### Commands
 
 For now, only `create` is done. This will be improved rapidly as more functionality is available through Yogsothoth.
 
@@ -515,7 +516,7 @@ For now, only `create` is done. This will be improved rapidly as more functional
 
 Furnace is now using `dep` to manage it's dependencies.
 
-## Separate binaries
+## Separate binaries
 
 In order to try and minimize the binary size of furnace, it has separate binaries for each service it provides.
 
