@@ -25,16 +25,15 @@ get-deps:
 clean:
 	go clean -i
 
-define buildpretty
-mkdir -p $(BUILDDIR)/$(1)/$(2);
+define buildrelease
 GOOS=$(1) GOARCH=$(2) CGO_ENABLED=0 go build \
-	 -o $(BUILDDIR)/$(1)/$(2)/$(NAME) \
+	 -o $(BUILDDIR)/$(NAME)-$(1)-$(2) \
 	 -a -tags "$(BUILDTAGS)" \
 	 -installsuffix netgo ${GO_LDFLAGS_STATIC} .;
-shasum -a 256 $(BUILDDIR)/$(1)/$(2)/$(NAME) > $(BUILDDIR)/$(1)/$(2)/$(NAME).sha256;
+shasum -a 256 $(BUILDDIR)/$(NAME)-$(1)-$(2) > $(BUILDDIR)/$(NAME)-$(1)-$(2).sha256;
 endef
 
-.PHONY: cross
-cross: *.go ## Builds the cross-compiled binaries, creating a clean directory structure (eg. GOOS/GOARCH/binary)
+.PHONY: release
+release: *.go ## Builds the cross-compiled binaries, naming them in such a way for release (eg. binary-GOOS-GOARCH)
 	@echo "+ $@"
-	$(foreach GOOSARCH,$(GOOSARCHES), $(call buildpretty,$(subst /,,$(dir $(GOOSARCH))),$(notdir $(GOOSARCH))))
+	$(foreach GOOSARCH,$(GOOSARCHES), $(call buildrelease,$(subst /,,$(dir $(GOOSARCH))),$(notdir $(GOOSARCH))))
