@@ -3,9 +3,12 @@
 
 [[projects]]
   name = "github.com/Skarlso/go-furnace"
-  packages = ["config"]
-  revision = "74680d220c0e60b24d2150b9fe8ec0f6c57ac21b"
-  version = "v2.0.4"
+  packages = [
+    "config",
+    "handle"
+  ]
+  revision = "424304dbda3604093fc9dd504821d60bbea8fbc2"
+  version = "v2.1.2"
 
 [[projects]]
   name = "github.com/Yitsushi/go-commander"
@@ -15,7 +18,34 @@
 
 [[projects]]
   name = "github.com/aws/aws-sdk-go-v2"
-  packages = ["aws","aws/awserr","aws/defaults","aws/ec2metadata","aws/ec2rolecreds","aws/endpointcreds","aws/endpoints","aws/external","aws/signer/v4","aws/stscreds","internal/awsutil","internal/sdk","private/protocol","private/protocol/json/jsonutil","private/protocol/jsonrpc","private/protocol/query","private/protocol/query/queryutil","private/protocol/rest","private/protocol/xml/xmlutil","service/cloudformation","service/cloudformation/cloudformationiface","service/codedeploy","service/codedeploy/codedeployiface","service/iam","service/iam/iamiface","service/sts"]
+  packages = [
+    "aws",
+    "aws/awserr",
+    "aws/defaults",
+    "aws/ec2metadata",
+    "aws/ec2rolecreds",
+    "aws/endpointcreds",
+    "aws/endpoints",
+    "aws/external",
+    "aws/signer/v4",
+    "aws/stscreds",
+    "internal/awsutil",
+    "internal/sdk",
+    "private/protocol",
+    "private/protocol/json/jsonutil",
+    "private/protocol/jsonrpc",
+    "private/protocol/query",
+    "private/protocol/query/queryutil",
+    "private/protocol/rest",
+    "private/protocol/xml/xmlutil",
+    "service/cloudformation",
+    "service/cloudformation/cloudformationiface",
+    "service/codedeploy",
+    "service/codedeploy/codedeployiface",
+    "service/iam",
+    "service/iam/iamiface",
+    "service/sts"
+  ]
   revision = "ac26486d921d336e20fec49e2afb348c801f0003"
   version = "v2.0.0-preview.1"
 
@@ -69,6 +99,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "375109f4a6b727116d330745ebbd89f930f1b99509b477a4a9f13e235f047cd4"
+  inputs-digest = "7bdd4012f51c2f349959230a8e1b384019807db42561672dacbc7d6921592dcb"
   solver-name = "gps-cdcl"
   solver-version = 1
