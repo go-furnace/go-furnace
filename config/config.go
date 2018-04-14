@@ -1,9 +1,10 @@
 package config
 
 import (
-	"log"
 	"os/user"
 	"path/filepath"
+
+	"github.com/Skarlso/go-furnace/handle"
 )
 
 // Spinners is a collection os spinner types
@@ -25,25 +26,10 @@ var STACKNAME = "FurnaceStack"
 // SPINNER is the index of which spinner to use. Defaults to 7.
 var SPINNER = 7
 
-// LogFatalf is the function to log a fatal error.
-var LogFatalf = log.Fatalf
-
-// CheckError handles errors.
-func CheckError(err error) {
-	if err != nil {
-		HandleFatal("Error occurred:", err)
-	}
-}
-
-// HandleFatal handler fatal errors in Furnace.
-func HandleFatal(s string, err error) {
-	LogFatalf(s, err)
-}
-
 // Path retrieves the main configuration path.
 func Path() string {
 	// Get configuration path
 	usr, err := user.Current()
-	CheckError(err)
+	handle.Error(err)
 	return filepath.Join(usr.HomeDir, ".config", "go-furnace")
 }

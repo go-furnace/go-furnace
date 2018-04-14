@@ -5,8 +5,9 @@ import (
 	"log"
 	"os"
 
-	config "github.com/Skarlso/go-furnace/config"
+	"github.com/Skarlso/go-furnace/config"
 	awsconfig "github.com/Skarlso/go-furnace/furnace-aws/config"
+	"github.com/Skarlso/go-furnace/handle"
 	"github.com/Yitsushi/go-commander"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/aws/external"
@@ -22,7 +23,7 @@ type Create struct {
 func (c *Create) Execute(opts *commander.CommandHelper) {
 	log.Println("Creating cloud formation session.")
 	cfg, err := external.LoadDefaultAWSConfig()
-	config.CheckError(err)
+	handle.Error(err)
 	cfClient := cloudformation.New(cfg)
 	client := CFClient{cfClient}
 	createExecute(opts, &client)
@@ -33,7 +34,7 @@ func createExecute(opts *commander.CommandHelper, client *CFClient) {
 	if len(configName) > 0 {
 		dir, _ := os.Getwd()
 		if err := awsconfig.LoadConfigFileIfExists(dir, configName); err != nil {
-			config.HandleFatal(configName, err)
+			handle.Fatal(configName, err)
 		}
 	}
 
@@ -52,7 +53,7 @@ func createExecute(opts *commander.CommandHelper, client *CFClient) {
 	if stacks != nil {
 		log.Println("Stack state is: ", red(stacks[0].StackStatus))
 	} else {
-		config.HandleFatal(fmt.Sprintf("No stacks found with name: %s", keyName(stackname)), nil)
+		handle.Fatal(fmt.Sprintf("No stacks found with name: %s", keyName(stackname)), nil)
 	}
 }
 
@@ -91,7 +92,7 @@ func (cf *CFClient) createStack(stackInputParams *cloudformation.CreateStackInpu
 	log.Println("Creating Stack with name: ", keyName(*stackInputParams.StackName))
 	req := cf.Client.CreateStackRequest(stackInputParams)
 	resp, err := req.Send()
-	config.CheckError(err)
+	handle.Error(err)
 	return resp
 }
 

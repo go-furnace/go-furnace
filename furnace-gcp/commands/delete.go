@@ -4,8 +4,8 @@ import (
 	"log"
 	"os"
 
-	config "github.com/Skarlso/go-furnace/config"
 	fc "github.com/Skarlso/go-furnace/furnace-gcp/config"
+	"github.com/Skarlso/go-furnace/handle"
 	"github.com/Yitsushi/go-commander"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2/google"
@@ -22,14 +22,14 @@ func (d *Delete) Execute(opts *commander.CommandHelper) {
 	if len(configName) > 0 {
 		dir, _ := os.Getwd()
 		if err := fc.LoadConfigFileIfExists(dir, configName); err != nil {
-			config.HandleFatal(configName, err)
+			handle.Fatal(configName, err)
 		}
 	}
 	deploymentName := fc.Config.Gcp.StackName
 	log.Println("Deleteing Deployment Under Project: ", keyName(fc.Config.Main.ProjectName))
 	ctx := context.Background()
 	client, err := google.DefaultClient(ctx, deploymentmanager.NdevCloudmanScope)
-	config.CheckError(err)
+	handle.Error(err)
 	d2, _ := deploymentmanager.New(client)
 	ret := d2.Deployments.Delete(fc.Config.Main.ProjectName, deploymentName)
 	_, err = ret.Do()

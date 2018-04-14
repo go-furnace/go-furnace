@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	config "github.com/Skarlso/go-furnace/config"
+	"github.com/Skarlso/go-furnace/handle"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/cloudformation"
 	"github.com/fatih/color"
@@ -45,7 +45,7 @@ func readInputFrom(source *os.File) string {
 func (cf *CFClient) describeStacks(descStackInput *cloudformation.DescribeStacksInput) *cloudformation.DescribeStacksOutput {
 	req := cf.Client.DescribeStacksRequest(descStackInput)
 	descResp, err := req.Send()
-	config.CheckError(err)
+	handle.Error(err)
 	return descResp
 }
 
@@ -56,6 +56,6 @@ func (cf *CFClient) validateTemplate(template []byte) *cloudformation.ValidateTe
 	}
 	req := cf.Client.ValidateTemplateRequest(validateParams)
 	resp, err := req.Send()
-	config.CheckError(err)
+	handle.Error(err)
 	return resp
 }

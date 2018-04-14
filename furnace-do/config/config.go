@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/Skarlso/go-furnace/config"
+	"github.com/Skarlso/go-furnace/handle"
 	"gopkg.in/yaml.v2"
 )
 
@@ -35,7 +36,7 @@ func init() {
 	fileName := filepath.Join(configPath, defaultConfig)
 	if _, err := os.Stat(fileName); err == nil {
 		Config.LoadConfiguration(fileName)
-	} else if err != nil {
+	} else {
 		log.Printf("WARNING: config file '%s' not found.\n", fileName)
 	}
 	templateBase = configPath
@@ -44,9 +45,9 @@ func init() {
 // LoadConfiguration loads a yaml file which sets fields for Configuration struct
 func (c *Configuration) LoadConfiguration(configFile string) {
 	content, err := ioutil.ReadFile(configFile)
-	config.CheckError(err)
+	handle.Error(err)
 	err = yaml.Unmarshal(content, c)
-	config.CheckError(err)
+	handle.Error(err)
 }
 
 // LoadConfigFileIfExists Search backwards from the current directory
@@ -76,6 +77,6 @@ func LoadConfigFileIfExists(dir string, file string) error {
 // LoadDoStackConfig Loads the digital ocean stack configuration file.
 func LoadDoStackConfig() []byte {
 	dat, err := ioutil.ReadFile(filepath.Join(templateBase, Config.Do.TemplateName))
-	config.CheckError(err)
+	handle.Error(err)
 	return dat
 }

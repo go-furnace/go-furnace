@@ -5,7 +5,8 @@ import (
 	"log"
 	"time"
 
-	config "github.com/Skarlso/go-furnace/config"
+	"github.com/Skarlso/go-furnace/config"
+	"github.com/Skarlso/go-furnace/handle"
 	"github.com/fatih/color"
 	dm "google.golang.org/api/deploymentmanager/v2"
 	"google.golang.org/api/googleapi"
@@ -20,7 +21,7 @@ func waitForDeploymentToFinish(d dm.Service, projectName string, deploymentName 
 	project := d.Deployments.Get(projectName, deploymentName)
 	deploymentOp, err := project.Do()
 	if err != nil {
-		config.HandleFatal("error while getting deployment: ", err)
+		handle.Fatal("error while getting deployment: ", err)
 	}
 	var counter int
 	// This needs a timeout
@@ -28,7 +29,7 @@ func waitForDeploymentToFinish(d dm.Service, projectName string, deploymentName 
 		deploymentOp, err = project.Do()
 		if err != nil {
 			if err.(*googleapi.Error).Code != 404 {
-				config.HandleFatal("error while getting deployment: ", err)
+				handle.Fatal("error while getting deployment: ", err)
 			} else {
 				log.Println("\nStack terminated!")
 				break

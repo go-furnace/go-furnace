@@ -7,8 +7,9 @@ import (
 	"reflect"
 	"testing"
 
-	config "github.com/Skarlso/go-furnace/config"
+	"github.com/Skarlso/go-furnace/config"
 	awsconfig "github.com/Skarlso/go-furnace/furnace-aws/config"
+	"github.com/Skarlso/go-furnace/handle"
 	commander "github.com/Yitsushi/go-commander"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/aws/awserr"
@@ -37,7 +38,7 @@ type fakePushCDClient struct {
 }
 
 func init() {
-	config.LogFatalf = log.Fatalf
+	handle.LogFatalf = log.Fatalf
 }
 
 func (fiam *fakePushIAMClient) GetRoleRequest(*iam.GetRoleInput) iam.GetRoleRequest {
@@ -53,11 +54,9 @@ func (fiam *fakePushIAMClient) GetRoleRequest(*iam.GetRoleInput) iam.GetRoleRequ
 }
 
 func (fc *fakePushCFClient) ListStackResourcesRequest(input *cloudformation.ListStackResourcesInput) cloudformation.ListStackResourcesRequest {
-	var id *string
+	id := aws.String("AWS::AutoScaling::AutoScalingGroup")
 	if "NoASG" == *input.StackName {
 		id = aws.String("NoASG")
-	} else {
-		id = aws.String("AWS::AutoScaling::AutoScalingGroup")
 	}
 	return cloudformation.ListStackResourcesRequest{
 		Request: &aws.Request{
@@ -75,11 +74,9 @@ func (fc *fakePushCFClient) ListStackResourcesRequest(input *cloudformation.List
 }
 
 func (fd *fakePushCDClient) CreateDeploymentGroupRequest(input *codedeploy.CreateDeploymentGroupInput) codedeploy.CreateDeploymentGroupRequest {
-	var err error
+	err := fd.err
 	if fd.awsErr != nil {
 		err = fd.awsErr
-	} else {
-		err = fd.err
 	}
 	return codedeploy.CreateDeploymentGroupRequest{
 		Request: &aws.Request{
@@ -90,11 +87,9 @@ func (fd *fakePushCDClient) CreateDeploymentGroupRequest(input *codedeploy.Creat
 }
 
 func (fd *fakePushCDClient) CreateApplicationRequest(input *codedeploy.CreateApplicationInput) codedeploy.CreateApplicationRequest {
-	var err error
+	err := fd.err
 	if fd.awsErr != nil {
 		err = fd.awsErr
-	} else {
-		err = fd.err
 	}
 	return codedeploy.CreateApplicationRequest{
 		Request: &aws.Request{
@@ -181,7 +176,7 @@ func TestPushExecuteWithStackConfig(t *testing.T) {
 
 func TestPushExecuteWithStackConfigNotFound(t *testing.T) {
 	failed := false
-	config.LogFatalf = func(s string, a ...interface{}) {
+	handle.LogFatalf = func(s string, a ...interface{}) {
 		failed = true
 	}
 	awsconfig.Config = awsconfig.Configuration{}
@@ -219,7 +214,7 @@ func TestDetermineDeploymentFailS3BucketNotSet(t *testing.T) {
 	failed := false
 	expectedMessage := "Please define S3BUCKET for the bucket to use."
 	var message string
-	config.LogFatalf = func(s string, a ...interface{}) {
+	handle.LogFatalf = func(s string, a ...interface{}) {
 		failed = true
 		message = s
 	}
@@ -241,7 +236,7 @@ func TestDetermineDeploymentFailS3KeyNotSet(t *testing.T) {
 	failed := false
 	expectedMessage := "Please define S3KEY for the application to deploy."
 	var message string
-	config.LogFatalf = func(s string, a ...interface{}) {
+	handle.LogFatalf = func(s string, a ...interface{}) {
 		failed = true
 		message = s
 	}
@@ -263,7 +258,7 @@ func TestDetermineDeploymentFailGitAccountNotSet(t *testing.T) {
 	failed := false
 	expectedMessage := "Please define a git account and project to deploy from in the form of: account/project under GIT_ACCOUNT."
 	var message string
-	config.LogFatalf = func(s string, a ...interface{}) {
+	handle.LogFatalf = func(s string, a ...interface{}) {
 		failed = true
 		message = s
 	}
@@ -285,7 +280,7 @@ func TestDetermineDeploymentFailGitRevisionNotSet(t *testing.T) {
 	failed := false
 	expectedMessage := "Please define the git commit hash to use for deploying under GIT_REVISION."
 	var message string
-	config.LogFatalf = func(s string, a ...interface{}) {
+	handle.LogFatalf = func(s string, a ...interface{}) {
 		failed = true
 		message = s
 	}

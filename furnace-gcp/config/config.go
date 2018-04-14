@@ -9,7 +9,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	config "github.com/Skarlso/go-furnace/config"
+	"github.com/Skarlso/go-furnace/config"
+	"github.com/Skarlso/go-furnace/handle"
 	yaml "gopkg.in/yaml.v1"
 )
 
@@ -45,9 +46,9 @@ func init() {
 // LoadConfiguration loads a yaml file which sets fields for Configuration struct
 func (c *Configuration) LoadConfiguration(configFile string) {
 	content, err := ioutil.ReadFile(configFile)
-	config.CheckError(err)
+	handle.Error(err)
 	err = yaml.Unmarshal(content, c)
-	config.CheckError(err)
+	handle.Error(err)
 }
 
 // LoadConfigFileIfExists Search backwards from the current directory
@@ -77,14 +78,14 @@ func LoadConfigFileIfExists(dir string, file string) error {
 // LoadGoogleStackConfig Loads the google stack configuration file.
 func LoadGoogleStackConfig() []byte {
 	dat, err := ioutil.ReadFile(filepath.Join(templateBase, Config.Gcp.TemplateName))
-	config.CheckError(err)
+	handle.Error(err)
 	return dat
 }
 
 // LoadImportFileContent Load import file contents.
 func LoadImportFileContent(name string) []byte {
 	dat, err := ioutil.ReadFile(filepath.Join(templateBase, name))
-	config.CheckError(err)
+	handle.Error(err)
 	return dat
 }
 
@@ -97,6 +98,6 @@ func LoadSchemaForPath(name string) (bool, []byte) {
 		return false, []byte{}
 	}
 	dat, err := ioutil.ReadFile(schema)
-	config.CheckError(err)
+	handle.Error(err)
 	return true, dat
 }

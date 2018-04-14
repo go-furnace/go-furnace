@@ -4,8 +4,9 @@ import (
 	"reflect"
 	"testing"
 
-	config "github.com/Skarlso/go-furnace/config"
+	"github.com/Skarlso/go-furnace/config"
 	awsconfig "github.com/Skarlso/go-furnace/furnace-aws/config"
+	"github.com/Skarlso/go-furnace/handle"
 	commander "github.com/Yitsushi/go-commander"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -63,7 +64,7 @@ func TestDeleteExecuteWithExtraStack(t *testing.T) {
 
 func TestDeleteExecuteWithExtraStackNotFound(t *testing.T) {
 	failed := false
-	config.LogFatalf = func(s string, a ...interface{}) {
+	handle.LogFatalf = func(s string, a ...interface{}) {
 		failed = true
 	}
 	config.WAITFREQUENCY = 0

@@ -7,7 +7,7 @@ import (
 
 	"github.com/Yitsushi/go-commander"
 
-	config "github.com/Skarlso/go-furnace/config"
+	"github.com/Skarlso/go-furnace/handle"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/aws/awserr"
 	"github.com/aws/aws-sdk-go-v2/service/codedeploy"
@@ -31,7 +31,7 @@ func (fd *fakeDeleteAppCDClient) DeleteApplicationRequest(*codedeploy.DeleteAppl
 
 func TestGatherConfig(t *testing.T) {
 	failed := false
-	config.LogFatalf = func(s string, a ...interface{}) {
+	handle.LogFatalf = func(s string, a ...interface{}) {
 		failed = true
 	}
 	client := new(CDClient)
@@ -45,7 +45,7 @@ func TestGatherConfig(t *testing.T) {
 
 func TestGatherConfigCustomStack(t *testing.T) {
 	failed := false
-	config.LogFatalf = func(s string, a ...interface{}) {
+	handle.LogFatalf = func(s string, a ...interface{}) {
 		failed = true
 	}
 	client := new(CDClient)
@@ -61,7 +61,7 @@ func TestGatherConfigCustomStack(t *testing.T) {
 func TestDeletingApplication(t *testing.T) {
 	failed := false
 	var message string
-	config.LogFatalf = func(s string, a ...interface{}) {
+	handle.LogFatalf = func(s string, a ...interface{}) {
 		failed = true
 		if err, ok := a[0].(error); ok {
 			message = err.Error()
@@ -78,7 +78,7 @@ func TestDeletingApplication(t *testing.T) {
 func TestDeletingApplicationWithFailure(t *testing.T) {
 	failed := false
 	var message string
-	config.LogFatalf = func(s string, a ...interface{}) {
+	handle.LogFatalf = func(s string, a ...interface{}) {
 		failed = true
 		if err, ok := a[0].(error); ok {
 			message = err.Error()

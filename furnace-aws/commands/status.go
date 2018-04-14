@@ -5,8 +5,8 @@ import (
 	"log"
 	"os"
 
-	config "github.com/Skarlso/go-furnace/config"
 	awsconfig "github.com/Skarlso/go-furnace/furnace-aws/config"
+	"github.com/Skarlso/go-furnace/handle"
 	"github.com/Yitsushi/go-commander"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/aws/external"
@@ -36,12 +36,12 @@ func (c *Status) Execute(opts *commander.CommandHelper) {
 	if len(configName) > 0 {
 		dir, _ := os.Getwd()
 		if err := awsconfig.LoadConfigFileIfExists(dir, configName); err != nil {
-			config.HandleFatal(configName, err)
+			handle.Fatal(configName, err)
 		}
 	}
 	stackname := awsconfig.Config.Main.Stackname
 	cfg, err := external.LoadDefaultAWSConfig()
-	config.CheckError(err)
+	handle.Error(err)
 	cfClient := cloudformation.New(cfg)
 	client := CFClient{cfClient}
 	stack := stackStatus(stackname, &client)
@@ -54,7 +54,7 @@ func (c *Status) Execute(opts *commander.CommandHelper) {
 func stackStatus(stackname string, cfClient *CFClient) *cloudformation.DescribeStacksOutput {
 	req := cfClient.Client.DescribeStacksRequest(&cloudformation.DescribeStacksInput{StackName: aws.String(stackname)})
 	descResp, err := req.Send()
-	config.CheckError(err)
+	handle.Error(err)
 	fmt.Println()
 	return descResp
 }
@@ -63,7 +63,7 @@ func stackResources(stackname string, cfClient *CFClient) []ResourceStatus {
 	resources := make([]ResourceStatus, 0)
 	req := cfClient.Client.DescribeStackResourcesRequest(&cloudformation.DescribeStackResourcesInput{StackName: aws.String(stackname)})
 	descResp, err := req.Send()
-	config.CheckError(err)
+	handle.Error(err)
 	for _, r := range descResp.StackResources {
 		res := ResourceStatus{Status: r.ResourceStatus, PhysicalID: *r.PhysicalResourceId, LogicalID: *r.LogicalResourceId, Type: *r.ResourceType}
 		resources = append(resources, res)

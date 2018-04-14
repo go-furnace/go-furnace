@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/Skarlso/go-furnace/config"
+	"github.com/Skarlso/go-furnace/handle"
 )
 
 // func TestLoadConfigFileIfExists(t *testing.T) {
@@ -84,7 +84,7 @@ func TestLoadCFStackConfigNoError(t *testing.T) {
 
 func TestLoadCFStackConfigError(t *testing.T) {
 	failed := false
-	config.LogFatalf = func(format string, v ...interface{}) {
+	handle.LogFatalf = func(format string, v ...interface{}) {
 		failed = true
 	}
 	templatePath = ""

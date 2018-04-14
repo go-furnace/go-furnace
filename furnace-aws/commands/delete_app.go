@@ -4,8 +4,8 @@ import (
 	"log"
 	"os"
 
-	config "github.com/Skarlso/go-furnace/config"
 	awsconfig "github.com/Skarlso/go-furnace/furnace-aws/config"
+	"github.com/Skarlso/go-furnace/handle"
 	"github.com/Yitsushi/go-commander"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/aws/external"
@@ -30,12 +30,12 @@ func gatherConfig(opts *commander.CommandHelper) (string, aws.Config) {
 	if len(configName) > 0 {
 		dir, _ := os.Getwd()
 		if err := awsconfig.LoadConfigFileIfExists(dir, configName); err != nil {
-			config.HandleFatal(configName, err)
+			handle.Fatal(configName, err)
 		}
 	}
 	appName := awsconfig.Config.Aws.AppName
 	cfg, err := external.LoadDefaultAWSConfig()
-	config.CheckError(err)
+	handle.Error(err)
 	return appName, cfg
 }
 
@@ -46,7 +46,7 @@ func deleteApplication(appName string, client *CDClient) {
 		ApplicationName: aws.String(appName),
 	})
 	_, err := req.Send()
-	config.CheckError(err)
+	handle.Error(err)
 }
 
 // NewDeleteApp Creates a new DeleteApp command.

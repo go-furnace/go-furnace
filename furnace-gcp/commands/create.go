@@ -5,8 +5,8 @@ import (
 	"os"
 	"path/filepath"
 
-	config "github.com/Skarlso/go-furnace/config"
 	fc "github.com/Skarlso/go-furnace/furnace-gcp/config"
+	"github.com/Skarlso/go-furnace/handle"
 	"github.com/Yitsushi/go-commander"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2/google"
@@ -24,7 +24,7 @@ func (c *Create) Execute(opts *commander.CommandHelper) {
 	if len(configName) > 0 {
 		dir, _ := os.Getwd()
 		if err := fc.LoadConfigFileIfExists(dir, configName); err != nil {
-			config.HandleFatal(configName, err)
+			handle.Fatal(configName, err)
 		}
 	}
 	log.Println("Creating Deployment under project name: .", keyName(fc.Config.Main.ProjectName))
@@ -39,7 +39,7 @@ func (c *Create) Execute(opts *commander.CommandHelper) {
 	deployments := constructDeploymen(deploymentName)
 	ret := d.Deployments.Insert(fc.Config.Main.ProjectName, deployments)
 	_, err = ret.Do()
-	config.CheckError(err)
+	handle.Error(err)
 	waitForDeploymentToFinish(*d, fc.Config.Main.ProjectName, deploymentName)
 }
 
@@ -65,7 +65,7 @@ func constructDeploymen(deploymentName string) *dm.Deployment {
 
 	imps := Imports{}
 	err := yaml.Unmarshal(gConfig, &imps)
-	config.CheckError(err)
+	handle.Error(err)
 
 	// Load templates and all .schema files that might accompany them.
 	if len(imps.Paths) > 0 {
@@ -73,11 +73,9 @@ func constructDeploymen(deploymentName string) *dm.Deployment {
 		imports := []*dm.ImportFile{}
 		for _, temp := range imps.Paths {
 			templateContent := fc.LoadImportFileContent(temp.Path)
-			var name string
+			name := filepath.Base(temp.Path)
 			if len(temp.Name) > 0 {
 				name = temp.Name
-			} else {
-				name = filepath.Base(temp.Path)
 			}
 			log.Println("Adding template name: ", name)
 			templateFile := &dm.ImportFile{Content: string(templateContent), Name: name}

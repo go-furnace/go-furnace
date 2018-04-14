@@ -13,7 +13,8 @@ import (
 
 	"strings"
 
-	config "github.com/Skarlso/go-furnace/config"
+	"github.com/Skarlso/go-furnace/config"
+	"github.com/Skarlso/go-furnace/handle"
 )
 
 // TODO: Create a main config which defines a furnace config location
@@ -80,9 +81,9 @@ func init() {
 // LoadConfiguration loads a yaml file which sets fields for Configuration struct
 func (c *Configuration) LoadConfiguration(configFile string) {
 	content, err := ioutil.ReadFile(configFile)
-	config.CheckError(err)
+	handle.Error(err)
 	err = yaml.Unmarshal(content, c)
-	config.CheckError(err)
+	handle.Error(err)
 }
 
 // LoadConfigFileIfExists Search backwards from the current directory
@@ -153,6 +154,6 @@ func fillRegistry() map[string][]Plugin {
 // LoadCFStackConfig Load the CF stack configuration file into a []byte.
 func LoadCFStackConfig() []byte {
 	dat, err := ioutil.ReadFile(templatePath)
-	config.CheckError(err)
+	handle.Error(err)
 	return dat
 }

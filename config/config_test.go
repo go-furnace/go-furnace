@@ -6,6 +6,8 @@ import (
 	"os/user"
 	"path/filepath"
 	"testing"
+
+	"github.com/Skarlso/go-furnace/handle"
 )
 
 // TestConfigPath Test configuration path loader.
@@ -21,11 +23,11 @@ func TestConfigPathQuick(t *testing.T) {
 
 func TestCheckError(t *testing.T) {
 	failed := false
-	LogFatalf = func(format string, v ...interface{}) {
+	handle.LogFatalf = func(format string, v ...interface{}) {
 		failed = true
 	}
 	err := errors.New("test error")
-	CheckError(err)
+	handle.Error(err)
 	if !failed {
 		t.Fatal("Should have failed.")
 	}
@@ -33,11 +35,11 @@ func TestCheckError(t *testing.T) {
 
 func TestHandleFatal(t *testing.T) {
 	failed := false
-	LogFatalf = func(format string, v ...interface{}) {
+	handle.LogFatalf = func(format string, v ...interface{}) {
 		failed = true
 	}
 	err := errors.New("test error")
-	HandleFatal("format", err)
+	handle.Fatal("format", err)
 	if !failed {
 		t.Fatal("Should have failed.")
 	}

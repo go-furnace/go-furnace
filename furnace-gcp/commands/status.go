@@ -5,8 +5,8 @@ import (
 	"os"
 	"strings"
 
-	config "github.com/Skarlso/go-furnace/config"
 	fc "github.com/Skarlso/go-furnace/furnace-gcp/config"
+	"github.com/Skarlso/go-furnace/handle"
 	"github.com/Yitsushi/go-commander"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2/google"
@@ -24,7 +24,7 @@ func (s *Status) Execute(opts *commander.CommandHelper) {
 	if len(configName) > 0 {
 		dir, _ := os.Getwd()
 		if err := fc.LoadConfigFileIfExists(dir, configName); err != nil {
-			config.HandleFatal(configName, err)
+			handle.Fatal(configName, err)
 		}
 	}
 	log.Println("Looking for Deployment under project name: .", keyName(fc.Config.Main.ProjectName))
@@ -32,21 +32,21 @@ func (s *Status) Execute(opts *commander.CommandHelper) {
 	log.Println("Deployment name is: ", keyName(deploymentName))
 	ctx := context.Background()
 	client, err := google.DefaultClient(ctx, dm.NdevCloudmanScope)
-	config.CheckError(err)
+	handle.Error(err)
 	d, _ := dm.New(client)
 	project := d.Deployments.Get(fc.Config.Main.ProjectName, deploymentName)
 	p, err := project.Do()
 	if err != nil {
 		if err.(*googleapi.Error).Code != 404 {
-			config.HandleFatal("error while getting deployment: ", err)
+			handle.Fatal("error while getting deployment: ", err)
 		} else {
-			config.HandleFatal("Stack not found!", nil)
+			handle.Fatal("Stack not found!", nil)
 		}
 	}
 	manifestID := p.Manifest[strings.LastIndex(p.Manifest, "/")+1 : len(p.Manifest)]
 	manifest := d.Manifests.Get(fc.Config.Main.ProjectName, deploymentName, manifestID)
 	m, err := manifest.Do()
-	config.CheckError(err)
+	handle.Error(err)
 	log.Println("Description: ", p.Description)
 	log.Println("Name: ", p.Name)
 	log.Println("Labels: ", p.Labels)

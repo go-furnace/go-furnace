@@ -4,8 +4,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/Skarlso/go-furnace/config"
 	doconfig "github.com/Skarlso/go-furnace/furnace-do/config"
+	"github.com/Skarlso/go-furnace/handle"
 	"github.com/Skarlso/yogsothoth/yogsot"
 	yog "github.com/Skarlso/yogsothoth/yogsot"
 	commander "github.com/Yitsushi/go-commander"
@@ -21,7 +21,7 @@ func (c *Create) Execute(opts *commander.CommandHelper) {
 	if len(configName) > 0 {
 		dir, _ := os.Getwd()
 		if err := doconfig.LoadConfigFileIfExists(dir, configName); err != nil {
-			config.HandleFatal(configName, err)
+			handle.Fatal(configName, err)
 		}
 	}
 	template := doconfig.LoadDoStackConfig()
@@ -33,7 +33,7 @@ func (c *Create) Execute(opts *commander.CommandHelper) {
 	}
 	res, err := yogClient.CreateStack(req)
 	if err != nil {
-		config.HandleFatal("error while creating stack:", err)
+		handle.Fatal("error while creating stack:", err)
 	}
 	log.Println(res)
 }
