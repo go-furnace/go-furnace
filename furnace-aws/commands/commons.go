@@ -24,12 +24,12 @@ func gatherParameters(source *os.File, params *cloudformation.ValidateTemplateOu
 		var param cloudformation.Parameter
 		fmt.Printf("%s - '%s'(%s):", aws.StringValue(v.Description), keyName(aws.StringValue(v.ParameterKey)), defaultValue(aws.StringValue(v.DefaultValue)))
 		text := readInputFrom(source)
-		param.SetParameterKey(*v.ParameterKey)
+		param.ParameterKey = v.ParameterKey
 		text = strings.Trim(text, "\n")
 		if len(text) > 0 {
-			param.SetParameterValue(*aws.String(text))
+			param.ParameterValue = aws.String(text)
 		} else {
-			param.SetParameterValue(*v.DefaultValue)
+			param.ParameterValue = v.DefaultValue
 		}
 		stackParameters = append(stackParameters, param)
 	}

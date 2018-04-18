@@ -13,4 +13,4 @@ aws:
     code_deploy_s3_key: furnace_deploy_app
     # In case a Git Repository is used for the application, define these two settings
     git_account: Skarlso/furnace-codedeploy-app
-    git_revision: b89451234...
+    git_revision: b80ea5b9dfefcd21e27a3e0f149ec73519d5a6f1
