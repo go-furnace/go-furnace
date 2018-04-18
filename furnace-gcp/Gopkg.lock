@@ -10,8 +10,8 @@
 [[projects]]
   name = "github.com/Skarlso/go-furnace"
   packages = ["config","handle"]
-  revision = "424304dbda3604093fc9dd504821d60bbea8fbc2"
-  version = "v2.1.2"
+  revision = "db2d13bc5c76cdfa3f8c76247acd1c53d2c395f4"
+  version = "v2.1.3"
 
 [[projects]]
   name = "github.com/Yitsushi/go-commander"
