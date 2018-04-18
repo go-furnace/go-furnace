@@ -45,6 +45,12 @@ func init() {
 
 // LoadConfiguration loads a yaml file which sets fields for Configuration struct
 func (c *Configuration) LoadConfiguration(configFile string) {
+	if _, err := os.Stat(configFile); err != nil {
+		if os.IsNotExist(err) {
+			log.Println("main configuration file does not exist. Moving on assuming a new will be defined.")
+			return
+		}
+	}
 	content, err := ioutil.ReadFile(configFile)
 	handle.Error(err)
 	err = yaml.Unmarshal(content, c)
