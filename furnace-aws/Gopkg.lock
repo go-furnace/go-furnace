@@ -4,8 +4,8 @@
 [[projects]]
   name = "github.com/Skarlso/go-furnace"
   packages = ["config","handle"]
-  revision = "f78929606e87de020d538496a0546284a61e12fd"
-  version = "v2.1.5"
+  revision = "10a29241a36467fdc6b202ef1dc7e129ba7f09e2"
+  version = "v2.1.6"
 
 [[projects]]
   name = "github.com/Yitsushi/go-commander"
