@@ -161,7 +161,7 @@ func revisionLocation() *codedeploy.RevisionLocation {
 }
 
 func push(appName string, asg string, client *CDClient) {
-	log.Println("Stackname: ", config.STACKNAME)
+	log.Println("Stackname: ", appName)
 	params := &codedeploy.CreateDeploymentInput{
 		ApplicationName:               aws.String(appName),
 		IgnoreApplicationStopFailures: aws.Bool(true),
@@ -175,7 +175,7 @@ func push(appName string, asg string, client *CDClient) {
 				{
 					Key:   aws.String("fu_stage"),
 					Type:  "KEY_AND_VALUE",
-					Value: aws.String(config.STACKNAME),
+					Value: aws.String(appName),
 				},
 			},
 		},
@@ -200,7 +200,7 @@ func push(appName string, asg string, client *CDClient) {
 
 func getAutoScalingGroupKey(client *CFClient) string {
 	params := &cloudformation.ListStackResourcesInput{
-		StackName: aws.String(config.STACKNAME),
+		StackName: aws.String(awsconfig.Config.Main.Stackname),
 	}
 	req := client.Client.ListStackResourcesRequest(params)
 	resp, err := req.Send()
