@@ -423,9 +423,9 @@ func TestGetAutoScalingGroupKeyIfASGExists(t *testing.T) {
 }
 
 func TestGetAutoScalingGroupKeyEmptyIfASGDoesNotExists(t *testing.T) {
-	config.STACKNAME = "NoASG"
 	client := new(CFClient)
 	client.Client = &fakePushCFClient{err: nil}
+	awsconfig.Config.Main.Stackname = "NoASG"
 	asg := getAutoScalingGroupKey(client)
 	if asg != "" {
 		t.Fatal("arn did not match expected. Was: ", asg)
