@@ -80,6 +80,8 @@ func TestCreateExecute(t *testing.T) {
 	stackname := "NotEmptyStack"
 	client.Client = &fakeCreateCFClient{err: nil, stackname: stackname}
 	opts := &commander.CommandHelper{}
+	opts.Args = make([]string, 0)
+	opts.Args = append(opts.Args, "teststack")
 	createExecute(opts, client)
 }
 
