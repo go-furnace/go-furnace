@@ -51,7 +51,6 @@ func pushExecute(opts *commander.CommandHelper, cfClient *CFClient, cdClient *CD
 	}
 	appName := awsconfig.Config.Aws.AppName
 	s3Deploy = opts.Flags["s3"]
-	determineDeployment()
 	asgName := getAutoScalingGroupKey(cfClient)
 	role := getCodeDeployRoleARN(awsconfig.Config.Aws.CodeDeployRole, iamClient)
 	err := createApplication(appName, cdClient)
@@ -59,30 +58,6 @@ func pushExecute(opts *commander.CommandHelper, cfClient *CFClient, cdClient *CD
 	err = createDeploymentGroup(appName, role, asgName, cdClient)
 	handle.Error(err)
 	push(appName, asgName, cdClient)
-}
-
-func determineDeployment() {
-	if s3Deploy {
-		codeDeployBucket = awsconfig.Config.Aws.CodeDeploy.S3Bucket
-		if len(codeDeployBucket) < 1 {
-			handle.Fatal("Please define S3BUCKET for the bucket to use.", nil)
-		}
-		s3Key = awsconfig.Config.Aws.CodeDeploy.S3Key
-		if len(s3Key) < 1 {
-			handle.Fatal("Please define S3KEY for the application to deploy.", nil)
-		}
-		log.Println("S3 deployment will be used from bucket: ", codeDeployBucket)
-		return
-	}
-	gitAccount = awsconfig.Config.Aws.CodeDeploy.GitAccount
-	gitRevision = awsconfig.Config.Aws.CodeDeploy.GitRevision
-	if len(gitAccount) < 1 {
-		handle.Fatal("Please define a git account and project to deploy from in the form of: account/project under GIT_ACCOUNT.", nil)
-	}
-	if len(gitRevision) < 1 {
-		handle.Fatal("Please define the git commit hash to use for deploying under GIT_REVISION.", nil)
-	}
-	log.Println("GitHub deployment will be used from account: ", gitAccount)
 }
 
 func createDeploymentGroup(appName string, role string, asg string, client *CDClient) error {
@@ -143,9 +118,9 @@ func revisionLocation() *codedeploy.RevisionLocation {
 	if s3Deploy {
 		return &codedeploy.RevisionLocation{
 			S3Location: &codedeploy.S3Location{
-				Bucket:     aws.String(codeDeployBucket),
+				Bucket:     aws.String(awsconfig.Config.Aws.CodeDeploy.S3Bucket),
 				BundleType: "zip",
-				Key:        aws.String(s3Key),
+				Key:        aws.String(awsconfig.Config.Aws.CodeDeploy.S3Key),
 				// Version:    aws.String("VersionId"), TODO: This needs improvement
 			},
 			RevisionType: "S3",
@@ -153,8 +128,8 @@ func revisionLocation() *codedeploy.RevisionLocation {
 	}
 	return &codedeploy.RevisionLocation{
 		GitHubLocation: &codedeploy.GitHubLocation{
-			CommitId:   aws.String(gitRevision),
-			Repository: aws.String(gitAccount),
+			CommitId:   aws.String(awsconfig.Config.Aws.CodeDeploy.GitRevision),
+			Repository: aws.String(awsconfig.Config.Aws.CodeDeploy.GitAccount),
 		},
 		RevisionType: "GitHub",
 	}

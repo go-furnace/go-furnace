@@ -125,23 +125,6 @@ func (fd *fakePushCDClient) GetDeploymentRequest(input *codedeploy.GetDeployment
 	}
 }
 
-func TestDetermineDeploymentGit(t *testing.T) {
-	s3Deploy = false
-	awsconfig.Config = awsconfig.Configuration{}
-	awsconfig.Config.Aws.CodeDeploy.GitAccount = "test/account"
-	awsconfig.Config.Aws.CodeDeploy.GitRevision = "testrevision"
-	// os.Setenv("AWS_FURNACE_GIT_ACCOUNT", "test/account")
-	// os.Setenv("AWS_FURNACE_GIT_REVISION", "testrevision")
-	// defer os.Clearenv()
-	determineDeployment()
-	if gitAccount != "test/account" {
-		t.Fatalf("git account was not equal to test/account. Was: %s\n", gitAccount)
-	}
-	if gitRevision != "testrevision" {
-		t.Fatalf("git revision was not equal to testrevision. Was: %s\n", gitRevision)
-	}
-}
-
 func TestPushExecute(t *testing.T) {
 	awsconfig.Config = awsconfig.Configuration{}
 	awsconfig.Config.Aws.CodeDeploy.GitAccount = "test/account"
@@ -196,105 +179,87 @@ func TestPushExecuteWithStackConfigNotFound(t *testing.T) {
 	}
 }
 
-func TestDetermineDeploymentS3(t *testing.T) {
-	s3Deploy = true
-	awsconfig.Config = awsconfig.Configuration{}
-	awsconfig.Config.Aws.CodeDeploy.S3Bucket = "testBucket"
-	awsconfig.Config.Aws.CodeDeploy.S3Key = "testKey"
-	determineDeployment()
-	if s3Key != "testKey" {
-		t.Fatalf("s3 key was not set. Was: %s\n", s3Key)
-	}
-	if codeDeployBucket != "testBucket" {
-		t.Fatalf("s3 bucket was not set. Was: %s\n", codeDeployBucket)
-	}
-}
+// func TestDetermineDeploymentFailS3BucketNotSet(t *testing.T) {
+// 	failed := false
+// 	expectedMessage := "Please define S3BUCKET for the bucket to use."
+// 	var message string
+// 	handle.LogFatalf = func(s string, a ...interface{}) {
+// 		failed = true
+// 		message = s
+// 	}
+// 	s3Deploy = true
+// 	awsconfig.Config = awsconfig.Configuration{}
+// 	awsconfig.Config.Aws.CodeDeploy.S3Bucket = ""
+// 	awsconfig.Config.Aws.CodeDeploy.S3Key = "key"
+// 	defer os.Clearenv()
+// 	if !failed {
+// 		t.Error("should have failed execution")
+// 	}
+// 	if message != expectedMessage {
+// 		t.Errorf("expected message %s did not equal actual %s", expectedMessage, message)
+// 	}
+// }
 
-func TestDetermineDeploymentFailS3BucketNotSet(t *testing.T) {
-	failed := false
-	expectedMessage := "Please define S3BUCKET for the bucket to use."
-	var message string
-	handle.LogFatalf = func(s string, a ...interface{}) {
-		failed = true
-		message = s
-	}
-	s3Deploy = true
-	awsconfig.Config = awsconfig.Configuration{}
-	awsconfig.Config.Aws.CodeDeploy.S3Bucket = ""
-	awsconfig.Config.Aws.CodeDeploy.S3Key = "key"
-	defer os.Clearenv()
-	determineDeployment()
-	if !failed {
-		t.Error("should have failed execution")
-	}
-	if message != expectedMessage {
-		t.Errorf("expected message %s did not equal actual %s", expectedMessage, message)
-	}
-}
+// func TestDetermineDeploymentFailS3KeyNotSet(t *testing.T) {
+// 	failed := false
+// 	expectedMessage := "Please define S3KEY for the application to deploy."
+// 	var message string
+// 	handle.LogFatalf = func(s string, a ...interface{}) {
+// 		failed = true
+// 		message = s
+// 	}
+// 	s3Deploy = true
+// 	awsconfig.Config = awsconfig.Configuration{}
+// 	awsconfig.Config.Aws.CodeDeploy.S3Bucket = "testbucket"
+// 	awsconfig.Config.Aws.CodeDeploy.S3Key = ""
+// 	if !failed {
+// 		t.Error("should have failed execution")
+// 	}
+// 	if message != expectedMessage {
+// 		t.Errorf("expected message %s did not equal actual %s", expectedMessage, message)
+// 	}
+// }
 
-func TestDetermineDeploymentFailS3KeyNotSet(t *testing.T) {
-	failed := false
-	expectedMessage := "Please define S3KEY for the application to deploy."
-	var message string
-	handle.LogFatalf = func(s string, a ...interface{}) {
-		failed = true
-		message = s
-	}
-	s3Deploy = true
-	awsconfig.Config = awsconfig.Configuration{}
-	awsconfig.Config.Aws.CodeDeploy.S3Bucket = "testbucket"
-	awsconfig.Config.Aws.CodeDeploy.S3Key = ""
-	determineDeployment()
-	if !failed {
-		t.Error("should have failed execution")
-	}
-	if message != expectedMessage {
-		t.Errorf("expected message %s did not equal actual %s", expectedMessage, message)
-	}
-}
+// func TestDetermineDeploymentFailGitAccountNotSet(t *testing.T) {
+// 	s3Deploy = false
+// 	failed := false
+// 	expectedMessage := "Please define a git account and project to deploy from in the form of: account/project under GIT_ACCOUNT."
+// 	var message string
+// 	handle.LogFatalf = func(s string, a ...interface{}) {
+// 		failed = true
+// 		message = s
+// 	}
+// 	awsconfig.Config = awsconfig.Configuration{}
+// 	awsconfig.Config.Aws.CodeDeploy.GitRevision = "revision"
+// 	awsconfig.Config.Aws.CodeDeploy.GitAccount = ""
+// 	defer os.Clearenv()
+// 	if !failed {
+// 		t.Error("should have failed execution")
+// 	}
+// 	if message != expectedMessage {
+// 		t.Errorf("expected message %s did not equal actual %s", expectedMessage, message)
+// 	}
+// }
 
-func TestDetermineDeploymentFailGitAccountNotSet(t *testing.T) {
-	s3Deploy = false
-	failed := false
-	expectedMessage := "Please define a git account and project to deploy from in the form of: account/project under GIT_ACCOUNT."
-	var message string
-	handle.LogFatalf = func(s string, a ...interface{}) {
-		failed = true
-		message = s
-	}
-	awsconfig.Config = awsconfig.Configuration{}
-	awsconfig.Config.Aws.CodeDeploy.GitRevision = "revision"
-	awsconfig.Config.Aws.CodeDeploy.GitAccount = ""
-	defer os.Clearenv()
-	determineDeployment()
-	if !failed {
-		t.Error("should have failed execution")
-	}
-	if message != expectedMessage {
-		t.Errorf("expected message %s did not equal actual %s", expectedMessage, message)
-	}
-}
-
-func TestDetermineDeploymentFailGitRevisionNotSet(t *testing.T) {
-	s3Deploy = false
-	failed := false
-	expectedMessage := "Please define the git commit hash to use for deploying under GIT_REVISION."
-	var message string
-	handle.LogFatalf = func(s string, a ...interface{}) {
-		failed = true
-		message = s
-	}
-	awsconfig.Config = awsconfig.Configuration{}
-	awsconfig.Config.Aws.CodeDeploy.GitAccount = "account"
-	awsconfig.Config.Aws.CodeDeploy.GitRevision = ""
-	determineDeployment()
-	if !failed {
-		t.Error("should have failed execution")
-	}
-	if message != expectedMessage {
-		t.Errorf("expected message %s did not equal actual %s", expectedMessage, message)
-	}
-}
+// func TestDetermineDeploymentFailGitRevisionNotSet(t *testing.T) {
+// 	s3Deploy = false
+// 	failed := false
+// 	expectedMessage := "Please define the git commit hash to use for deploying under GIT_REVISION."
+// 	var message string
+// 	handle.LogFatalf = func(s string, a ...interface{}) {
+// 		failed = true
+// 		message = s
+// 	}
+// 	awsconfig.Config = awsconfig.Configuration{}
+// 	awsconfig.Config.Aws.CodeDeploy.GitAccount = "account"
+// 	awsconfig.Config.Aws.CodeDeploy.GitRevision = ""
+// 	if !failed {
+// 		t.Error("should have failed execution")
+// 	}
+// 	if message != expectedMessage {
+// 		t.Errorf("expected message %s did not equal actual %s", expectedMessage, message)
+// 	}
+// }
 
 func TestCreateDeploymentGroupSuccess(t *testing.T) {
 	client := new(CDClient)
@@ -370,8 +335,7 @@ func TestCreateApplicationFailsOnNonAWSError(t *testing.T) {
 
 func TestRevisionLocationS3(t *testing.T) {
 	s3Deploy = true
-	codeDeployBucket = "testBucket"
-	s3Key = "testKey"
+
 	expected := &codedeploy.RevisionLocation{
 		S3Location: &codedeploy.S3Location{
 			Bucket:     aws.String("testBucket"),
@@ -381,6 +345,8 @@ func TestRevisionLocationS3(t *testing.T) {
 		},
 		RevisionType: codedeploy.RevisionLocationTypeS3,
 	}
+	awsconfig.Config.Aws.CodeDeploy.S3Bucket = "testBucket"
+	awsconfig.Config.Aws.CodeDeploy.S3Key = "testKey"
 	actual := revisionLocation()
 	if !reflect.DeepEqual(actual, expected) {
 		t.Fatalf("actual: %v did not equal expected: %v\n", actual, expected)
