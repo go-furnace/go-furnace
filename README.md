@@ -277,8 +277,7 @@ that's it, you should be all set.
 
 Plugins are loaded as encountered, so if order of execution is important, pre_fix the file names with numbers.
 
-**IMPORTANT**: Plugins are only supported on Linux right now. If you would like to play with it, I recommend using the official Docker golang
-container which is easy to use. To link your project into the container, run it with the following command from the root of your project:
+Plugins in Go 1.10 and up support osx and Linux.
 
 ```bash
 docker run --name furnace -it -v `pwd`:/go/src/github.com/Skarlso/go-furnace golang bash
