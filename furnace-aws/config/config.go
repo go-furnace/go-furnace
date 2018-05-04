@@ -26,14 +26,18 @@ type Configuration struct {
 	Main struct {
 		Stackname string `yaml:"stackname"`
 		Spinner   int    `yaml:"spinner"`
+		Plugins   struct {
+			EnablePluginSystem bool     `yaml:"enable_plugin_system"`
+			PluginPath         string   `yaml:"plugin_path"`
+			Names              []string `yaml:"names"`
+		} `yaml:"plugins"`
 	} `yaml:"main"`
 	Aws struct {
-		CodeDeployRole     string `yaml:"code_deploy_role"`
-		Region             string `yaml:"region"`
-		EnablePluginSystem bool   `yaml:"enable_plugin_system"`
-		TemplateName       string `yaml:"template_name"`
-		AppName            string `yaml:"app_name"`
-		CodeDeploy         struct {
+		CodeDeployRole string `yaml:"code_deploy_role"`
+		Region         string `yaml:"region"`
+		TemplateName   string `yaml:"template_name"`
+		AppName        string `yaml:"app_name"`
+		CodeDeploy     struct {
 			S3Bucket    string `yaml:"code_deploy_s3_bucket,omitempty"`
 			S3Key       string `yaml:"code_deploy_s3_key,omitempty"`
 			GitAccount  string `yaml:"git_account,omitempty"`
@@ -56,14 +60,14 @@ const (
 // Config is the loaded configuration entity.
 var Config Configuration
 
-// Plugin is a plugin to execute
-type Plugin struct {
+// RunPlugin is a plugin to execute
+type RunPlugin struct {
 	Run  interface{}
 	Name string
 }
 
 // PluginRegistry is a registry of plugins for certain events
-var PluginRegistry map[string][]Plugin
+var PluginRegistry = make(map[string][]RunPlugin)
 
 var configPath string
 var templatePath string
@@ -75,7 +79,7 @@ func init() {
 	defaultConfigPath := filepath.Join(configPath, defaultConfig)
 	Config.LoadConfiguration(defaultConfigPath)
 	templatePath = filepath.Join(configPath, Config.Aws.TemplateName)
-	PluginRegistry = fillRegistry()
+	FillRegistry()
 }
 
 // LoadConfiguration loads a yaml file which sets fields for Configuration struct
@@ -117,18 +121,22 @@ func LoadConfigFileIfExists(dir string, file string) error {
 	return errors.New("failed to find configuration file for stack " + file)
 }
 
-func fillRegistry() map[string][]Plugin {
-	ret := make(map[string][]Plugin)
-	if !Config.Aws.EnablePluginSystem {
-		return ret
+// FillRegistry fill load in all the configured plugins.
+func FillRegistry() {
+	if !Config.Main.Plugins.EnablePluginSystem {
+		return
 	}
-	// log.Println("Filling plugin registry.")
-	files, _ := ioutil.ReadDir(filepath.Join(configPath, "plugins"))
+	log.Println("Filling plugin registry.")
+	files := make([]string, 0)
+	for _, f := range Config.Main.Plugins.Names {
+		files = append(files, filepath.Join(Config.Main.Plugins.PluginPath, f))
+	}
 	pluginCount := 0
 	for _, f := range files {
-		split := strings.Split(f.Name(), ".")
+		baseName := filepath.Base(f)
+		split := strings.Split(baseName, ".")
 		key := split[len(split)-1]
-		fullPath := filepath.Join(configPath, "plugins", f.Name())
+		fullPath := filepath.Join(configPath, "plugins", baseName)
 		p, err := plugin.Open(fullPath)
 		if err != nil {
 			log.Printf("Plugin '%s' failed to load. Error: %s\n", fullPath, err.Error())
@@ -139,22 +147,21 @@ func fillRegistry() map[string][]Plugin {
 			log.Printf("Plugin '%s' did not have 'RunPlugin' method. Error: %s\n", fullPath, err.Error())
 			continue
 		}
-		plug := Plugin{
+		plug := RunPlugin{
 			Run:  run,
-			Name: f.Name(),
+			Name: baseName,
 		}
-		if p, ok := ret[key]; ok {
+		if p, ok := PluginRegistry[key]; ok {
 			p = append(p, plug)
-			ret[key] = p
+			PluginRegistry[key] = p
 		} else {
-			plugs := make([]Plugin, 0)
+			plugs := make([]RunPlugin, 0)
 			plugs = append(plugs, plug)
-			ret[key] = plugs
+			PluginRegistry[key] = plugs
 		}
 		pluginCount++
 	}
 	log.Printf("'%d' plugins loaded successfully.\n", pluginCount)
-	return ret
 }
 
 // LoadCFStackConfig Load the CF stack configuration file into a []byte.

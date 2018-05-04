@@ -141,6 +141,13 @@ The configuration file for AWS looks like this:
 main:
   stackname: FurnaceStack
   spinner: 1
+  plugins:
+    enable_plugin_system: true
+    plugin_path: "./plugins"
+    names:
+      - slack.post_create
+      - telegram.pre_create
+      - deployer.post_create
 aws:
   code_deploy_role: CodeDeployServiceRole
   region: us-east-1
@@ -265,23 +272,27 @@ The status command displays information about the stack.
 ### Experimental Plug-in System
 
 To use the plugin system, please look at the example plugins in project [furnace-plugins](https://github.com/Skarlso/furnace-plugins).
-At the moment, plugins are not receiving the environment for further manipulations; however, this will be remedied.
 
 A plugin is a standalone go project with main package, and a single entry point function called `RunPlugin`. If the plugin fails
-to provide that function it will not be loaded. Plugins have to be placed under `~/.config/go-furnace/plugins`. Their extension decide
-at what stage they will be loaded. Extensions should be one of the following: `pre_create, post_create, pre_delete, post_delete`. If not,
-the plugin will simple be ignored. Well, technically it will be loaded, just not used.
+to provide that function it will not be loaded. Their extension decides at what stage they will be loaded.
+Extensions should be one of the following: `pre_create, post_create, pre_delete, post_delete`. If not, the plugin will simple be ignored.
+Well, technically it will be loaded, just not used.
 
-To build the plugin run `go build -buildmode=plugin -o myplugin.pre_create myplugin.go`. Than copy the `.pre_create` to said folder. And
-that's it, you should be all set.
+Configuring the plugins is as simple as defining these settings in the yaml file:
 
-Plugins are loaded as encountered, so if order of execution is important, pre_fix the file names with numbers.
-
-Plugins in Go 1.10 and up support osx and Linux.
-
-```bash
-docker run --name furnace -it -v `pwd`:/go/src/github.com/Skarlso/go-furnace golang bash
+```yaml
+  plugins:
+    enable_plugin_system: true
+    plugin_path: "./plugins"
+    names:
+      - slack.post_create
+      - telegram.pre_create
+      - deployer.post_create
 ```
+
+This will tell Furnace to look for the `plugins` folder in it's current execution directory and load the plugins specified by `names`.
+
+To build the plugin run `go build -buildmode=plugin -o myplugin.pre_create myplugin.go`. And that's it, you should be all set.
 
 Should any question arise, please don't hesitate to open an issue with the PreFix [Question].
 

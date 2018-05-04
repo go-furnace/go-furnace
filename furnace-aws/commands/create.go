@@ -37,17 +37,17 @@ func createExecute(opts *commander.CommandHelper, client *CFClient) {
 			handle.Fatal(configName, err)
 		}
 	}
-
+	awsconfig.FillRegistry()
 	stackname := awsconfig.Config.Main.Stackname
 	template := awsconfig.LoadCFStackConfig()
 	for _, p := range awsconfig.PluginRegistry[awsconfig.PRECREATE] {
 		log.Println("Running plugin: ", p.Name)
-		p.Run.(func())()
+		p.Run.(func(string))(stackname)
 	}
 	stacks := create(stackname, template, client)
 	for _, p := range awsconfig.PluginRegistry[awsconfig.POSTCREATE] {
 		log.Println("Running plugin: ", p.Name)
-		p.Run.(func())()
+		p.Run.(func(string))(stackname)
 	}
 	var red = color.New(color.FgRed).SprintFunc()
 	if stacks != nil {
