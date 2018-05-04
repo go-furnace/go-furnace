@@ -304,14 +304,14 @@ func TestNewCreate(t *testing.T) {
 
 func TestPreCreatePlugins(t *testing.T) {
 	ran := false
-	runner := func() {
+	runner := func(name string) {
 		ran = true
 	}
-	plugins := awsconfig.Plugin{
+	plugins := awsconfig.RunPlugin{
 		Name: "testPlugin",
 		Run:  runner,
 	}
-	awsconfig.PluginRegistry[awsconfig.PRECREATE] = []awsconfig.Plugin{plugins}
+	awsconfig.PluginRegistry[awsconfig.PRECREATE] = []awsconfig.RunPlugin{plugins}
 	config.WAITFREQUENCY = 0
 	client := new(CFClient)
 	stackname := "NotEmptyStack"
@@ -325,14 +325,14 @@ func TestPreCreatePlugins(t *testing.T) {
 
 func TestPostCreatePlugins(t *testing.T) {
 	ran := false
-	runner := func() {
+	runner := func(name string) {
 		ran = true
 	}
-	plugins := awsconfig.Plugin{
+	plugins := awsconfig.RunPlugin{
 		Name: "testPlugin",
 		Run:  runner,
 	}
-	awsconfig.PluginRegistry[awsconfig.POSTCREATE] = []awsconfig.Plugin{plugins}
+	awsconfig.PluginRegistry[awsconfig.POSTCREATE] = []awsconfig.RunPlugin{plugins}
 	config.WAITFREQUENCY = 0
 	client := new(CFClient)
 	stackname := "NotEmptyStack"

@@ -81,14 +81,14 @@ func TestDeleteExecuteWithExtraStackNotFound(t *testing.T) {
 
 func TestPreDeletePlugins(t *testing.T) {
 	ran := false
-	runner := func() {
+	runner := func(name string) {
 		ran = true
 	}
-	plugins := awsconfig.Plugin{
+	plugins := awsconfig.RunPlugin{
 		Name: "testPlugin",
 		Run:  runner,
 	}
-	awsconfig.PluginRegistry[awsconfig.PREDELETE] = []awsconfig.Plugin{plugins}
+	awsconfig.PluginRegistry[awsconfig.PREDELETE] = []awsconfig.RunPlugin{plugins}
 	config.WAITFREQUENCY = 0
 	client := new(CFClient)
 	stackname := "ToDeleteStack"
@@ -102,14 +102,14 @@ func TestPreDeletePlugins(t *testing.T) {
 
 func TestPostDeletePlugins(t *testing.T) {
 	ran := false
-	runner := func() {
+	runner := func(name string) {
 		ran = true
 	}
-	plugins := awsconfig.Plugin{
+	plugins := awsconfig.RunPlugin{
 		Name: "testPlugin",
 		Run:  runner,
 	}
-	awsconfig.PluginRegistry[awsconfig.POSTDELETE] = []awsconfig.Plugin{plugins}
+	awsconfig.PluginRegistry[awsconfig.POSTDELETE] = []awsconfig.RunPlugin{plugins}
 	config.WAITFREQUENCY = 0
 	client := new(CFClient)
 	stackname := "ToDeleteStack"
