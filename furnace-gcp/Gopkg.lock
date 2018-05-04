@@ -9,9 +9,12 @@
 
 [[projects]]
   name = "github.com/Skarlso/go-furnace"
-  packages = ["config","handle"]
-  revision = "db2d13bc5c76cdfa3f8c76247acd1c53d2c395f4"
-  version = "v2.1.3"
+  packages = [
+    "config",
+    "handle"
+  ]
+  revision = "9454f13c210e87bf08f76a9a7b82c2e84a9d43a7"
+  version = "v2.2.0"
 
 [[projects]]
   name = "github.com/Yitsushi/go-commander"
@@ -52,13 +55,22 @@
 [[projects]]
   branch = "master"
   name = "golang.org/x/net"
-  packages = ["context","context/ctxhttp"]
+  packages = [
+    "context",
+    "context/ctxhttp"
+  ]
   revision = "d41e8174641f662c5a2d1c7a5f9e828788eb8706"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/oauth2"
-  packages = [".","google","internal","jws","jwt"]
+  packages = [
+    ".",
+    "google",
+    "internal",
+    "jws",
+    "jwt"
+  ]
   revision = "6881fee410a5daf86371371f9ad451b95e168b71"
 
 [[projects]]
@@ -70,12 +82,28 @@
 [[projects]]
   branch = "master"
   name = "google.golang.org/api"
-  packages = ["deploymentmanager/v2","gensupport","googleapi","googleapi/internal/uritemplates"]
+  packages = [
+    "deploymentmanager/v2",
+    "gensupport",
+    "googleapi",
+    "googleapi/internal/uritemplates"
+  ]
   revision = "9c79deebf7496e355d7e95d82d4af1fe4e769b2f"
 
 [[projects]]
   name = "google.golang.org/appengine"
-  packages = [".","internal","internal/app_identity","internal/base","internal/datastore","internal/log","internal/modules","internal/remote_api","internal/urlfetch","urlfetch"]
+  packages = [
+    ".",
+    "internal",
+    "internal/app_identity",
+    "internal/base",
+    "internal/datastore",
+    "internal/log",
+    "internal/modules",
+    "internal/remote_api",
+    "internal/urlfetch",
+    "urlfetch"
+  ]
   revision = "150dc57a1b433e64154302bdc40b6bb8aefa313a"
   version = "v1.0.0"
 
