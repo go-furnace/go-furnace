@@ -7,8 +7,8 @@
     "config",
     "handle"
   ]
-  revision = "adb61fff404220af6d8acae28fdf0f72b530cd49"
-  version = "v2.1.8"
+  revision = "9454f13c210e87bf08f76a9a7b82c2e84a9d43a7"
+  version = "v2.2.0"
 
 [[projects]]
   name = "github.com/Yitsushi/go-commander"
