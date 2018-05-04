@@ -3,9 +3,12 @@
 
 [[projects]]
   name = "github.com/Skarlso/go-furnace"
-  packages = ["config","handle"]
-  revision = "10a29241a36467fdc6b202ef1dc7e129ba7f09e2"
-  version = "v2.1.6"
+  packages = [
+    "config",
+    "handle"
+  ]
+  revision = "adb61fff404220af6d8acae28fdf0f72b530cd49"
+  version = "v2.1.8"
 
 [[projects]]
   name = "github.com/Yitsushi/go-commander"
@@ -15,7 +18,34 @@
 
 [[projects]]
   name = "github.com/aws/aws-sdk-go-v2"
-  packages = ["aws","aws/awserr","aws/defaults","aws/ec2metadata","aws/ec2rolecreds","aws/endpointcreds","aws/endpoints","aws/external","aws/signer/v4","aws/stscreds","internal/awsutil","internal/sdk","private/protocol","private/protocol/json/jsonutil","private/protocol/jsonrpc","private/protocol/query","private/protocol/query/queryutil","private/protocol/rest","private/protocol/xml/xmlutil","service/cloudformation","service/cloudformation/cloudformationiface","service/codedeploy","service/codedeploy/codedeployiface","service/iam","service/iam/iamiface","service/sts"]
+  packages = [
+    "aws",
+    "aws/awserr",
+    "aws/defaults",
+    "aws/ec2metadata",
+    "aws/ec2rolecreds",
+    "aws/endpointcreds",
+    "aws/endpoints",
+    "aws/external",
+    "aws/signer/v4",
+    "aws/stscreds",
+    "internal/awsutil",
+    "internal/sdk",
+    "private/protocol",
+    "private/protocol/json/jsonutil",
+    "private/protocol/jsonrpc",
+    "private/protocol/query",
+    "private/protocol/query/queryutil",
+    "private/protocol/rest",
+    "private/protocol/xml/xmlutil",
+    "service/cloudformation",
+    "service/cloudformation/cloudformationiface",
+    "service/codedeploy",
+    "service/codedeploy/codedeployiface",
+    "service/iam",
+    "service/iam/iamiface",
+    "service/sts"
+  ]
   revision = "3383499f1024e86a3c68200f9bdc6759ee20eb70"
   version = "v2.0.0-preview.3"
 
@@ -28,8 +58,8 @@
 [[projects]]
   name = "github.com/go-ini/ini"
   packages = ["."]
-  revision = "ace140f73450505f33e8b8418216792275ae82a7"
-  version = "v1.35.0"
+  revision = "6529cf7c58879c08d927016dde4477f18a0634cb"
+  version = "v1.36.0"
 
 [[projects]]
   name = "github.com/jmespath/go-jmespath"
@@ -58,7 +88,7 @@
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "9b006099084093fa764af5878f937ff7dafc6051"
+  revision = "6f686a352de66814cdd080d970febae7767857a3"
 
 [[projects]]
   name = "gopkg.in/yaml.v2"
@@ -69,6 +99,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "dae625045e841ff8e48a57a6831e92c7a910921ee83055f1afc6dd199f7cff5e"
+  inputs-digest = "82a4a1be12070d8d1601185f58cd13d531c3928e37b777aae5d83678483db18d"
   solver-name = "gps-cdcl"
   solver-version = 1
