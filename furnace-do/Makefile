@@ -15,7 +15,7 @@ test:
 	go test ./...
 
 get-deps:
-	dep ensure
+	vgo build
 
 linux:
 	env GOOS=linux GOARCH=arm go build -o ../cmd/${BINARY}-linux

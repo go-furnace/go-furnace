@@ -5,7 +5,7 @@ go:
 
 before_install:
     - go get github.com/mattn/goveralls
-    - go get -u github.com/golang/dep/cmd/dep
+    - go get -u golang.org/x/vgo
     - mkdir -p $HOME/.config/go-furnace
     - cp $TRAVIS_BUILD_DIR/templates/aws_furnace_config.yaml $HOME/.config/go-furnace
     - cp $TRAVIS_BUILD_DIR/templates/cloud_formation.template $HOME/.config/go-furnace
