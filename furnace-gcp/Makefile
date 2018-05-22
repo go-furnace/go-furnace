@@ -19,7 +19,7 @@ test:
 
 .PHONY: get-deps
 get-deps:
-	dep ensure
+	vgo build
 
 .PHONY: clean
 clean:
