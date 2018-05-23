@@ -1,7 +1,7 @@
 module github.com/Skarlso/go-furnace
 
 require (
-    github.com/Skarlso/go-furnace v2.2.1
+	github.com/Skarlso/go-furnace v0.0.0-20180523055450-56b81b45acf0
 	cloud.google.com/go v0.23.0
 	github.com/Skarlso/yogsothoth v0.0.0-20180226215258-58da4cd3e404
 	github.com/Yitsushi/go-commander v0.0.0-20180516072626-1639a353ffc4
