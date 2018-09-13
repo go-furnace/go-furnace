@@ -1,0 +1,6 @@
+main:
+  project_name: test-123
+  spinner: 1
+gcp:
+  template_name: google_template.yaml
+  stack_name: test2-stack
