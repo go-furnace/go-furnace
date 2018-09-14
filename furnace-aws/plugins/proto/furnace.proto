@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package proto;
+
+message Stack {
+    string name = 1;
+}
+
+message Proceed {
+    bool failed = 1;
+}
+
+message Empty {}
+
+service PreBuild {
+    rpc Execute (Stack) returns (Proceed);
+}
+
+service PostBuild {
+    rpc Execute (Stack) returns (Empty);
+}

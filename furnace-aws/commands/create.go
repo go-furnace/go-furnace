@@ -7,6 +7,7 @@ import (
 
 	"github.com/Skarlso/go-furnace/config"
 	awsconfig "github.com/Skarlso/go-furnace/furnace-aws/config"
+	"github.com/Skarlso/go-furnace/furnace-aws/plugins"
 	"github.com/Skarlso/go-furnace/handle"
 	"github.com/Yitsushi/go-commander"
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -44,6 +45,7 @@ func createExecute(opts *commander.CommandHelper, client *CFClient) {
 		log.Println("Running plugin: ", p.Name)
 		p.Run.(func(string))(stackname)
 	}
+	plugins.RunPreBuildPlugins(stackname)
 	stacks := create(stackname, template, client)
 	for _, p := range awsconfig.PluginRegistry[awsconfig.POSTCREATE] {
 		log.Println("Running plugin: ", p.Name)
