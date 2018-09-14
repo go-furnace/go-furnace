@@ -12,10 +12,18 @@ message Proceed {
 
 message Empty {}
 
-service PreBuild {
+service PreCreate {
     rpc Execute (Stack) returns (Proceed);
 }
 
-service PostBuild {
+service PostCreate {
+    rpc Execute (Stack) returns (Empty);
+}
+
+service PreDelete {
+    rpc Execute (Stack) returns (Proceed);
+}
+
+service PostDelete {
     rpc Execute (Stack) returns (Empty);
 }

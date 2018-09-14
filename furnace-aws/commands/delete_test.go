@@ -79,48 +79,6 @@ func TestDeleteExecuteWithExtraStackNotFound(t *testing.T) {
 	}
 }
 
-func TestPreDeletePlugins(t *testing.T) {
-	ran := false
-	runner := func(name string) {
-		ran = true
-	}
-	plugins := awsconfig.RunPlugin{
-		Name: "testPlugin",
-		Run:  runner,
-	}
-	awsconfig.PluginRegistry[awsconfig.PREDELETE] = []awsconfig.RunPlugin{plugins}
-	config.WAITFREQUENCY = 0
-	client := new(CFClient)
-	stackname := "ToDeleteStack"
-	client.Client = &fakeDeleteCFClient{err: nil, stackname: stackname}
-	opts := &commander.CommandHelper{}
-	deleteExecute(opts, client)
-	if !ran {
-		t.Fatal("Predelete plugin was not executed.")
-	}
-}
-
-func TestPostDeletePlugins(t *testing.T) {
-	ran := false
-	runner := func(name string) {
-		ran = true
-	}
-	plugins := awsconfig.RunPlugin{
-		Name: "testPlugin",
-		Run:  runner,
-	}
-	awsconfig.PluginRegistry[awsconfig.POSTDELETE] = []awsconfig.RunPlugin{plugins}
-	config.WAITFREQUENCY = 0
-	client := new(CFClient)
-	stackname := "ToDeleteStack"
-	client.Client = &fakeDeleteCFClient{err: nil, stackname: stackname}
-	opts := &commander.CommandHelper{}
-	deleteExecute(opts, client)
-	if !ran {
-		t.Fatal("Postdelete plugin was not executed.")
-	}
-}
-
 func TestDeleteCreate(t *testing.T) {
 	wrapper := NewDelete("furnace")
 	if wrapper.Help.Arguments != "custom-config" ||

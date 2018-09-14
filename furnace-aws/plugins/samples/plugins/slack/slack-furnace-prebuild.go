@@ -7,9 +7,12 @@ import (
 	"github.com/hashicorp/go-plugin"
 )
 
-type SlackPreBuild struct{}
+// SlackPreCreate is an actual implementation of the furnace PreCreate plugin
+// interface.
+type SlackPreCreate struct{}
 
-func (SlackPreBuild) Execute(stackname string) bool {
+// Execute is the entry point to this plugin.
+func (SlackPreCreate) Execute(stackname string) bool {
 	log.Println("got stackname: ", stackname)
 	return true
 }
@@ -18,7 +21,7 @@ func main() {
 	plugin.Serve(&plugin.ServeConfig{
 		HandshakeConfig: fplugs.Handshake,
 		Plugins: map[string]plugin.Plugin{
-			"slack-prebuild": &fplugs.PreBuildGRPCPlugin{Impl: &SlackPreBuild{}},
+			"slack-furnace-precreate": &fplugs.PreCreateGRPCPlugin{Impl: &SlackPreCreate{}},
 		},
 
 		// A non-nil value here enables gRPC serving for this plugin...

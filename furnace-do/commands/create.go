@@ -32,8 +32,8 @@ func (c *Create) Execute(opts *commander.CommandHelper) {
 		TemplateBody: template,
 	}
 	res, err := yogClient.CreateStack(req)
-	if err != nil {
-		handle.Fatal("error while creating stack:", err)
+	if err.Error != nil {
+		handle.Fatal("error while creating stack:", err.Error)
 	}
 	log.Println(res)
 }
