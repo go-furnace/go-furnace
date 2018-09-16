@@ -5,9 +5,9 @@ import (
 	"os"
 	"strings"
 
+	"github.com/Yitsushi/go-commander"
 	fc "github.com/go-furnace/go-furnace/furnace-gcp/config"
 	"github.com/go-furnace/go-furnace/handle"
-	"github.com/Yitsushi/go-commander"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2/google"
 	dm "google.golang.org/api/deploymentmanager/v2"

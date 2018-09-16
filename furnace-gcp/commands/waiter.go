@@ -5,9 +5,9 @@ import (
 	"log"
 	"time"
 
+	"github.com/fatih/color"
 	"github.com/go-furnace/go-furnace/config"
 	"github.com/go-furnace/go-furnace/handle"
-	"github.com/fatih/color"
 	dm "google.golang.org/api/deploymentmanager/v2"
 	"google.golang.org/api/googleapi"
 )

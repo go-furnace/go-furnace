@@ -5,13 +5,13 @@ import (
 	"log"
 	"os"
 
-	awsconfig "github.com/go-furnace/go-furnace/furnace-aws/config"
-	"github.com/go-furnace/go-furnace/handle"
 	"github.com/Yitsushi/go-commander"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/aws/external"
 	"github.com/aws/aws-sdk-go-v2/service/cloudformation"
 	"github.com/fatih/color"
+	awsconfig "github.com/go-furnace/go-furnace/furnace-aws/config"
+	"github.com/go-furnace/go-furnace/handle"
 )
 
 // Status command.

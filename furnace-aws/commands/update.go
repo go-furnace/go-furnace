@@ -5,14 +5,14 @@ import (
 	"log"
 	"os"
 
-	"github.com/go-furnace/go-furnace/config"
-	awsconfig "github.com/go-furnace/go-furnace/furnace-aws/config"
-	"github.com/go-furnace/go-furnace/handle"
 	"github.com/Yitsushi/go-commander"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/aws/external"
 	"github.com/aws/aws-sdk-go-v2/service/cloudformation"
 	"github.com/fatih/color"
+	"github.com/go-furnace/go-furnace/config"
+	awsconfig "github.com/go-furnace/go-furnace/furnace-aws/config"
+	"github.com/go-furnace/go-furnace/handle"
 )
 
 // Update command.

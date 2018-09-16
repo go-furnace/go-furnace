@@ -4,11 +4,11 @@ import (
 	"log"
 	"os"
 
-	doconfig "github.com/go-furnace/go-furnace/furnace-do/config"
-	"github.com/go-furnace/go-furnace/handle"
 	"github.com/Skarlso/yogsothoth/yogsot"
 	yog "github.com/Skarlso/yogsothoth/yogsot"
 	commander "github.com/Yitsushi/go-commander"
+	doconfig "github.com/go-furnace/go-furnace/furnace-do/config"
+	"github.com/go-furnace/go-furnace/handle"
 )
 
 // Create command.

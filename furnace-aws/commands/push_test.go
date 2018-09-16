@@ -7,9 +7,6 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-furnace/go-furnace/config"
-	awsconfig "github.com/go-furnace/go-furnace/furnace-aws/config"
-	"github.com/go-furnace/go-furnace/handle"
 	commander "github.com/Yitsushi/go-commander"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/aws/awserr"
@@ -19,6 +16,9 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/codedeploy/codedeployiface"
 	"github.com/aws/aws-sdk-go-v2/service/iam"
 	"github.com/aws/aws-sdk-go-v2/service/iam/iamiface"
+	"github.com/go-furnace/go-furnace/config"
+	awsconfig "github.com/go-furnace/go-furnace/furnace-aws/config"
+	"github.com/go-furnace/go-furnace/handle"
 )
 
 type fakePushCFClient struct {

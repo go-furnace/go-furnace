@@ -5,8 +5,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/go-furnace/go-furnace/config"
 	"github.com/fatih/color"
+	"github.com/go-furnace/go-furnace/config"
 )
 
 var yellow = color.New(color.FgYellow).SprintFunc()

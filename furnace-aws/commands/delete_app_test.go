@@ -7,11 +7,11 @@ import (
 
 	"github.com/Yitsushi/go-commander"
 
-	"github.com/go-furnace/go-furnace/handle"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/aws/awserr"
 	"github.com/aws/aws-sdk-go-v2/service/codedeploy"
 	"github.com/aws/aws-sdk-go-v2/service/codedeploy/codedeployiface"
+	"github.com/go-furnace/go-furnace/handle"
 )
 
 type fakeDeleteAppCDClient struct {

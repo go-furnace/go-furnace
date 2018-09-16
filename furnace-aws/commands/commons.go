@@ -7,10 +7,10 @@ import (
 	"os"
 	"strings"
 
-	"github.com/go-furnace/go-furnace/handle"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/cloudformation"
 	"github.com/fatih/color"
+	"github.com/go-furnace/go-furnace/handle"
 )
 
 func gatherParameters(source *os.File, params *cloudformation.ValidateTemplateOutput) []cloudformation.Parameter {

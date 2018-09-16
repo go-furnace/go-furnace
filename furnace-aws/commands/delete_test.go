@@ -4,10 +4,10 @@ import (
 	"reflect"
 	"testing"
 
+	commander "github.com/Yitsushi/go-commander"
 	"github.com/go-furnace/go-furnace/config"
 	awsconfig "github.com/go-furnace/go-furnace/furnace-aws/config"
 	"github.com/go-furnace/go-furnace/handle"
-	commander "github.com/Yitsushi/go-commander"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/cloudformation"
