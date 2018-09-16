@@ -1,7 +1,9 @@
 package commands
 
 import (
+	"errors"
 	"log"
+	"net/http"
 	"os"
 	"path/filepath"
 
@@ -16,6 +18,35 @@ import (
 
 // Create commands for google Deployment Manager
 type Create struct {
+}
+
+// DeploymentService defines a service which implement `Insert`. This method
+// inserts a deployment into a GCP project.
+type DeploymentService interface {
+	Insert(project string, deployment *dm.Deployment) *dm.DeploymentsInsertCall
+}
+
+// DeploymentmanagerService defines a struct that we can use to mock GCP's
+// deploymentmanager/v2 API.
+type DeploymentmanagerService struct {
+	*dm.Service
+	Deployments DeploymentService
+}
+
+// NewDeploymentService will return a deployment manager service that
+// can be used as a mock for the GCP deployment manager.
+func NewDeploymentService(client *http.Client, mock DeploymentService) DeploymentmanagerService {
+	if mock != nil {
+		return DeploymentmanagerService{
+			Deployments: mock,
+		}
+	}
+
+	d, _ := dm.New(client)
+
+	return DeploymentmanagerService{
+		Deployments: d.Deployments,
+	}
 }
 
 // Execute runs the create command
@@ -35,12 +66,23 @@ func (c *Create) Execute(opts *commander.CommandHelper) {
 	if err != nil {
 		log.Fatalf(err.Error())
 	}
-	d, _ := dm.New(client)
+	d := NewDeploymentService(client, nil)
 	deployments := constructDeploymen(deploymentName)
-	ret := d.Deployments.Insert(fc.Config.Main.ProjectName, deployments)
-	_, err = ret.Do()
+	err = insertDeployments(d, deployments, deploymentName)
 	handle.Error(err)
-	waitForDeploymentToFinish(*d, fc.Config.Main.ProjectName, deploymentName)
+}
+
+func insertDeployments(d DeploymentmanagerService, deployments *dm.Deployment, deploymentName string) error {
+	ret := d.Deployments.Insert(fc.Config.Main.ProjectName, deployments)
+	if ret == nil {
+		return errors.New("return value was nil")
+	}
+	_, err := ret.Do()
+	if err != nil {
+		return err
+	}
+	waitForDeploymentToFinish(*d.Service, fc.Config.Main.ProjectName, deploymentName)
+	return nil
 }
 
 // Path contains all the jinja imports in the config.yml file.

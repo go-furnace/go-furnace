@@ -7,7 +7,6 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"plugin"
 
 	"gopkg.in/yaml.v2"
 
@@ -46,17 +45,6 @@ type Configuration struct {
 	} `yaml:"aws"`
 }
 
-const (
-	// PRECREATE Event name for plugins
-	PRECREATE = "pre_create"
-	// POSTCREATE Event name for plugins
-	POSTCREATE = "post_create"
-	// PREDELETE Event name for plugins
-	PREDELETE = "pre_delete"
-	// POSTDELETE Event name for plugins
-	POSTDELETE = "post_delete"
-)
-
 // Config is the loaded configuration entity.
 var Config Configuration
 
@@ -65,9 +53,6 @@ type RunPlugin struct {
 	Run  interface{}
 	Name string
 }
-
-// PluginRegistry is a registry of plugins for certain events
-var PluginRegistry = make(map[string][]RunPlugin)
 
 var configPath string
 var templatePath string
@@ -79,7 +64,6 @@ func init() {
 	defaultConfigPath := filepath.Join(configPath, defaultConfig)
 	Config.LoadConfiguration(defaultConfigPath)
 	templatePath = filepath.Join(configPath, Config.Aws.TemplateName)
-	FillRegistry()
 }
 
 // LoadConfiguration loads a yaml file which sets fields for Configuration struct
@@ -119,49 +103,6 @@ func LoadConfigFileIfExists(dir string, file string) error {
 	}
 
 	return errors.New("failed to find configuration file for stack " + file)
-}
-
-// FillRegistry fill load in all the configured plugins.
-func FillRegistry() {
-	if !Config.Main.Plugins.EnablePluginSystem {
-		return
-	}
-	log.Println("Filling plugin registry.")
-	files := make([]string, 0)
-	for _, f := range Config.Main.Plugins.Names {
-		files = append(files, filepath.Join(Config.Main.Plugins.PluginPath, f))
-	}
-	pluginCount := 0
-	for _, f := range files {
-		baseName := filepath.Base(f)
-		split := strings.Split(baseName, ".")
-		key := split[len(split)-1]
-		fullPath := filepath.Join(configPath, "plugins", baseName)
-		p, err := plugin.Open(fullPath)
-		if err != nil {
-			log.Printf("Plugin '%s' failed to load. Error: %s\n", fullPath, err.Error())
-			continue
-		}
-		run, err := p.Lookup("RunPlugin")
-		if err != nil {
-			log.Printf("Plugin '%s' did not have 'RunPlugin' method. Error: %s\n", fullPath, err.Error())
-			continue
-		}
-		plug := RunPlugin{
-			Run:  run,
-			Name: baseName,
-		}
-		if p, ok := PluginRegistry[key]; ok {
-			p = append(p, plug)
-			PluginRegistry[key] = p
-		} else {
-			plugs := make([]RunPlugin, 0)
-			plugs = append(plugs, plug)
-			PluginRegistry[key] = plugs
-		}
-		pluginCount++
-	}
-	log.Printf("'%d' plugins loaded successfully.\n", pluginCount)
 }
 
 // LoadCFStackConfig Load the CF stack configuration file into a []byte.

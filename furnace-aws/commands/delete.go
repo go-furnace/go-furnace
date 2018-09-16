@@ -35,19 +35,10 @@ func deleteExecute(opts *commander.CommandHelper, client *CFClient) {
 			handle.Fatal(configName, err)
 		}
 	}
-	awsconfig.FillRegistry()
 	stackname := awsconfig.Config.Main.Stackname
 	cyan := color.New(color.FgCyan).SprintFunc()
 	log.Printf("Deleting CloudFormation stack with name: %s\n", cyan(stackname))
-	for _, p := range awsconfig.PluginRegistry[awsconfig.PREDELETE] {
-		log.Println("Running plugin: ", p.Name)
-		p.Run.(func(string))(stackname)
-	}
 	deleteStack(stackname, client)
-	for _, p := range awsconfig.PluginRegistry[awsconfig.POSTDELETE] {
-		log.Println("Running plugin: ", p.Name)
-		p.Run.(func(string))(stackname)
-	}
 }
 
 func deleteStack(stackname string, cfClient *CFClient) {
