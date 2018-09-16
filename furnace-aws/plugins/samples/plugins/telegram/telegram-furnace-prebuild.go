@@ -3,7 +3,8 @@ package main
 import (
 	"log"
 
-	fplugs "github.com/Skarlso/go-furnace/furnace-aws/plugins"
+	"github.com/Skarlso/furnace-gosdk"
+	fplugins "github.com/Skarlso/go-furnace/furnace-aws/plugins"
 	"github.com/hashicorp/go-plugin"
 )
 
@@ -19,9 +20,9 @@ func (TelegramPreCreate) Execute(stackname string) bool {
 
 func main() {
 	plugin.Serve(&plugin.ServeConfig{
-		HandshakeConfig: fplugs.Handshake,
+		HandshakeConfig: fplugins.Handshake,
 		Plugins: map[string]plugin.Plugin{
-			"telegram-furnace-precreate": &fplugs.PreCreateGRPCPlugin{Impl: &TelegramPreCreate{}},
+			"telegram-furnace-precreate": &gosdk.PreCreateGRPCPlugin{Impl: &TelegramPreCreate{}},
 		},
 		GRPCServer: plugin.DefaultGRPCServer,
 	})

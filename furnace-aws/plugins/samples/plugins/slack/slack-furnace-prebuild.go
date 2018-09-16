@@ -3,7 +3,8 @@ package main
 import (
 	"log"
 
-	fplugs "github.com/Skarlso/go-furnace/furnace-aws/plugins"
+	"github.com/Skarlso/furnace-gosdk"
+	fplugins "github.com/Skarlso/go-furnace/furnace-aws/plugins"
 	"github.com/hashicorp/go-plugin"
 )
 
@@ -19,9 +20,9 @@ func (SlackPreCreate) Execute(stackname string) bool {
 
 func main() {
 	plugin.Serve(&plugin.ServeConfig{
-		HandshakeConfig: fplugs.Handshake,
+		HandshakeConfig: fplugins.Handshake,
 		Plugins: map[string]plugin.Plugin{
-			"slack-furnace-precreate": &fplugs.PreCreateGRPCPlugin{Impl: &SlackPreCreate{}},
+			"slack-furnace-precreate": &gosdk.PreCreateGRPCPlugin{Impl: &SlackPreCreate{}},
 		},
 
 		// A non-nil value here enables gRPC serving for this plugin...
