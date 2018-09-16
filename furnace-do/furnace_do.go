@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/Skarlso/go-furnace/furnace-do/commands"
+	"github.com/go-furnace/go-furnace/furnace-do/commands"
 	cmd "github.com/Yitsushi/go-commander"
 )
 

@@ -4,7 +4,7 @@ import (
 	"os/user"
 	"path/filepath"
 
-	"github.com/Skarlso/go-furnace/handle"
+	"github.com/go-furnace/go-furnace/handle"
 )
 
 // Spinners is a collection os spinner types

@@ -3,7 +3,7 @@
 
 [[projects]]
   digest = "1:7dbfc1532b2e7b9671c2a67fe43767158e41a8d8566b59e85101783cb90bdea8"
-  name = "github.com/Skarlso/go-furnace"
+  name = "github.com/go-furnace/go-furnace"
   packages = [
     "config",
     "handle",
@@ -118,8 +118,8 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
-    "github.com/Skarlso/go-furnace/config",
-    "github.com/Skarlso/go-furnace/handle",
+    "github.com/go-furnace/go-furnace/config",
+    "github.com/go-furnace/go-furnace/handle",
     "github.com/Skarlso/yogsothoth/yogsot",
     "github.com/Yitsushi/go-commander",
     "gopkg.in/yaml.v2",

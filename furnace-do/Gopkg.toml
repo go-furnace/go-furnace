@@ -26,7 +26,7 @@
 
 
 [[constraint]]
-  name = "github.com/Skarlso/go-furnace"
+  name = "github.com/go-furnace/go-furnace"
   version = "2.2.1"
 
 [[constraint]]

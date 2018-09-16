@@ -4,8 +4,8 @@ import (
 	"log"
 	"os"
 
-	doconfig "github.com/Skarlso/go-furnace/furnace-do/config"
-	"github.com/Skarlso/go-furnace/handle"
+	doconfig "github.com/go-furnace/go-furnace/furnace-do/config"
+	"github.com/go-furnace/go-furnace/handle"
 	"github.com/Skarlso/yogsothoth/yogsot"
 	yog "github.com/Skarlso/yogsothoth/yogsot"
 	commander "github.com/Yitsushi/go-commander"

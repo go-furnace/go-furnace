@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 
-	"github.com/Skarlso/furnace-gosdk"
-	fplugins "github.com/Skarlso/go-furnace/furnace-aws/plugins"
+	fplugins "github.com/go-furnace/go-furnace/furnace-aws/plugins"
+	"github.com/go-furnace/sdk"
 	"github.com/hashicorp/go-plugin"
 )
 

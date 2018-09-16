@@ -12,8 +12,8 @@ import (
 
 	"strings"
 
-	"github.com/Skarlso/go-furnace/config"
-	"github.com/Skarlso/go-furnace/handle"
+	"github.com/go-furnace/go-furnace/config"
+	"github.com/go-furnace/go-furnace/handle"
 )
 
 // TODO: Create a main config which defines a furnace config location

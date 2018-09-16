@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Skarlso/go-furnace/config"
+	"github.com/go-furnace/go-furnace/config"
 	"github.com/fatih/color"
 )
 

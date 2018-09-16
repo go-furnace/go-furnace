@@ -2,28 +2,9 @@
 
 
 [[projects]]
-  branch = "master"
-  digest = "1:2e886c2d3daee7bda1bd5b38bfedc227c09534e1ab13862bd58b3f70bb44da30"
-  name = "github.com/Skarlso/furnace-gosdk"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "0788e12bf8203d85ce1dd60436b41d81e6ed4fda"
-
-[[projects]]
-  branch = "master"
-  digest = "1:587c8ca21ab9d628fd553e4615e5720d4479b3a114561c3e89cbcbee398c91e4"
-  name = "github.com/Skarlso/furnace-proto"
-  packages = ["proto"]
-  pruneopts = "UT"
-  revision = "37a3fa2d5e73605899be06ada40c1cbf1e9b815a"
-
-[[projects]]
-  digest = "1:7dbfc1532b2e7b9671c2a67fe43767158e41a8d8566b59e85101783cb90bdea8"
+  digest = "1:9b6a77b37f83a485967b7539a524ffb6ef6c025109eaa23fe9f7fbebff542f93"
   name = "github.com/Skarlso/go-furnace"
-  packages = [
-    "config",
-    "handle",
-  ]
+  packages = ["handle"]
   pruneopts = "UT"
   revision = "56b81b45acf0bfee715a2b44990b82cd8a075c07"
   version = "v2.2.1"
@@ -78,6 +59,33 @@
   pruneopts = "UT"
   revision = "5b77d2a35fb0ede96d138fc9a99f5c9b6aef11b4"
   version = "v1.7.0"
+
+[[projects]]
+  digest = "1:7dbfc1532b2e7b9671c2a67fe43767158e41a8d8566b59e85101783cb90bdea8"
+  name = "github.com/go-furnace/go-furnace"
+  packages = [
+    "config",
+    "handle",
+  ]
+  pruneopts = "UT"
+  revision = "56b81b45acf0bfee715a2b44990b82cd8a075c07"
+  version = "v2.2.1"
+
+[[projects]]
+  branch = "master"
+  digest = "1:587c8ca21ab9d628fd553e4615e5720d4479b3a114561c3e89cbcbee398c91e4"
+  name = "github.com/go-furnace/proto"
+  packages = ["proto"]
+  pruneopts = "UT"
+  revision = "37a3fa2d5e73605899be06ada40c1cbf1e9b815a"
+
+[[projects]]
+  branch = "master"
+  digest = "1:30b21a44c7b5b4388ca572ab44fc7abe1ce4a51bb2cfacb9c5a7cdfa65728699"
+  name = "github.com/go-furnace/sdk"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "fd991dce7c65eedec51e092911d41512c804cb63"
 
 [[projects]]
   digest = "1:5abd6a22805b1919f6a6bca0ae58b13cef1f3412812f38569978f43ef02743d4"
@@ -276,9 +284,6 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
-    "github.com/Skarlso/furnace-gosdk",
-    "github.com/Skarlso/go-furnace/config",
-    "github.com/Skarlso/go-furnace/handle",
     "github.com/Yitsushi/go-commander",
     "github.com/aws/aws-sdk-go-v2/aws",
     "github.com/aws/aws-sdk-go-v2/aws/awserr",
@@ -290,6 +295,9 @@
     "github.com/aws/aws-sdk-go-v2/service/iam",
     "github.com/aws/aws-sdk-go-v2/service/iam/iamiface",
     "github.com/fatih/color",
+    "github.com/go-furnace/go-furnace/config",
+    "github.com/go-furnace/go-furnace/handle",
+    "github.com/go-furnace/sdk",
     "github.com/hashicorp/go-plugin",
     "gopkg.in/yaml.v2",
   ]

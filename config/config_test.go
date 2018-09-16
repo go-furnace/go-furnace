@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/Skarlso/go-furnace/handle"
+	"github.com/go-furnace/go-furnace/handle"
 )
 
 // TestConfigPath Test configuration path loader.

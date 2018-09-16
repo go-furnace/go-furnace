@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	fc "github.com/Skarlso/go-furnace/furnace-gcp/config"
+	fc "github.com/go-furnace/go-furnace/furnace-gcp/config"
 	dm "google.golang.org/api/deploymentmanager/v2"
 )
 

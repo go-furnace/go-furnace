@@ -2,8 +2,8 @@
 
 ![Logo](img/logo.png)
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/Skarlso/go-furnace)](https://goreportcard.com/report/github.com/Skarlso/go-furnace) [![Build Status](https://travis-ci.org/Skarlso/go-furnace.svg?branch=master)](https://travis-ci.org/Skarlso/go-furnace)
-[![Coverage Status](https://coveralls.io/repos/github/Skarlso/go-furnace/badge.svg?branch=master)](https://coveralls.io/github/Skarlso/go-furnace?branch=master)
+[![Go Report Card](https://goreportcard.com/badge/github.com/go-furnace/go-furnace)](https://goreportcard.com/report/github.com/go-furnace/go-furnace) [![Build Status](https://travis-ci.org/go-furnace/go-furnace.svg?branch=master)](https://travis-ci.org/go-furnace/go-furnace)
+[![Coverage Status](https://coveralls.io/repos/github/go-furnace/go-furnace/badge.svg?branch=master)](https://coveralls.io/github/go-furnace/go-furnace?branch=master)
 
 ## Intro
 
@@ -423,7 +423,7 @@ After everything has been properly configure, execute:
 This will display information like this:
 
 ```bash
-~/golang/src/github.com/Skarlso/go-furnace extend_with_subcommand*
+~/golang/src/github.com/go-furnace/go-furnace extend_with_subcommand*
 ❯ ./furnace-gcp create
 2017/11/03 07:14:47 Creating Deployment under project name: . testplatform-180405
 2017/11/03 07:14:47 Deployment name is:  furnace-stack
@@ -445,7 +445,7 @@ Once the stack is no longer needed, run the following command:
 Which will output this information:
 
 ```bash
-~/golang/src/github.com/Skarlso/go-furnace extend_with_subcommand* 51s
+~/golang/src/github.com/go-furnace/go-furnace extend_with_subcommand* 51s
 ❯ ./furnace-gcp delete
 2017/11/03 07:17:38 Deleteing Deployment Under Project:  testplatform-180405
 [-] Waiting for state: DONE
@@ -464,7 +464,7 @@ This will output information about the deployment including the manifest file wh
 
 
 ```bash
-~/golang/src/github.com/Skarlso/go-furnace extend_with_subcommand* 1m 8s
+~/golang/src/github.com/go-furnace/go-furnace extend_with_subcommand* 1m 8s
 ❯ ./furnace-gcp status
 2017/11/01 21:37:39 Status of Deployment under project name: . testplatform-180405
 2017/11/01 21:37:39 Deployment name is:  furnace-stack

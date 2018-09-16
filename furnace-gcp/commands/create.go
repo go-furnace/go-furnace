@@ -7,8 +7,8 @@ import (
 	"os"
 	"path/filepath"
 
-	fc "github.com/Skarlso/go-furnace/furnace-gcp/config"
-	"github.com/Skarlso/go-furnace/handle"
+	fc "github.com/go-furnace/go-furnace/furnace-gcp/config"
+	"github.com/go-furnace/go-furnace/handle"
 	"github.com/Yitsushi/go-commander"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2/google"

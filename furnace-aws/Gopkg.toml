@@ -26,14 +26,6 @@
 
 
 [[constraint]]
-  branch = "master"
-  name = "github.com/Skarlso/furnace-gosdk"
-
-[[constraint]]
-  name = "github.com/Skarlso/go-furnace"
-  version = "2.2.1"
-
-[[constraint]]
   name = "github.com/Yitsushi/go-commander"
   version = "2.3.1"
 
@@ -44,6 +36,14 @@
 [[constraint]]
   name = "github.com/fatih/color"
   version = "1.7.0"
+
+[[constraint]]
+  name = "github.com/go-furnace/go-furnace"
+  version = "2.2.1"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/go-furnace/sdk"
 
 [[constraint]]
   branch = "master"
