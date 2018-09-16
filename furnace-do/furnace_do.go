@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/go-furnace/go-furnace/furnace-do/commands"
 	cmd "github.com/Yitsushi/go-commander"
+	"github.com/go-furnace/go-furnace/furnace-do/commands"
 )
 
 func main() {
