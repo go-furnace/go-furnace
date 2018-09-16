@@ -2,6 +2,7 @@ package plugins
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -32,9 +33,23 @@ func RunPreCreatePlugins(stackname string) {
 
 	for _, v := range ps {
 		var cmd *exec.Cmd
-		if filepath.Ext(v) == ".py" {
-			cmd = exec.Command("/usr/local/bin/python3", v)
-		} else {
+		ext := filepath.Ext(v)
+		switch ext {
+		case ".py":
+			python, err := exec.LookPath("python3")
+			if err != nil {
+				log.Println("Could not locate binary for python3 on PATH.")
+				os.Exit(1)
+			}
+			cmd = exec.Command(python, v)
+		case ".rb":
+			ruby, err := exec.LookPath("ruby")
+			if err != nil {
+				log.Println("Could not locate binary for ruby on PATH.")
+				os.Exit(1)
+			}
+			cmd = exec.Command(ruby, v)
+		default:
 			cmd = exec.Command(v)
 		}
 		client := plugin.NewClient(&plugin.ClientConfig{
