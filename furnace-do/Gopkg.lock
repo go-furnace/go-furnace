@@ -2,12 +2,9 @@
 
 
 [[projects]]
-  digest = "1:7dbfc1532b2e7b9671c2a67fe43767158e41a8d8566b59e85101783cb90bdea8"
-  name = "github.com/go-furnace/go-furnace"
-  packages = [
-    "config",
-    "handle",
-  ]
+  digest = "1:9b6a77b37f83a485967b7539a524ffb6ef6c025109eaa23fe9f7fbebff542f93"
+  name = "github.com/Skarlso/go-furnace"
+  packages = ["handle"]
   pruneopts = "UT"
   revision = "56b81b45acf0bfee715a2b44990b82cd8a075c07"
   version = "v2.2.1"
@@ -35,6 +32,17 @@
   pruneopts = "UT"
   revision = "6a6ce62154ba780ecbb97bbbb13a4e9e0b157070"
   version = "v1.4.2"
+
+[[projects]]
+  digest = "1:7dbfc1532b2e7b9671c2a67fe43767158e41a8d8566b59e85101783cb90bdea8"
+  name = "github.com/go-furnace/go-furnace"
+  packages = [
+    "config",
+    "handle",
+  ]
+  pruneopts = "UT"
+  revision = "56b81b45acf0bfee715a2b44990b82cd8a075c07"
+  version = "v2.2.1"
 
 [[projects]]
   digest = "1:97df918963298c287643883209a2c3f642e6593379f97ab400c2a2e219ab647d"
@@ -118,10 +126,10 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
-    "github.com/go-furnace/go-furnace/config",
-    "github.com/go-furnace/go-furnace/handle",
     "github.com/Skarlso/yogsothoth/yogsot",
     "github.com/Yitsushi/go-commander",
+    "github.com/go-furnace/go-furnace/config",
+    "github.com/go-furnace/go-furnace/handle",
     "gopkg.in/yaml.v2",
   ]
   solver-name = "gps-cdcl"
