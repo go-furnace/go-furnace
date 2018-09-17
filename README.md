@@ -416,6 +416,20 @@ if __name__ == '__main__':
 
 The serve method here is a `go-plugin` requirement. To read up on it, please check-out go-plugin by HashiCorp.
 
+### Usage
+
+After a plugin has been written simply build ( in case of Go ) or copy ( in case of Python ) it to the right location.
+
+Furnace autodiscovers these files based on their name and loads them in order. Once that happens it will run them
+together at the correct event.
+
+The following filenames should be used for the following events:
+
+* PreCreate: `*-furnace-precreate*`
+* PostCreate: `*-furnace-postcreate*`
+* PreDelete: `*-furnace-predelete*`
+* PostDelete: `*-furnace-postdelete*`
+
 ## Configuration Management
 
 Any kind of Configuration Management needs to be implemented by the application which is deployed.
