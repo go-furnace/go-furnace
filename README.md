@@ -269,49 +269,69 @@ The status command displays information about the stack.
 
 ## Plugins
 
-### Experimental Plug-in System
+A highly customizable plugin system is provided for Furnace via [HashiCorp's Go-Plugins](https://github.com/hashicorp/go-plugin).
 
-To use the plugin system, please look at the example plugins in project [furnace-plugins](https://github.com/Skarlso/furnace-plugins).
+Writing a plugin is as easy as implementing an interface. Furnace uses GRPC to talk to the plugins locally. The interface to
+implement is provided by a proto file located here: [Protocol Description](https://github.com/go-furnace/proto).
 
-A plugin is a standalone go project with main package, and a single entry point function called `RunPlugin`. If the plugin fails
-to provide that function it will not be loaded. Their extension decides at what stage they will be loaded.
-Extensions should be one of the following: `pre_create, post_create, pre_delete, post_delete`. If not, the plugin will simple be ignored.
-Well, technically it will be loaded, just not used.
-
-Configuring the plugins is as simple as defining these settings in the yaml file:
+A single configuration value is provided for plugins in the yaml file which is the location of plugins:
 
 ```yaml
   plugins:
-    enable_plugin_system: true
     plugin_path: "./plugins"
-    names:
-      - slack.post_create
-      - telegram.pre_create
-      - deployer.post_create
 ```
 
-This will tell Furnace to look for the `plugins` folder in it's current execution directory and load the plugins specified by `names`.
+If this is not provided, the default value is `./plugins` which is next to the binary.
 
-To build the plugin run `go build -buildmode=plugin -o myplugin.pre_create myplugin.go`. And that's it, you should be all set.
+Plugins are available for the following events:
 
-Should any question arise, please don't hesitate to open an issue with the PreFix [Question].
+* Pre creating a stack (stackname parameter is provided)
+  These plugins have the chance to stop the process before it starts. Here the user would typically try and do a preliminary check
+  like permissions or resources are available. If not, abort the creation process before it begins.
 
-### Slack Plugin
+* Post creating a stack (stackname parameter is provided)
+  This is typically a place where a post notification could be executed, like a slack notifier that a stack's creation is done.
 
-An example for a notification plugin after a stack has been created could look something like this:
+* Pre deleting a stack (stackname parameter is provided)
+  These plugins also have the option to abort a delete before it begins. A typical use-case would be to check if the resources
+  associated to the stack are still being used or not.
+
+* Post deleting a stack (stackname parameter is provided)
+  This is a place to send out a notification that a stack has been successfully or unsuccessfully deleted.
+
+The following repository contains the SDK that the plugins provide for a Go based plugin system:
+
+[SDK for Go based plugins](https://github.com/go-furnace/sdk).
+
+### Multiple languages
+
+Since it's GRPC the language in which the plugin is provided is whatever the plugin's writer chooses and is supported by Furnace.
+
+Currently three main languages are supported to write plugins in:
+
+* Python
+* Ruby
+* Go
+
+### Slack Plugin in Go
 
 ```go
 package main
 
 import (
-	"fmt"
-	"os"
+	"log"
 
-	"github.com/nlopes/slack"
+	fplugins "github.com/go-furnace/go-furnace/furnace-aws/plugins"
+	"github.com/go-furnace/sdk"
+	"github.com/hashicorp/go-plugin"
 )
 
-func RunPlugin() {
-	stackname := os.Getenv("FURNACE_STACKNAME")
+// SlackPreCreate is an actual implementation of the furnace PreCreate plugin
+// interface.
+type SlackPreCreate struct{}
+
+// Execute is the entry point to this plugin.
+func (SlackPreCreate) Execute(stackname string) bool {
 	api := slack.New("YOUR_TOKEN_HERE")
 	params := slack.PostMessageParameters{}
 	channelID, timestamp, err := api.PostMessage("#general", fmt.Sprintf("Stack with name '%s' is Done.", stackname), params)
@@ -320,8 +340,78 @@ func RunPlugin() {
 		return
 	}
 	fmt.Printf("Message successfully sent to channel %s at %s", channelID, timestamp)
+	return true
+}
+
+func main() {
+	plugin.Serve(&plugin.ServeConfig{
+		HandshakeConfig: fplugins.Handshake,
+		Plugins: map[string]plugin.Plugin{
+			"slack-furnace-precreate": &sdk.PreCreateGRPCPlugin{Impl: &SlackPreCreate{}},
+		},
+
+		// A non-nil value here enables gRPC serving for this plugin...
+		GRPCServer: plugin.DefaultGRPCServer,
+	})
 }
 ```
+
+### Sample plugin in Python
+
+For this to work the author has to implement the proto file. A sample repository can be found here:
+[Example for a Python Plugin](https://github.com/go-furnace/python-plugin).
+
+For brevity here is the full Python source:
+
+```python
+from concurrent import futures
+import sys
+import time
+
+import grpc
+
+import furnace_pb2
+import furnace_pb2_grpc
+
+from grpc_health.v1.health import HealthServicer
+from grpc_health.v1 import health_pb2, health_pb2_grpc
+
+class PreCreatePluginServicer(furnace_pb2_grpc.PreCreateServicer):
+    """Implementation of PreCreatePlugin service."""
+
+    def Execute(self, request, context):
+        result = furnace_pb2.Proceed()
+        result.failed = True
+
+        return result
+
+def serve():
+    # We need to build a health service to work with go-plugin
+    health = HealthServicer()
+    health.set("plugin", health_pb2.HealthCheckResponse.ServingStatus.Value('SERVING'))
+
+    # Start the server.
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+    furnace_pb2_grpc.add_PreCreateServicer_to_server(PreCreatePluginServicer(), server)
+    health_pb2_grpc.add_HealthServicer_to_server(health, server)
+    server.add_insecure_port('127.0.0.1:1234')
+    server.start()
+
+    # Output information
+    print("1|1|tcp|127.0.0.1:1234|grpc")
+    sys.stdout.flush()
+
+    try:
+        while True:
+            time.sleep(60 * 60 * 24)
+    except KeyboardInterrupt:
+        server.stop(0)
+
+if __name__ == '__main__':
+    serve()
+```
+
+The serve method here is a `go-plugin` requirement. To read up on it, please check-out go-plugin by HashiCorp.
 
 ## Configuration Management
 
