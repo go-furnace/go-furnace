@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/Skarlso/yogsothoth/yogsot"
-	yog "github.com/Skarlso/yogsothoth/yogsot"
 	commander "github.com/Yitsushi/go-commander"
 	doconfig "github.com/go-furnace/go-furnace/furnace-do/config"
 	"github.com/go-furnace/go-furnace/handle"
@@ -25,7 +24,7 @@ func (c *Create) Execute(opts *commander.CommandHelper) {
 		}
 	}
 	template := doconfig.LoadDoStackConfig()
-	yogClient := yog.NewClient(doconfig.Config.Do.Token)
+	yogClient := yogsot.NewClient(doconfig.Config.Do.Token)
 
 	req := yogsot.CreateStackRequest{
 		StackName:    "FurnaceStack",
