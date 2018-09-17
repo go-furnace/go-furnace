@@ -28,57 +28,16 @@ func RunPreCreatePlugins(stackname string) {
 	pluginMap := make(map[string]plugin.Plugin, 0)
 	for _, v := range ps {
 		pluginName := filepath.Base(v)
-		pluginMap[pluginName] = &gosdk.PreCreateGRPCPlugin{}
+		pluginMap[pluginName] = &sdk.PreCreateGRPCPlugin{}
 	}
 
 	for _, v := range ps {
-		var cmd *exec.Cmd
-		ext := filepath.Ext(v)
-		switch ext {
-		case ".py":
-			python, err := exec.LookPath("python3")
-			if err != nil {
-				log.Println("Could not locate binary for python3 on PATH.")
-				os.Exit(1)
-			}
-			cmd = exec.Command(python, v)
-		case ".rb":
-			ruby, err := exec.LookPath("ruby")
-			if err != nil {
-				log.Println("Could not locate binary for ruby on PATH.")
-				os.Exit(1)
-			}
-			cmd = exec.Command(ruby, v)
-		default:
-			cmd = exec.Command(v)
-		}
-		client := plugin.NewClient(&plugin.ClientConfig{
-			HandshakeConfig: Handshake,
-			Plugins:         pluginMap,
-			Cmd:             cmd,
-			AllowedProtocols: []plugin.Protocol{
-				plugin.ProtocolGRPC},
-		})
+		raw := getRawForPlugin(pluginMap, v)
 
-		defer client.Kill()
-		grpcClient, err := client.Client()
-		if err != nil {
-			fmt.Println("Error:", err.Error())
-			os.Exit(1)
-		}
-
-		pluginName := filepath.Base(v)
-		// Request the plugin
-		raw, err := grpcClient.Dispense(pluginName)
-		if err != nil {
-			fmt.Println("Error:", err.Error())
-			os.Exit(1)
-		}
-
-		p := raw.(gosdk.PreCreate)
+		p := raw.(sdk.PreCreate)
 		ret := p.Execute(stackname)
 		if !ret {
-			fmt.Println("Plugin said NO!")
+			log.Printf("A plugin with name '%s' prevented create to run.\n", v)
 			os.Exit(1)
 		}
 	}
@@ -88,40 +47,100 @@ func RunPreCreatePlugins(stackname string) {
 // uses plugin discovery via the glob:
 // PostCreate plugins: `*-furnace-postcreate`
 func RunPostCreatePlugins(stackname string) {
-	ps, _ := discoverPlugins("*-furnace-postcreate")
+	ps, _ := discoverPlugins("*-furnace-postcreate*")
 	pluginMap := make(map[string]plugin.Plugin, 0)
 	for _, v := range ps {
 		pluginName := filepath.Base(v)
-		pluginMap[pluginName] = &gosdk.PostCreateGRPCPlugin{}
+		pluginMap[pluginName] = &sdk.PostCreateGRPCPlugin{}
 	}
 
 	for _, v := range ps {
-		client := plugin.NewClient(&plugin.ClientConfig{
-			HandshakeConfig: Handshake,
-			Plugins:         pluginMap,
-			Cmd:             exec.Command(v),
-			AllowedProtocols: []plugin.Protocol{
-				plugin.ProtocolGRPC},
-		})
+		raw := getRawForPlugin(pluginMap, v)
 
-		defer client.Kill()
-		grpcClient, err := client.Client()
-		if err != nil {
-			fmt.Println("Error:", err.Error())
-			os.Exit(1)
-		}
-
-		pluginName := filepath.Base(v)
-		// Request the plugin
-		raw, err := grpcClient.Dispense(pluginName)
-		if err != nil {
-			fmt.Println("Error:", err.Error())
-			os.Exit(1)
-		}
-
-		p := raw.(gosdk.PostCreate)
+		p := raw.(sdk.PostCreate)
 		p.Execute(stackname)
 	}
+}
+
+// RunPreDeletePlugins will execute all the PreDelete plugins. This function
+// uses plugin discovery via the glob:
+// PreDelete plugins: `*-furnace-predelete*`
+func RunPreDeletePlugins(stackname string) {
+	ps, _ := discoverPlugins("*-furnace-predelete*")
+	pluginMap := make(map[string]plugin.Plugin, 0)
+	for _, v := range ps {
+		pluginName := filepath.Base(v)
+		pluginMap[pluginName] = &sdk.PreDeleteGRPCPlugin{}
+	}
+
+	for _, v := range ps {
+		raw := getRawForPlugin(pluginMap, v)
+
+		p := raw.(sdk.PreDelete)
+		ret := p.Execute(stackname)
+		if !ret {
+			log.Printf("A plugin with name '%s' prevented delete to run.\n", v)
+			os.Exit(1)
+		}
+	}
+}
+
+// RunPostDeletePlugins will execute all the PostDelete plugins. This function
+// uses plugin discovery via the glob:
+// PostDelete plugins: `*-furnace-postdelete`
+func RunPostDeletePlugins(stackname string) {
+	ps, _ := discoverPlugins("*-furnace-postdelete*")
+	pluginMap := make(map[string]plugin.Plugin, 0)
+	for _, v := range ps {
+		pluginName := filepath.Base(v)
+		pluginMap[pluginName] = &sdk.PostDeleteGRPCPlugin{}
+	}
+
+	for _, v := range ps {
+		raw := getRawForPlugin(pluginMap, v)
+
+		p := raw.(sdk.PostDelete)
+		p.Execute(stackname)
+	}
+}
+
+func getRawForPlugin(pluginMap map[string]plugin.Plugin, v string) interface{} {
+	var cmd *exec.Cmd
+	ext := filepath.Ext(v)
+	switch ext {
+	case ".py":
+		python := getExecutionBinary("python3")
+		cmd = exec.Command(python, v)
+	case ".rb":
+		ruby := getExecutionBinary("ruby")
+		cmd = exec.Command(ruby, v)
+	default:
+		cmd = exec.Command(v)
+	}
+
+	client := plugin.NewClient(&plugin.ClientConfig{
+		HandshakeConfig: Handshake,
+		Plugins:         pluginMap,
+		Cmd:             cmd,
+		AllowedProtocols: []plugin.Protocol{
+			plugin.ProtocolGRPC},
+	})
+
+	defer client.Kill()
+	grpcClient, err := client.Client()
+	if err != nil {
+		fmt.Println("Error:", err.Error())
+		os.Exit(1)
+	}
+
+	pluginName := filepath.Base(v)
+	// Request the plugin
+	raw, err := grpcClient.Dispense(pluginName)
+	if err != nil {
+		fmt.Println("Error:", err.Error())
+		os.Exit(1)
+	}
+	return raw
 }
 
 func discoverPlugins(postfix string) (p []string, err error) {
@@ -131,4 +150,13 @@ func discoverPlugins(postfix string) (p []string, err error) {
 	}
 	fmt.Println("Plugins found: ", plugs)
 	return plugs, nil
+}
+
+func getExecutionBinary(want string) string {
+	binary, err := exec.LookPath(want)
+	if err != nil {
+		log.Printf("Could not locate binary for %s on PATH.\n", want)
+		os.Exit(1)
+	}
+	return binary
 }

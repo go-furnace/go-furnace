@@ -22,7 +22,7 @@ func main() {
 	plugin.Serve(&plugin.ServeConfig{
 		HandshakeConfig: fplugins.Handshake,
 		Plugins: map[string]plugin.Plugin{
-			"slack-furnace-precreate": &gosdk.PreCreateGRPCPlugin{Impl: &SlackPreCreate{}},
+			"slack-furnace-precreate": &sdk.PreCreateGRPCPlugin{Impl: &SlackPreCreate{}},
 		},
 
 		// A non-nil value here enables gRPC serving for this plugin...

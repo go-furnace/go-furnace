@@ -22,7 +22,7 @@ func main() {
 	plugin.Serve(&plugin.ServeConfig{
 		HandshakeConfig: fplugins.Handshake,
 		Plugins: map[string]plugin.Plugin{
-			"telegram-furnace-precreate": &gosdk.PreCreateGRPCPlugin{Impl: &TelegramPreCreate{}},
+			"telegram-furnace-precreate": &sdk.PreCreateGRPCPlugin{Impl: &TelegramPreCreate{}},
 		},
 		GRPCServer: plugin.DefaultGRPCServer,
 	})
