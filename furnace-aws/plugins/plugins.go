@@ -1,12 +1,15 @@
 package plugins
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
 
+	awsconfig "github.com/go-furnace/go-furnace/furnace-aws/config"
+	"github.com/go-furnace/go-furnace/handle"
 	"github.com/go-furnace/sdk"
 	"github.com/hashicorp/go-plugin"
 )
@@ -38,7 +41,8 @@ func RunPreCreatePlugins(stackname string) {
 		ret := p.Execute(stackname)
 		if !ret {
 			log.Printf("A plugin with name '%s' prevented create to run.\n", v)
-			os.Exit(1)
+			err := errors.New("plugin prevented create to run")
+			handle.Fatal(err.Error(), err)
 		}
 	}
 }
@@ -80,7 +84,8 @@ func RunPreDeletePlugins(stackname string) {
 		ret := p.Execute(stackname)
 		if !ret {
 			log.Printf("A plugin with name '%s' prevented delete to run.\n", v)
-			os.Exit(1)
+			err := errors.New("plugin prevented delete to run")
+			handle.Fatal(err.Error(), err)
 		}
 	}
 }
@@ -144,7 +149,7 @@ func getRawForPlugin(pluginMap map[string]plugin.Plugin, v string) interface{} {
 }
 
 func discoverPlugins(postfix string) (p []string, err error) {
-	plugs, err := plugin.Discover(postfix, "./plugins")
+	plugs, err := plugin.Discover(postfix, awsconfig.Config.Main.Plugins.PluginPath)
 	if err != nil {
 		return nil, err
 	}

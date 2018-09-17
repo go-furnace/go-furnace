@@ -26,9 +26,7 @@ type Configuration struct {
 		Stackname string `yaml:"stackname"`
 		Spinner   int    `yaml:"spinner"`
 		Plugins   struct {
-			EnablePluginSystem bool     `yaml:"enable_plugin_system"`
-			PluginPath         string   `yaml:"plugin_path"`
-			Names              []string `yaml:"names"`
+			PluginPath string `yaml:"plugin_path"`
 		} `yaml:"plugins"`
 	} `yaml:"main"`
 	Aws struct {
