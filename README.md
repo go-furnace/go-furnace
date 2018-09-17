@@ -291,6 +291,7 @@ Plugins are available for the following events:
 
 * Post creating a stack (stackname parameter is provided)
   This is typically a place where a post notification could be executed, like a slack notifier that a stack's creation is done.
+  Or an application health-check which looks up the deployed URL parameter and checks if the application is responding.
 
 * Pre deleting a stack (stackname parameter is provided)
   These plugins also have the option to abort a delete before it begins. A typical use-case would be to check if the resources
@@ -298,6 +299,8 @@ Plugins are available for the following events:
 
 * Post deleting a stack (stackname parameter is provided)
   This is a place to send out a notification that a stack has been successfully or unsuccessfully deleted.
+  Or another application could be to see if all the resources where cleaned up properly. Or to perform any more cleanup
+  which the CloudFormation could not do.
 
 The following repository contains the SDK that the plugins provide for a Go based plugin system:
 
