@@ -2,86 +2,135 @@
 
 
 [[projects]]
+  digest = "1:9b6a77b37f83a485967b7539a524ffb6ef6c025109eaa23fe9f7fbebff542f93"
   name = "github.com/Skarlso/go-furnace"
   packages = ["handle"]
+  pruneopts = "UT"
   revision = "56b81b45acf0bfee715a2b44990b82cd8a075c07"
   version = "v2.2.1"
 
 [[projects]]
   branch = "master"
+  digest = "1:a7acea121c110e0dcf034ff85460df89740f29166bfa1e43d7f1661d9c95828a"
   name = "github.com/Skarlso/yogsothoth"
   packages = ["yogsot"]
+  pruneopts = "UT"
   revision = "6599c9c2d3a96c0c1acfe6adfece763fb5535434"
 
 [[projects]]
+  digest = "1:1799aa4d60b0db4b4c013495a7670254a87a9953bcd00848a454bc877759336f"
   name = "github.com/Yitsushi/go-commander"
   packages = ["."]
+  pruneopts = "UT"
   revision = "2c1c80f256f8e0b7f09faef38530f80ebb958ee7"
   version = "2.3.1"
 
 [[projects]]
+  digest = "1:986666250a191ffe32e1445e31fadc1517adbad218b7aa71a078ab81a3933def"
   name = "github.com/digitalocean/godo"
   packages = ["."]
+  pruneopts = "UT"
   revision = "6a6ce62154ba780ecbb97bbbb13a4e9e0b157070"
   version = "v1.4.2"
 
 [[projects]]
+  digest = "1:7dbfc1532b2e7b9671c2a67fe43767158e41a8d8566b59e85101783cb90bdea8"
   name = "github.com/go-furnace/go-furnace"
-  packages = ["config","handle"]
+  packages = [
+    "config",
+    "handle",
+  ]
+  pruneopts = "UT"
   revision = "56b81b45acf0bfee715a2b44990b82cd8a075c07"
   version = "v2.2.1"
 
 [[projects]]
+  digest = "1:97df918963298c287643883209a2c3f642e6593379f97ab400c2a2e219ab647d"
   name = "github.com/golang/protobuf"
   packages = ["proto"]
+  pruneopts = "UT"
   revision = "aa810b61a9c79d51363740d207bb46cf8e620ed5"
   version = "v1.2.0"
 
 [[projects]]
+  digest = "1:a63cff6b5d8b95638bfe300385d93b2a6d9d687734b863da8e09dc834510a690"
   name = "github.com/google/go-querystring"
   packages = ["query"]
+  pruneopts = "UT"
   revision = "44c6ddd0a2342c386950e880b658017258da92fc"
   version = "v1.0.0"
 
 [[projects]]
   branch = "master"
+  digest = "1:caf6db28595425c0e0f2301a00257d11712f65c1878e12cffc42f6b9a9cf3f23"
   name = "github.com/kardianos/osext"
   packages = ["."]
+  pruneopts = "UT"
   revision = "ae77be60afb1dcacde03767a8c37337fad28ac14"
 
 [[projects]]
   branch = "master"
+  digest = "1:595e123593925253dd02152777ddb8cd42300c4f61e783e163b053802547c47c"
   name = "github.com/tent/http-link-go"
   packages = ["."]
+  pruneopts = "UT"
   revision = "ac974c61c2f990f4115b119354b5e0b47550e888"
 
 [[projects]]
   branch = "master"
+  digest = "1:d6b719875cf8091fbab38527d81d34e71f4521b9ee9ccfbd4a32cff2ac5af96e"
   name = "golang.org/x/net"
-  packages = ["context","context/ctxhttp"]
+  packages = [
+    "context",
+    "context/ctxhttp",
+  ]
+  pruneopts = "UT"
   revision = "26e67e76b6c3f6ce91f7c52def5af501b4e0f3a2"
 
 [[projects]]
   branch = "master"
+  digest = "1:363b547c971a2b07474c598b6e9ebcb238d556d8a27f37b3895ad20cd50e7281"
   name = "golang.org/x/oauth2"
-  packages = [".","internal"]
+  packages = [
+    ".",
+    "internal",
+  ]
+  pruneopts = "UT"
   revision = "d2e6202438beef2727060aa7cabdd924d92ebfd9"
 
 [[projects]]
+  digest = "1:328b5e4f197d928c444a51a75385f4b978915c0e75521f0ad6a3db976c97a7d3"
   name = "google.golang.org/appengine"
-  packages = ["internal","internal/base","internal/datastore","internal/log","internal/remote_api","internal/urlfetch","urlfetch"]
+  packages = [
+    "internal",
+    "internal/base",
+    "internal/datastore",
+    "internal/log",
+    "internal/remote_api",
+    "internal/urlfetch",
+    "urlfetch",
+  ]
+  pruneopts = "UT"
   revision = "b1f26356af11148e710935ed1ac8a7f5702c7612"
   version = "v1.1.0"
 
 [[projects]]
+  branch = "v2"
+  digest = "1:342378ac4dcb378a5448dd723f0784ae519383532f5e70ade24132c4c8693202"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
+  pruneopts = "UT"
   revision = "5420a8b6744d3b0345ab293f6fcba19c978f1183"
-  version = "v2.2.1"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "a409d7b814c3ab7fcd3dd2e6ce44833cb04a04979a1b0ab3b4403047145c5be0"
+  input-imports = [
+    "github.com/Skarlso/yogsothoth/yogsot",
+    "github.com/Yitsushi/go-commander",
+    "github.com/go-furnace/go-furnace/config",
+    "github.com/go-furnace/go-furnace/handle",
+    "gopkg.in/yaml.v2",
+  ]
   solver-name = "gps-cdcl"
   solver-version = 1
