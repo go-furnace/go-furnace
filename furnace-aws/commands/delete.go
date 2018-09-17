@@ -11,6 +11,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/go-furnace/go-furnace/config"
 	awsconfig "github.com/go-furnace/go-furnace/furnace-aws/config"
+	"github.com/go-furnace/go-furnace/furnace-aws/plugins"
 	"github.com/go-furnace/go-furnace/handle"
 )
 
@@ -38,7 +39,9 @@ func deleteExecute(opts *commander.CommandHelper, client *CFClient) {
 	stackname := awsconfig.Config.Main.Stackname
 	cyan := color.New(color.FgCyan).SprintFunc()
 	log.Printf("Deleting CloudFormation stack with name: %s\n", cyan(stackname))
+	plugins.RunPreDeletePlugins(stackname)
 	deleteStack(stackname, client)
+	plugins.RunPostDeletePlugins(stackname)
 }
 
 func deleteStack(stackname string, cfClient *CFClient) {
