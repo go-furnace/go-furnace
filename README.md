@@ -142,16 +142,10 @@ main:
   stackname: FurnaceStack
   spinner: 1
   plugins:
-    enable_plugin_system: true
     plugin_path: "./plugins"
-    names:
-      - slack.post_create
-      - telegram.pre_create
-      - deployer.post_create
 aws:
   code_deploy_role: CodeDeployServiceRole
   region: us-east-1
-  enable_plugin_system: false
   template_name: cloud_formation.template
   app_name: furnace_app
   code_deploy:
