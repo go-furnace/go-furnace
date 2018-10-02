@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	fplugins "github.com/go-furnace/go-furnace/furnace-aws/plugins"
+	fplugins "github.com/go-furnace/go-furnace/furnace-gcp/plugins"
 	"github.com/go-furnace/sdk"
 	"github.com/hashicorp/go-plugin"
 )
