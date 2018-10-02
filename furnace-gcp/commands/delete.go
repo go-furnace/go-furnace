@@ -6,6 +6,7 @@ import (
 
 	"github.com/Yitsushi/go-commander"
 	fc "github.com/go-furnace/go-furnace/furnace-gcp/config"
+	"github.com/go-furnace/go-furnace/furnace-gcp/plugins"
 	"github.com/go-furnace/go-furnace/handle"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2/google"
@@ -32,11 +33,13 @@ func (d *Delete) Execute(opts *commander.CommandHelper) {
 	handle.Error(err)
 	d2, _ := deploymentmanager.New(client)
 	ret := d2.Deployments.Delete(fc.Config.Main.ProjectName, deploymentName)
+	plugins.RunPreDeletePlugins(deploymentName)
 	_, err = ret.Do()
 	if err != nil {
 		log.Fatal("error while deleting deployment: ", err)
 	}
 	waitForDeploymentToFinish(*d2, fc.Config.Main.ProjectName, deploymentName)
+	plugins.RunPostDeletePlugins(deploymentName)
 }
 
 // NewDelete Create a new create command
