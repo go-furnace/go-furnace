@@ -4,6 +4,7 @@ go:
   - master
 
 before_install:
+    - go get github.com/mattn/goveralls
     - go get -u github.com/golang/dep/cmd/dep
     - mkdir -p $HOME/.config/go-furnace
     - cp $TRAVIS_BUILD_DIR/templates/aws_furnace_config.yaml $HOME/.config/go-furnace
@@ -12,4 +13,4 @@ before_install:
 install: make get-deps-all
 
 script:
-    - make test
+    - $HOME/gopath/bin/goveralls -service=travis-ci
