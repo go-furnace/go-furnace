@@ -19,6 +19,7 @@ type Configuration struct {
 	Main struct {
 		ProjectName string `yaml:"project_name"`
 		Spinner     int    `yaml:"spinner"`
+		PluginPath  string `yaml:"plugin_path"`
 	} `yaml:"main"`
 	Gcp struct {
 		TemplateName string `yaml:"template_name"`

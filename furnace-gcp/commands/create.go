@@ -9,6 +9,7 @@ import (
 
 	"github.com/Yitsushi/go-commander"
 	fc "github.com/go-furnace/go-furnace/furnace-gcp/config"
+	"github.com/go-furnace/go-furnace/furnace-gcp/plugins"
 	"github.com/go-furnace/go-furnace/handle"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2/google"
@@ -68,7 +69,9 @@ func (c *Create) Execute(opts *commander.CommandHelper) {
 	}
 	d := NewDeploymentService(client, nil)
 	deployments := constructDeploymen(deploymentName)
+	plugins.RunPreCreatePlugins(deploymentName)
 	err = insertDeployments(d, deployments, deploymentName)
+	plugins.RunPostCreatePlugins(deploymentName)
 	handle.Error(err)
 }
 
