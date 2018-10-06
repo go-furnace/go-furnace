@@ -4,6 +4,7 @@
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/go-furnace/go-furnace)](https://goreportcard.com/report/github.com/go-furnace/go-furnace) [![Build Status](https://travis-ci.org/go-furnace/go-furnace.svg?branch=master)](https://travis-ci.org/go-furnace/go-furnace)
 [![Coverage Status](https://coveralls.io/repos/github/go-furnace/go-furnace/badge.svg?branch=master)](https://coveralls.io/github/go-furnace/go-furnace?branch=master)
+[![Awesome](https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg)](https://github.com/avelino/awesome-go/)
 
 ## Intro
 
