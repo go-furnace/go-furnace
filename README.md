@@ -25,6 +25,34 @@ The application to be deployed is handled via GitHub, or S3.
 
 A sample application is provider under the `furnace-codedeploy-app` folder.
 
+## Furnace vs Terraform
+
+Furnace does not try to compete with Terraform. It aims for a different market. The main differences between Terraform and Furnace
+are the following:
+
+### Binary size
+
+On the rare occasions when disk space matters, Furnace provides individual binaries. The size of the aws binary ATM is 15MB.
+Terraform is at 100MB.
+
+### Configuration
+
+Configuration for Terraform can be pretty huge. In contrast Furnace's configuration is lightweight because frankly, it doesn't
+have much. All the configuration you will have to write will be for CloudFormation and GCP. However complicated they can be is out
+of Furnace's reach.
+
+### Vendor Lock
+
+True that Terraform provides provider agnostic settings and behavior. But, you'll be vendor locked to Terraform. Moving away from
+the massive configuration that the user has to build up to use it can never be moved away from again. Or only through a lot of
+work.
+
+In contrast, Furance is a light wrapper around services that provide what Terraform is providing per provider. What does this
+mean? It means Furnace is using CloudFormation for AWS and DeploymentManager for GCP which are services built by AWS and GCP. Not
+by Furnace. If you don't want to use Furnace any longer, you'd still have your deployment configuration which works just fine
+without it. Resources are all groupped together. Deleting them is as simple as calling an end-point, clicking a button or hitting
+enter.
+
 ## Installing Binaries
 
 ### Go Install
