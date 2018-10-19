@@ -16,6 +16,10 @@ func (m *MockDeploymentService) Insert(project string, deployment *dm.Deployment
 	return nil
 }
 
+func (m *MockDeploymentService) Delete(project string, deployment string) *dm.DeploymentsDeleteCall {
+	return nil
+}
+
 func TestExecute(t *testing.T) {
 	expectedDeployments := &dm.Deployment{
 		Description: "",

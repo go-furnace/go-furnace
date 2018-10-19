@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"errors"
 	"log"
 	"os"
 
@@ -26,20 +27,27 @@ func (d *Delete) Execute(opts *commander.CommandHelper) {
 			handle.Fatal(configName, err)
 		}
 	}
-	deploymentName := fc.Config.Gcp.StackName
-	log.Println("Deleteing Deployment Under Project: ", keyName(fc.Config.Main.ProjectName))
 	ctx := context.Background()
 	client, err := google.DefaultClient(ctx, deploymentmanager.NdevCloudmanScope)
 	handle.Error(err)
-	d2, _ := deploymentmanager.New(client)
-	ret := d2.Deployments.Delete(fc.Config.Main.ProjectName, deploymentName)
-	plugins.RunPreDeletePlugins(deploymentName)
-	_, err = ret.Do()
-	if err != nil {
-		log.Fatal("error while deleting deployment: ", err)
+	ds := NewDeploymentService(client, nil)
+	delete(ds)
+	log.Println("Deleteing Deployment Under Project: ", keyName(fc.Config.Main.ProjectName))
+}
+
+func delete(d DeploymentmanagerService) error {
+	ret := d.Deployments.Delete(fc.Config.Main.ProjectName, fc.Config.Gcp.StackName)
+	if ret == nil {
+		return errors.New("return of delete was nil")
 	}
-	waitForDeploymentToFinish(*d2, fc.Config.Main.ProjectName, deploymentName)
-	plugins.RunPostDeletePlugins(deploymentName)
+	plugins.RunPreDeletePlugins(fc.Config.Gcp.StackName)
+	_, err := ret.Do()
+	if err != nil {
+		return err
+	}
+	waitForDeploymentToFinish(*d.Service, fc.Config.Main.ProjectName, fc.Config.Gcp.StackName)
+	plugins.RunPostDeletePlugins(fc.Config.Gcp.StackName)
+	return nil
 }
 
 // NewDelete Create a new create command

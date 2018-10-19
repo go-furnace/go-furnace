@@ -25,6 +25,7 @@ type Create struct {
 // inserts a deployment into a GCP project.
 type DeploymentService interface {
 	Insert(project string, deployment *dm.Deployment) *dm.DeploymentsInsertCall
+	Delete(project string, deployment string) *dm.DeploymentsDeleteCall
 }
 
 // DeploymentmanagerService defines a struct that we can use to mock GCP's
