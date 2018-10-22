@@ -25,6 +25,7 @@ type Create struct {
 // inserts a deployment into a GCP project.
 type DeploymentService interface {
 	Insert(project string, deployment *dm.Deployment) *dm.DeploymentsInsertCall
+	Delete(project string, deployment string) *dm.DeploymentsDeleteCall
 }
 
 // DeploymentmanagerService defines a struct that we can use to mock GCP's
@@ -64,11 +65,9 @@ func (c *Create) Execute(opts *commander.CommandHelper) {
 	log.Println("Deployment name is: ", keyName(deploymentName))
 	ctx := context.Background()
 	client, err := google.DefaultClient(ctx, dm.NdevCloudmanScope)
-	if err != nil {
-		log.Fatalf(err.Error())
-	}
+	handle.Error(err)
 	d := NewDeploymentService(client, nil)
-	deployments := constructDeploymen(deploymentName)
+	deployments := constructDeployment(deploymentName)
 	plugins.RunPreCreatePlugins(deploymentName)
 	err = insertDeployments(d, deployments, deploymentName)
 	plugins.RunPostCreatePlugins(deploymentName)
@@ -99,7 +98,7 @@ type Imports struct {
 	Paths []Path `yaml:"imports"`
 }
 
-func constructDeploymen(deploymentName string) *dm.Deployment {
+func constructDeployment(deploymentName string) *dm.Deployment {
 	gConfig := fc.LoadGoogleStackConfig()
 	configFile := dm.ConfigFile{
 		Content: string(gConfig),
