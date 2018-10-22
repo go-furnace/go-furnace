@@ -9,10 +9,11 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/aws/external"
 	"github.com/aws/aws-sdk-go-v2/service/cloudformation"
-	"github.com/fatih/color"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/go-furnace/go-furnace/config"
 	awsconfig "github.com/go-furnace/go-furnace/furnace-aws/config"
 	"github.com/go-furnace/go-furnace/handle"
+	"github.com/satori/go.uuid"
 )
 
 // Update command.
@@ -39,13 +40,23 @@ func updateExecute(opts *commander.CommandHelper, client *CFClient) {
 	}
 	stackname := awsconfig.Config.Main.Stackname
 	template := awsconfig.LoadCFStackConfig()
-	stacks := update(stackname, template, client)
-	var red = color.New(color.FgRed).SprintFunc()
-	if stacks != nil {
-		log.Println("Stack state is: ", red(stacks[0].StackStatus))
-	} else {
-		handle.Fatal(fmt.Sprintf("No stacks found with name: %s", keyName(stackname)), nil)
+
+	changeSetName := createChangeSet(stackname, template, client)
+	client.waitForChangeSetToBeApplied(stackname, changeSetName)
+	describeChangeInput := &cloudformation.DescribeChangeSetInput{
+		ChangeSetName: &changeSetName,
+		StackName:     &stackname,
 	}
+	changes := client.Client.DescribeChangeSetRequest(describeChangeInput)
+	resp, _ := changes.Send()
+	spew.Dump(resp.Changes)
+	// stacks := update(stackname, template, client)
+	// var red = color.New(color.FgRed).SprintFunc()
+	// if stacks != nil {
+	// 	log.Println("Stack state is: ", red(stacks[0].StackStatus))
+	// } else {
+	// 	handle.Fatal(fmt.Sprintf("No stacks found with name: %s", keyName(stackname)), nil)
+	// }
 }
 
 func update(stackname string, template []byte, cfClient *CFClient) []cloudformation.Stack {
@@ -68,6 +79,35 @@ func update(stackname string, template []byte, cfClient *CFClient) []cloudformat
 		return nil
 	}
 	return descResp.Stacks
+}
+
+func createChangeSet(stackname string, template []byte, cfClient *CFClient) string {
+	changeSetName, _ := uuid.NewV4()
+	validResp := cfClient.validateTemplate(template)
+	stackParameters := gatherParameters(os.Stdin, validResp)
+	changeSetRequestInput := &cloudformation.CreateChangeSetInput{
+		StackName: aws.String(stackname),
+		Capabilities: []cloudformation.Capability{
+			cloudformation.CapabilityCapabilityIam,
+		},
+		Parameters:    stackParameters,
+		TemplateBody:  aws.String(string(template)),
+		ChangeSetName: aws.String(changeSetName.String()),
+		ChangeSetType: cloudformation.ChangeSetTypeUpdate,
+	}
+	changeSetRequest := cfClient.Client.CreateChangeSetRequest(changeSetRequestInput)
+	changeSetRequest.Send()
+	return changeSetName.String()
+}
+
+func (cf *CFClient) waitForChangeSetToBeApplied(stackname, changeSetName string) {
+	describeChangeInput := &cloudformation.DescribeChangeSetInput{
+		ChangeSetName: &changeSetName,
+		StackName:     &stackname,
+	}
+	waitForFunctionWithStatusOutput("UPDATE_COMPLETE", config.WAITFREQUENCY, func() {
+		cf.Client.WaitUntilChangeSetCreateComplete(describeChangeInput)
+	})
 }
 
 func (cf *CFClient) waitForStackUpdateComplete(stackname string) {
