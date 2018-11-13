@@ -9,7 +9,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/aws/external"
 	"github.com/aws/aws-sdk-go-v2/service/cloudformation"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/go-furnace/go-furnace/config"
 	awsconfig "github.com/go-furnace/go-furnace/furnace-aws/config"
 	"github.com/go-furnace/go-furnace/handle"
@@ -40,7 +39,6 @@ func updateExecute(opts *commander.CommandHelper, client *CFClient) {
 	}
 	stackname := awsconfig.Config.Main.Stackname
 	template := awsconfig.LoadCFStackConfig()
-
 	changeSetName := createChangeSet(stackname, template, client)
 	client.waitForChangeSetToBeApplied(stackname, changeSetName)
 	describeChangeInput := &cloudformation.DescribeChangeSetInput{
@@ -49,7 +47,15 @@ func updateExecute(opts *commander.CommandHelper, client *CFClient) {
 	}
 	changes := client.Client.DescribeChangeSetRequest(describeChangeInput)
 	resp, _ := changes.Send()
-	spew.Dump(resp.Changes)
+	// Get confirm for applying update.
+	executeChangeInput := cloudformation.ExecuteChangeSetInput{
+		ChangeSetName:      resp.ChangeSetName,
+		ClientRequestToken: resp.NextToken,
+		StackName:          &stackname,
+	}
+	executeChangeRequest := client.Client.ExecuteChangeSetRequest(&executeChangeInput)
+	executeChangeRequest.Send()
+	client.waitForChangeSetToBeApplied(stackname, changeSetName)
 	// stacks := update(stackname, template, client)
 	// var red = color.New(color.FgRed).SprintFunc()
 	// if stacks != nil {
