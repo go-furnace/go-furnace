@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/aws/external"
 	"github.com/aws/aws-sdk-go-v2/service/cloudformation"
+	"github.com/fatih/color"
 	"github.com/go-furnace/go-furnace/config"
 	awsconfig "github.com/go-furnace/go-furnace/furnace-aws/config"
 	"github.com/go-furnace/go-furnace/handle"
@@ -55,14 +56,16 @@ func updateExecute(opts *commander.CommandHelper, client *CFClient) {
 	}
 	executeChangeRequest := client.Client.ExecuteChangeSetRequest(&executeChangeInput)
 	executeChangeRequest.Send()
-	client.waitForChangeSetToBeApplied(stackname, changeSetName)
-	// stacks := update(stackname, template, client)
-	// var red = color.New(color.FgRed).SprintFunc()
-	// if stacks != nil {
-	// 	log.Println("Stack state is: ", red(stacks[0].StackStatus))
-	// } else {
-	// 	handle.Fatal(fmt.Sprintf("No stacks found with name: %s", keyName(stackname)), nil)
-	// }
+	client.waitForStackUpdateComplete(stackname)
+	descResp := client.describeStacks(&cloudformation.DescribeStacksInput{StackName: aws.String(stackname)})
+	fmt.Println()
+	stacks := descResp.Stacks
+	var red = color.New(color.FgRed).SprintFunc()
+	if stacks != nil {
+		log.Println("Stack state is: ", red(stacks[0].StackStatus))
+	} else {
+		handle.Fatal(fmt.Sprintf("No stacks found with name: %s", keyName(stackname)), nil)
+	}
 }
 
 func update(stackname string, template []byte, cfClient *CFClient) []cloudformation.Stack {
