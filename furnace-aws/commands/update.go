@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"bufio"
 	"fmt"
 	"log"
 	"os"
@@ -49,6 +50,17 @@ func updateExecute(opts *commander.CommandHelper, client *CFClient) {
 	changes := client.Client.DescribeChangeSetRequest(describeChangeInput)
 	resp, _ := changes.Send()
 	// Get confirm for applying update.
+
+	//reading a string
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Println("Would you like to apply the changes? (y/N):")
+	confirm, _ := reader.ReadString('\n')
+
+	if confirm != "y" {
+		log.Println("Cancelling without applying change set.")
+		return
+	}
+
 	executeChangeInput := cloudformation.ExecuteChangeSetInput{
 		ChangeSetName:      resp.ChangeSetName,
 		ClientRequestToken: resp.NextToken,
@@ -66,28 +78,6 @@ func updateExecute(opts *commander.CommandHelper, client *CFClient) {
 	} else {
 		handle.Fatal(fmt.Sprintf("No stacks found with name: %s", keyName(stackname)), nil)
 	}
-}
-
-func update(stackname string, template []byte, cfClient *CFClient) []cloudformation.Stack {
-	validResp := cfClient.validateTemplate(template)
-	stackParameters := gatherParameters(os.Stdin, validResp)
-	stackInputParams := &cloudformation.UpdateStackInput{
-		StackName: aws.String(stackname),
-		Capabilities: []cloudformation.Capability{
-			cloudformation.CapabilityCapabilityIam,
-		},
-		Parameters:   stackParameters,
-		TemplateBody: aws.String(string(template)),
-	}
-	resp := cfClient.updateStack(stackInputParams)
-	log.Println("Update stack response: ", resp)
-	cfClient.waitForStackUpdateComplete(stackname)
-	descResp := cfClient.describeStacks(&cloudformation.DescribeStacksInput{StackName: aws.String(stackname)})
-	fmt.Println()
-	if descResp == nil {
-		return nil
-	}
-	return descResp.Stacks
 }
 
 func createChangeSet(stackname string, template []byte, cfClient *CFClient) string {
