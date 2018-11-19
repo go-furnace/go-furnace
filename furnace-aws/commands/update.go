@@ -28,10 +28,10 @@ func (c *Update) Execute(opts *commander.CommandHelper) {
 	handle.Error(err)
 	cfClient := cloudformation.New(cfg)
 	client := CFClient{cfClient}
-	updateExecute(opts, &client)
+	update(opts, &client)
 }
 
-func updateExecute(opts *commander.CommandHelper, client *CFClient) {
+func update(opts *commander.CommandHelper, client *CFClient) {
 	configName := opts.Arg(0)
 	if len(configName) > 0 {
 		dir, _ := os.Getwd()
@@ -53,7 +53,7 @@ func updateExecute(opts *commander.CommandHelper, client *CFClient) {
 
 	//reading a string
 	reader := bufio.NewReader(os.Stdin)
-	fmt.Println("Would you like to apply the changes? (y/N):")
+	fmt.Print("Would you like to apply the changes? (y/N):")
 	confirm, _ := reader.ReadString('\n')
 
 	if confirm != "y" {
