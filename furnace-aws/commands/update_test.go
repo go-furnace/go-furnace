@@ -67,6 +67,15 @@ func (fc *fakeUpdateCFClient) DescribeStacksRequest(input *cloudformation.Descri
 	}
 }
 
+func (fc *fakeUpdateCFClient) DescribeChangeSetRequest(*cloudformation.DescribeChangeSetInput) cloudformation.DescribeChangeSetRequest {
+	return cloudformation.DescribeChangeSetRequest{
+		Request: &aws.Request{
+			Data:  &NotEmptyStack,
+			Error: fc.err,
+		},
+	}
+}
+
 func TestUpdateExecute(t *testing.T) {
 	config.WAITFREQUENCY = 0
 	client := new(CFClient)
