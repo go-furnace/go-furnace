@@ -8,6 +8,10 @@ github.com/digitalocean/godo v1.7.0 h1:JIh+VoKGbK83feLAsgx5IPMG2VHK5/YjFVK14yDXE
 github.com/digitalocean/godo v1.7.0/go.mod h1:h6faOIcZ8lWIwNQ+DN7b3CgX4Kwby5T+nbpNqkUIozU=
 github.com/fatih/color v1.7.0 h1:DkWD4oS2D8LGGgTQ6IvwJJXSL5Vp2ffcQg58nFV38Ys=
 github.com/fatih/color v1.7.0/go.mod h1:Zm6kSWBoL9eyXnKyktHP6abPY2pDugNf5KwzbycvMj4=
+github.com/go-furnace/go-furnace/config v0.0.0-20181121053458-7179cefb7c6c h1:dLD5CCTQcX2c9EMwcaJMDkNjjaQXSapZAV45tCXqMjo=
+github.com/go-furnace/go-furnace/config v0.0.0-20181121053458-7179cefb7c6c/go.mod h1:VxtPz44Pyq13pOGnld5CFY6Khf6dE2Wkik80G6gdcCY=
+github.com/go-furnace/go-furnace/handle v0.0.0-20181121053458-7179cefb7c6c h1:8CXGXmNMR9SCGsnq3QBxr85uI2W5QEG16ceF+iJESZg=
+github.com/go-furnace/go-furnace/handle v0.0.0-20181121053458-7179cefb7c6c/go.mod h1:aoDNT2wMirZiMvd5Tq4RaP8KfqwbfdUpxAZX/CRNDnI=
 github.com/go-furnace/proto v0.0.0-20180916082909-37a3fa2d5e73 h1:akfq+P6kvuG3tC3UTUlYLqewVSUEF+NLxfzuuJBfT7Q=
 github.com/go-furnace/proto v0.0.0-20180916082909-37a3fa2d5e73/go.mod h1:e6fIEcGMPLrHk/V1MYpXAi1XFqa9bEMvrehA5y0Ek0c=
 github.com/go-furnace/sdk v0.0.0-20180917090956-dcf9c845e1ee h1:O3hHe5nJthcDlDh2zUyzlt1TaI1FDYgmuqckwPhI5tQ=

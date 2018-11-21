@@ -9,6 +9,8 @@ github.com/fatih/color v1.7.0/go.mod h1:Zm6kSWBoL9eyXnKyktHP6abPY2pDugNf5Kwzbycv
 github.com/go-furnace/go-furnace v2.2.1+incompatible h1:r0byajXTfn+SjB+Rws+vcWth77NpPiFC0bb3YXP1Eg8=
 github.com/go-furnace/go-furnace/config v0.0.0-20181121053414-08527e84c29e h1:I+ewhZqCxYfy5dfceeKgiG3RgDHY6TLTOybIjAdhFc4=
 github.com/go-furnace/go-furnace/config v0.0.0-20181121053414-08527e84c29e/go.mod h1:VxtPz44Pyq13pOGnld5CFY6Khf6dE2Wkik80G6gdcCY=
+github.com/go-furnace/go-furnace/handle v0.0.0-20181121053458-7179cefb7c6c h1:8CXGXmNMR9SCGsnq3QBxr85uI2W5QEG16ceF+iJESZg=
+github.com/go-furnace/go-furnace/handle v0.0.0-20181121053458-7179cefb7c6c/go.mod h1:aoDNT2wMirZiMvd5Tq4RaP8KfqwbfdUpxAZX/CRNDnI=
 github.com/go-furnace/proto v0.0.0-20180916082909-37a3fa2d5e73 h1:akfq+P6kvuG3tC3UTUlYLqewVSUEF+NLxfzuuJBfT7Q=
 github.com/go-furnace/proto v0.0.0-20180916082909-37a3fa2d5e73/go.mod h1:e6fIEcGMPLrHk/V1MYpXAi1XFqa9bEMvrehA5y0Ek0c=
 github.com/go-furnace/sdk v0.0.0-20180917090956-dcf9c845e1ee h1:O3hHe5nJthcDlDh2zUyzlt1TaI1FDYgmuqckwPhI5tQ=

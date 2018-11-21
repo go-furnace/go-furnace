@@ -6,6 +6,8 @@ require (
 	github.com/Yitsushi/go-commander v0.0.0-20180608133543-2bcfb785cacb
 	github.com/digitalocean/godo v1.7.0 // indirect
 	github.com/fatih/color v1.7.0
+	github.com/go-furnace/go-furnace/config v0.0.0-20181121053458-7179cefb7c6c
+	github.com/go-furnace/go-furnace/handle v0.0.0-20181121053458-7179cefb7c6c
 	github.com/go-furnace/proto v0.0.0-20180916082909-37a3fa2d5e73 // indirect
 	github.com/go-furnace/sdk v0.0.0-20180917090956-dcf9c845e1ee
 	github.com/google/go-querystring v1.0.0 // indirect
