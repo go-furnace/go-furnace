@@ -28,10 +28,10 @@ func (c *Update) Execute(opts *commander.CommandHelper) {
 	handle.Error(err)
 	cfClient := cloudformation.New(cfg)
 	client := CFClient{cfClient}
-	update(opts, &client)
+	update(opts, &client, false)
 }
 
-func update(opts *commander.CommandHelper, client *CFClient) {
+func update(opts *commander.CommandHelper, client *CFClient, override bool) {
 	configName := opts.Arg(0)
 	if len(configName) > 0 {
 		dir, _ := os.Getwd()
@@ -48,17 +48,19 @@ func update(opts *commander.CommandHelper, client *CFClient) {
 		StackName:     &stackname,
 	}
 	changes := client.Client.DescribeChangeSetRequest(describeChangeInput)
-	resp, _ := changes.Send()
+	resp, err := changes.Send()
+	handle.Error(err)
+
+	// TODO: Display the changeset.
 	// Get confirm for applying update.
-
-	//reading a string
-	reader := bufio.NewReader(os.Stdin)
-	fmt.Print("Would you like to apply the changes? (y/N):")
-	confirm, _ := reader.ReadString('\n')
-
-	if confirm != "y" {
-		log.Println("Cancelling without applying change set.")
-		return
+	if !override {
+		reader := bufio.NewReader(os.Stdin)
+		fmt.Print("Would you like to apply the changes? (y/N):")
+		confirm, _ := reader.ReadString('\n')
+		if confirm != "y" {
+			log.Println("Cancelling without applying change set.")
+			return
+		}
 	}
 
 	executeChangeInput := cloudformation.ExecuteChangeSetInput{

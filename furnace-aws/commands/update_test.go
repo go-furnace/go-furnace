@@ -47,7 +47,21 @@ func (fc *fakeUpdateCFClient) CreateChangeSetRequest(input *cloudformation.Creat
 	}
 }
 
+func (fc *fakeUpdateCFClient) ExecuteChangeSetRequest(input *cloudformation.ExecuteChangeSetInput) cloudformation.ExecuteChangeSetRequest {
+	return cloudformation.ExecuteChangeSetRequest{
+		Request: &aws.Request{
+			Data:  &cloudformation.ExecuteChangeSetOutput{},
+			Error: fc.err,
+		},
+		Input: input,
+	}
+}
+
 func (fc *fakeUpdateCFClient) WaitUntilStackUpdateComplete(input *cloudformation.DescribeStacksInput) error {
+	return nil
+}
+
+func (fc *fakeUpdateCFClient) WaitUntilChangeSetCreateComplete(input *cloudformation.DescribeChangeSetInput) error {
 	return nil
 }
 
@@ -67,10 +81,21 @@ func (fc *fakeUpdateCFClient) DescribeStacksRequest(input *cloudformation.Descri
 	}
 }
 
+// NotEmptyStack test structs which defines a non-empty stack.
+var notEmptyChangeSetOutput = cloudformation.DescribeChangeSetOutput{
+	ChangeSetId:   aws.String("id"),
+	ChangeSetName: aws.String("name"),
+	Changes: []cloudformation.Change{
+		{},
+	},
+	StackId:   aws.String("stackID"),
+	StackName: aws.String("NotEmptyStack"),
+}
+
 func (fc *fakeUpdateCFClient) DescribeChangeSetRequest(*cloudformation.DescribeChangeSetInput) cloudformation.DescribeChangeSetRequest {
 	return cloudformation.DescribeChangeSetRequest{
 		Request: &aws.Request{
-			Data:  &NotEmptyStack,
+			Data:  &cloudformation.DescribeChangeSetOutput{},
 			Error: fc.err,
 		},
 	}
@@ -82,7 +107,7 @@ func TestUpdateExecute(t *testing.T) {
 	stackname := "NotEmptyStack"
 	client.Client = &fakeUpdateCFClient{err: nil, stackname: stackname}
 	opts := &commander.CommandHelper{}
-	update(opts, client)
+	update(opts, client, true)
 }
 
 func TestUpdateExecuteWitCustomStack(t *testing.T) {
@@ -92,7 +117,7 @@ func TestUpdateExecuteWitCustomStack(t *testing.T) {
 	client.Client = &fakeUpdateCFClient{err: nil, stackname: stackname}
 	opts := &commander.CommandHelper{}
 	opts.Args = append(opts.Args, "teststack")
-	update(opts, client)
+	update(opts, client, true)
 	if awsconfig.Config.Main.Stackname != "MyStack" {
 		t.Fatal("test did not load the file requested.")
 	}
@@ -109,7 +134,7 @@ func TestUpdateExecuteWitCustomStackNotFound(t *testing.T) {
 	client.Client = &fakeUpdateCFClient{err: nil, stackname: stackname}
 	opts := &commander.CommandHelper{}
 	opts.Args = append(opts.Args, "notfound")
-	update(opts, client)
+	update(opts, client, true)
 	if !failed {
 		t.Error("Expected outcome to fail. Did not fail.")
 	}
@@ -125,7 +150,7 @@ func TestUpdateExecuteEmptyStack(t *testing.T) {
 	stackname := "EmptyStack"
 	client.Client = &fakeUpdateCFClient{err: nil, stackname: stackname}
 	opts := &commander.CommandHelper{}
-	update(opts, client)
+	update(opts, client, true)
 	if !failed {
 		t.Error("Expected outcome to fail. Did not fail.")
 	}
@@ -139,7 +164,7 @@ func TestUpdateProcedure(t *testing.T) {
 	awsconfig.Config = awsconfig.Configuration{}
 	awsconfig.Config.Main.Stackname = "NotEmptyStack"
 	opts := &commander.CommandHelper{}
-	update(opts, client)
+	update(opts, client, true)
 }
 
 func TestUpdateStackReturnsWithError(t *testing.T) {
@@ -157,7 +182,7 @@ func TestUpdateStackReturnsWithError(t *testing.T) {
 	awsconfig.Config = awsconfig.Configuration{}
 	awsconfig.Config.Main.Stackname = "NotEmptyStack"
 	opts := &commander.CommandHelper{}
-	update(opts, client)
+	update(opts, client, true)
 	if !failed {
 		t.Error("Expected outcome to fail. Did not fail.")
 	}
