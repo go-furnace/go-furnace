@@ -14,9 +14,6 @@ osx:
 test:
 	go test ./...
 
-get-deps:
-	dep ensure
-
 linux:
 	env GOOS=linux GOARCH=arm go build -o ../cmd/${BINARY}-linux
 

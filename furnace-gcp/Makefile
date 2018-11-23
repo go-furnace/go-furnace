@@ -17,10 +17,6 @@ build:
 test:
 	go test ./...
 
-.PHONY: get-deps
-get-deps:
-	dep ensure
-
 .PHONY: clean
 clean:
 	go clean -i
