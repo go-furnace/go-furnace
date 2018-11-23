@@ -18,6 +18,7 @@ require (
 	github.com/kardianos/osext v0.0.0-20170510131534-ae77be60afb1 // indirect
 	github.com/mattn/go-colorable v0.0.9 // indirect
 	github.com/mattn/go-isatty v0.0.4 // indirect
+	github.com/satori/go.uuid v1.2.0
 	github.com/tent/http-link-go v0.0.0-20130702225549-ac974c61c2f9 // indirect
 	golang.org/x/net v0.0.0-20181114220301-adae6a3d119a
 	golang.org/x/oauth2 v0.0.0-20181120190819-8f65e3013eba

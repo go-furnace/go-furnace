@@ -81,7 +81,7 @@ func update(opts *commander.CommandHelper, client *CFClient) {
 }
 
 func createChangeSet(stackname string, template []byte, cfClient *CFClient) string {
-	changeSetName, _ := uuid.NewV4()
+	changeSetName := uuid.NewV4()
 	validResp := cfClient.validateTemplate(template)
 	stackParameters := gatherParameters(os.Stdin, validResp)
 	changeSetRequestInput := &cloudformation.CreateChangeSetInput{
