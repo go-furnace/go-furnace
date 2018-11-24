@@ -43,7 +43,6 @@ func (c *Update) Execute(opts *commander.CommandHelper) {
 	update(opts, &client, false)
 }
 
-
 // Todo the CFClient needs an inner property
 // DescribeSender
 // ExecuteSender
@@ -69,7 +68,17 @@ func update(opts *commander.CommandHelper, client *CFClient, override bool) {
 	resp, err := sendDescribeChangeSetRequest(changes)
 	handle.Error(err)
 
-	// TODO: Display the changeset.
+	if resp == nil {
+		log.Println("describe change set request send returned nil")
+		return
+	}
+
+	for i, change := range resp.Changes {
+		fmt.Printf("=====  Change Number %d =====\n", i)
+		fmt.Println(change.ResourceChange.GoString())
+		fmt.Printf("===== End of Change Number %d =====\n", i)
+	}
+
 	// Get confirm for applying update.
 	if !override {
 		reader := bufio.NewReader(os.Stdin)
@@ -79,11 +88,6 @@ func update(opts *commander.CommandHelper, client *CFClient, override bool) {
 			log.Println("Cancelling without applying change set.")
 			return
 		}
-	}
-
-	if resp == nil {
-		log.Println("describe change set request send returned nil")
-		return
 	}
 
 	executeChangeInput := cloudformation.ExecuteChangeSetInput{
