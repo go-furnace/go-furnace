@@ -21,6 +21,18 @@ import (
 type Update struct {
 }
 
+// DescribeChangeSetRequestSender describes a sender interface in order to mock
+// a support call to AWS directly from the constructed request object.
+type DescribeChangeSetRequestSender interface {
+	Send() (*cloudformation.DescribeChangeSetOutput, error)
+}
+
+// ExecuteChangeSetRequestSender describes a sender interface in order to mock
+// a support call to AWS directly from the constructed request object.
+type ExecuteChangeSetRequestSender interface {
+	Send() (*cloudformation.ExecuteChangeSetOutput, error)
+}
+
 // Execute defines what this command does.
 func (c *Update) Execute(opts *commander.CommandHelper) {
 	log.Println("Creating cloud formation session.")
@@ -31,6 +43,12 @@ func (c *Update) Execute(opts *commander.CommandHelper) {
 	update(opts, &client, false)
 }
 
+
+// Todo the CFClient needs an inner property
+// DescribeSender
+// ExecuteSender
+// And use those in the sender parameter.
+// Block that later on.
 func update(opts *commander.CommandHelper, client *CFClient, override bool) {
 	configName := opts.Arg(0)
 	if len(configName) > 0 {
@@ -48,7 +66,7 @@ func update(opts *commander.CommandHelper, client *CFClient, override bool) {
 		StackName:     &stackname,
 	}
 	changes := client.Client.DescribeChangeSetRequest(describeChangeInput)
-	resp, err := changes.Send()
+	resp, err := sendDescribeChangeSetRequest(changes)
 	handle.Error(err)
 
 	// TODO: Display the changeset.
@@ -63,13 +81,18 @@ func update(opts *commander.CommandHelper, client *CFClient, override bool) {
 		}
 	}
 
+	if resp == nil {
+		log.Println("describe change set request send returned nil")
+		return
+	}
+
 	executeChangeInput := cloudformation.ExecuteChangeSetInput{
 		ChangeSetName:      resp.ChangeSetName,
 		ClientRequestToken: resp.NextToken,
 		StackName:          &stackname,
 	}
 	executeChangeRequest := client.Client.ExecuteChangeSetRequest(&executeChangeInput)
-	executeChangeRequest.Send()
+	sendExecuteChangeSetRequestSender(executeChangeRequest)
 	client.waitForStackUpdateComplete(stackname)
 	descResp := client.describeStacks(&cloudformation.DescribeStacksInput{StackName: aws.String(stackname)})
 	fmt.Println()
@@ -80,6 +103,14 @@ func update(opts *commander.CommandHelper, client *CFClient, override bool) {
 	} else {
 		handle.Fatal(fmt.Sprintf("No stacks found with name: %s", keyName(stackname)), nil)
 	}
+}
+
+func sendDescribeChangeSetRequest(send DescribeChangeSetRequestSender) (*cloudformation.DescribeChangeSetOutput, error) {
+	return send.Send()
+}
+
+func sendExecuteChangeSetRequestSender(send ExecuteChangeSetRequestSender) (*cloudformation.ExecuteChangeSetOutput, error) {
+	return send.Send()
 }
 
 func createChangeSet(stackname string, template []byte, cfClient *CFClient) string {

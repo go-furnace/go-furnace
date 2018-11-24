@@ -86,16 +86,20 @@ var notEmptyChangeSetOutput = cloudformation.DescribeChangeSetOutput{
 	ChangeSetId:   aws.String("id"),
 	ChangeSetName: aws.String("name"),
 	Changes: []cloudformation.Change{
-		{},
+		{
+			ResourceChange: &cloudformation.ResourceChange{
+				Action: cloudformation.ChangeAction("asdf"),
+			},
+		},
 	},
 	StackId:   aws.String("stackID"),
 	StackName: aws.String("NotEmptyStack"),
 }
 
-func (fc *fakeUpdateCFClient) DescribeChangeSetRequest(*cloudformation.DescribeChangeSetInput) cloudformation.DescribeChangeSetRequest {
+func (fc *fakeUpdateCFClient) DescribeChangeSetRequest(input *cloudformation.DescribeChangeSetInput) cloudformation.DescribeChangeSetRequest {
 	return cloudformation.DescribeChangeSetRequest{
 		Request: &aws.Request{
-			Data:  &cloudformation.DescribeChangeSetOutput{},
+			Data:  &notEmptyChangeSetOutput,
 			Error: fc.err,
 		},
 	}

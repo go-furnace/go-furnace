@@ -37,13 +37,7 @@ type DeploymentmanagerService struct {
 
 // NewDeploymentService will return a deployment manager service that
 // can be used as a mock for the GCP deployment manager.
-func NewDeploymentService(client *http.Client, mock DeploymentService) DeploymentmanagerService {
-	if mock != nil {
-		return DeploymentmanagerService{
-			Deployments: mock,
-		}
-	}
-
+func NewDeploymentService(client *http.Client) DeploymentmanagerService {
 	d, _ := dm.New(client)
 
 	return DeploymentmanagerService{
@@ -66,7 +60,7 @@ func (c *Create) Execute(opts *commander.CommandHelper) {
 	ctx := context.Background()
 	client, err := google.DefaultClient(ctx, dm.NdevCloudmanScope)
 	handle.Error(err)
-	d := NewDeploymentService(client, nil)
+	d := NewDeploymentService(client)
 	deployments := constructDeployment(deploymentName)
 	plugins.RunPreCreatePlugins(deploymentName)
 	err = insertDeployments(d, deployments, deploymentName)
