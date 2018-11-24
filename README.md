@@ -290,6 +290,11 @@ The status command displays information about the stack.
 
 ![Status1](./img/status1.png)
 
+#### update
+
+Update uses a ChangeSet in order to see what the applied update will change. If the desired change is
+needed it can be accepted with a simple `y/N` choice. If choosen `N` the change will not be applied.
+
 ## Plugins
 
 A highly customizable plugin system is provided for Furnace via [HashiCorp's Go-Plugins](https://github.com/hashicorp/go-plugin).
