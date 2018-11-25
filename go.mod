@@ -22,6 +22,7 @@ require (
 	github.com/tent/http-link-go v0.0.0-20130702225549-ac974c61c2f9 // indirect
 	golang.org/x/net v0.0.0-20181114220301-adae6a3d119a
 	golang.org/x/oauth2 v0.0.0-20181120190819-8f65e3013eba
+	golang.org/x/sys v0.0.0-20181122145206-62eef0e2fa9b // indirect
 	google.golang.org/api v0.0.0-20181120235003-faade3cbb06a
 	gopkg.in/yaml.v1 v1.0.0-20140924161607-9f9df34309c0
 	gopkg.in/yaml.v2 v2.2.1
