@@ -197,9 +197,9 @@ func TestUpdateStackReturnsWithError(t *testing.T) {
 
 func TestUpdateCreate(t *testing.T) {
 	wrapper := NewUpdate("furnace")
-	if wrapper.Help.Arguments != "custom-config" ||
-		!reflect.DeepEqual(wrapper.Help.Examples, []string{"", "custom-config"}) ||
-		wrapper.Help.LongDescription != `Update a stack with new parameters.` ||
+	if wrapper.Help.Arguments != "custom-config [-y]" ||
+		!reflect.DeepEqual(wrapper.Help.Examples, []string{"", "custom-config", "-y", "mystack -y"}) ||
+		wrapper.Help.LongDescription != `Update a stack with new parameters. -y can be given to automatically accept the applying of a changeset.` ||
 		wrapper.Help.ShortDescription != "Update a stack" {
 		t.Log(wrapper.Help.LongDescription)
 		t.Log(wrapper.Help.ShortDescription)

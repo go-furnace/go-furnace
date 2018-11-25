@@ -40,7 +40,8 @@ func (c *Update) Execute(opts *commander.CommandHelper) {
 	handle.Error(err)
 	cfClient := cloudformation.New(cfg)
 	client := CFClient{cfClient}
-	update(opts, &client, false)
+	override := opts.Flag("y")
+	update(opts, &client, override)
 }
 
 // Todo the CFClient needs an inner property
@@ -74,9 +75,9 @@ func update(opts *commander.CommandHelper, client *CFClient, override bool) {
 	}
 
 	for i, change := range resp.Changes {
-		fmt.Printf("=====  Change Number %d =====\n", i)
+		fmt.Printf("=====  Begin Change Number %s =====\n", keyName(i))
 		fmt.Println(change.ResourceChange.GoString())
-		fmt.Printf("===== End of Change Number %d =====\n", i)
+		fmt.Printf("===== End of Change Number %s =====\n", keyName(i))
 	}
 
 	// Get confirm for applying update.
@@ -170,9 +171,9 @@ func NewUpdate(appName string) *commander.CommandWrapper {
 		Help: &commander.CommandDescriptor{
 			Name:             "update",
 			ShortDescription: "Update a stack",
-			LongDescription:  `Update a stack with new parameters.`,
-			Arguments:        "custom-config",
-			Examples:         []string{"", "custom-config"},
+			LongDescription:  `Update a stack with new parameters. -y can be given to automatically accept the applying of a changeset.`,
+			Arguments:        "custom-config [-y]",
+			Examples:         []string{"", "custom-config", "-y", "mystack -y"},
 		},
 	}
 }
