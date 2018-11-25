@@ -2,24 +2,37 @@
 # Make sure to check the documentation at http://goreleaser.com
 before:
   hooks:
-    # you may remove this if you don't use vgo
     - go mod download
-    # you may remove this if you don't need go generate
     - go generate ./...
 builds:
-- env:
-  - CGO_ENABLED=0
-archive:
-  replacements:
-    darwin: Darwin
-    linux: Linux
-    windows: Windows
-    386: i386
-    amd64: x86_64
+  - main: ./furnace-aws/main.go
+    binary: furnace-aws
+    env:
+      - CGO_ENABLED=0
+    goarch:
+      - amd64
+      - arm
+      - arm64
+  - main: ./furnace-do/main.go
+    binary: furnace-do
+    ldflags:
+      - -s -w
+    env:
+      - CGO_ENABLED=0
+    goarch:
+      - amd64
+      - arm
+      - arm64
+  - main: ./furnace-gcp/main.go
+    binary: furnace-gcp
+    env:
+      - CGO_ENABLED=0
+    goarch:
+      - amd64
+      - arm
+      - arm64
 checksum:
   name_template: 'checksums.txt'
-snapshot:
-  name_template: "{{ .Tag }}-next"
 changelog:
   sort: asc
   filters:
