@@ -9,6 +9,10 @@ builds:
     binary: furnace-aws
     env:
       - CGO_ENABLED=0
+    goos:
+      - windows
+      - linux
+      - darwin
     goarch:
       - amd64
       - arm
@@ -19,6 +23,10 @@ builds:
       - -s -w
     env:
       - CGO_ENABLED=0
+    goos:
+      - windows
+      - linux
+      - darwin
     goarch:
       - amd64
       - arm
@@ -27,6 +35,10 @@ builds:
     binary: furnace-gcp
     env:
       - CGO_ENABLED=0
+    goos:
+      - windows
+      - linux
+      - darwin
     goarch:
       - amd64
       - arm
