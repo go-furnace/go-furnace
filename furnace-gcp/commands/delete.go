@@ -30,7 +30,7 @@ func (d *Delete) Execute(opts *commander.CommandHelper) {
 	ctx := context.Background()
 	client, err := google.DefaultClient(ctx, deploymentmanager.NdevCloudmanScope)
 	handle.Error(err)
-	ds := NewDeploymentService(client, nil)
+	ds := NewDeploymentService(client)
 	delete(ds)
 	log.Println("Deleteing Deployment Under Project: ", keyName(fc.Config.Main.ProjectName))
 }

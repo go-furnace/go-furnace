@@ -9,7 +9,9 @@ import (
 
 func TestDelete(t *testing.T) {
 	dm := new(MockDeploymentService)
-	d := NewDeploymentService(nil, dm)
+	d := DeploymentmanagerService{
+		Deployments: dm,
+	}
 	dir, _ := os.Getwd()
 	fc.LoadConfigFileIfExists(dir, "teststack")
 	err := delete(d)
