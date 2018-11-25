@@ -5,7 +5,7 @@ before:
     - go mod download
     - go generate ./...
 builds:
-  - main: ./furnace-aws/main.go
+  - main: ./furnace-aws/furnace-aws.go
     binary: furnace-aws
     env:
       - CGO_ENABLED=0
@@ -13,7 +13,7 @@ builds:
       - amd64
       - arm
       - arm64
-  - main: ./furnace-do/main.go
+  - main: ./furnace-do/furnace-do.go
     binary: furnace-do
     ldflags:
       - -s -w
@@ -23,7 +23,7 @@ builds:
       - amd64
       - arm
       - arm64
-  - main: ./furnace-gcp/main.go
+  - main: ./furnace-gcp/furnace-gcp.go
     binary: furnace-gcp
     env:
       - CGO_ENABLED=0
