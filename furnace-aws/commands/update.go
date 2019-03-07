@@ -14,7 +14,7 @@ import (
 	"github.com/go-furnace/go-furnace/config"
 	awsconfig "github.com/go-furnace/go-furnace/furnace-aws/config"
 	"github.com/go-furnace/go-furnace/handle"
-	"github.com/satori/go.uuid"
+	uuid "github.com/google/uuid"
 )
 
 // Update command.
@@ -119,7 +119,7 @@ func sendExecuteChangeSetRequestSender(send ExecuteChangeSetRequestSender) (*clo
 }
 
 func createChangeSet(stackname string, template []byte, cfClient *CFClient) string {
-	changeSetName := uuid.NewV4()
+	changeSetName, _ := uuid.NewUUID()
 	validResp := cfClient.validateTemplate(template)
 	stackParameters := gatherParameters(os.Stdin, validResp)
 	changeSetRequestInput := &cloudformation.CreateChangeSetInput{

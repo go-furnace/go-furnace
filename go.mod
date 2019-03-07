@@ -9,11 +9,11 @@ require (
 	github.com/fatih/color v1.7.0
 	github.com/go-furnace/proto v0.0.0-20180916082909-37a3fa2d5e73 // indirect
 	github.com/go-furnace/sdk v0.0.0-20180917090956-dcf9c845e1ee
+	github.com/google/uuid v1.1.1
 	github.com/hashicorp/go-plugin v0.0.0-20190220160451-3f118e8ee104
 	github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0 // indirect
 	github.com/mattn/go-colorable v0.1.1 // indirect
 	github.com/mattn/go-isatty v0.0.6 // indirect
-	github.com/satori/go.uuid v1.2.0
 	golang.org/x/net v0.0.0-20190301231341-16b79f2e4e95
 	golang.org/x/oauth2 v0.0.0-20190226205417-e64efc72b421
 	google.golang.org/api v0.1.0
