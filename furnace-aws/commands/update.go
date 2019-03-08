@@ -97,7 +97,8 @@ func update(opts *commander.CommandHelper, client *CFClient, override bool) {
 		StackName:          &stackname,
 	}
 	executeChangeRequest := client.Client.ExecuteChangeSetRequest(&executeChangeInput)
-	sendExecuteChangeSetRequestSender(executeChangeRequest)
+	_, err = sendExecuteChangeSetRequestSender(executeChangeRequest)
+	handle.Error(err)
 	client.waitForStackUpdateComplete(stackname)
 	descResp := client.describeStacks(&cloudformation.DescribeStacksInput{StackName: aws.String(stackname)})
 	fmt.Println()
@@ -133,7 +134,8 @@ func createChangeSet(stackname string, template []byte, cfClient *CFClient) stri
 		ChangeSetType: cloudformation.ChangeSetTypeUpdate,
 	}
 	changeSetRequest := cfClient.Client.CreateChangeSetRequest(changeSetRequestInput)
-	changeSetRequest.Send()
+	_, err := changeSetRequest.Send()
+	handle.Error(err)
 	return changeSetName.String()
 }
 
@@ -152,7 +154,10 @@ func (cf *CFClient) waitForStackUpdateComplete(stackname string) {
 		StackName: aws.String(stackname),
 	}
 	waitForFunctionWithStatusOutput("UPDATE_COMPLETE", config.WAITFREQUENCY, func() {
-		cf.Client.WaitUntilStackUpdateComplete(describeStackInput)
+		err := cf.Client.WaitUntilStackUpdateComplete(describeStackInput)
+		if err != nil {
+			return
+		}
 	})
 }
 

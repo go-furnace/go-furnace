@@ -1,16 +1,13 @@
 package commands
 
 import (
+	"errors"
 	"io"
 	"io/ioutil"
-	"os"
-	"testing"
-
-	"reflect"
-
-	"errors"
-
 	"log"
+	"os"
+	"reflect"
+	"testing"
 
 	commander "github.com/Yitsushi/go-commander"
 	"github.com/aws/aws-sdk-go-v2/aws"

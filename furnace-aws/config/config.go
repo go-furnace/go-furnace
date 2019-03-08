@@ -7,13 +7,11 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-
-	"gopkg.in/yaml.v2"
-
 	"strings"
 
 	"github.com/go-furnace/go-furnace/config"
 	"github.com/go-furnace/go-furnace/handle"
+	"gopkg.in/yaml.v2"
 )
 
 // TODO: Create a main config which defines a furnace config location
