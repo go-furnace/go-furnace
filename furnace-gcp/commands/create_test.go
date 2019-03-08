@@ -10,14 +10,16 @@ import (
 )
 
 type MockDeploymentService struct {
+	insert *dm.DeploymentsInsertCall
+	delete *dm.DeploymentsDeleteCall
 }
 
 func (m *MockDeploymentService) Insert(project string, deployment *dm.Deployment) *dm.DeploymentsInsertCall {
-	return nil
+	return m.insert
 }
 
 func (m *MockDeploymentService) Delete(project string, deployment string) *dm.DeploymentsDeleteCall {
-	return nil
+	return m.delete
 }
 
 func TestExecute(t *testing.T) {
