@@ -19,7 +19,6 @@ var red = color.New(color.FgRed).SprintFunc()
 func waitForDeploymentToFinish(d DeploymentmanagerService, projectName string, deploymentName string) {
 	project := d.Deployments.Get(projectName, deploymentName)
 	deploymentOp, err := project.Do()
-	fmt.Println(deploymentOp)
 	if err != nil {
 		handle.Fatal("error while getting deployment: ", err)
 	}

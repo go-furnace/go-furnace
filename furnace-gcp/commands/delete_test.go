@@ -74,16 +74,17 @@ var getRequest = `{
     "project",
     "deployment"
   ],
+  "operation": {
+	  "id": "1",
+	  "status": "DONE"
+  },
   "parameters": {
     "deployment": {
       "description": "The name of the deployment for this request.",
       "location": "path",
       "pattern": "[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?",
       "required": true,
-      "type": "string",
-	  "operation": {
-		  "status": "Done"
-	  }
+	  "type": "string"
     },
     "project": {
       "description": "The project ID for this request.",
