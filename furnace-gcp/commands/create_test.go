@@ -12,6 +12,7 @@ import (
 type MockDeploymentService struct {
 	insert *dm.DeploymentsInsertCall
 	delete *dm.DeploymentsDeleteCall
+	get    *dm.DeploymentsGetCall
 }
 
 func (m *MockDeploymentService) Insert(project string, deployment *dm.Deployment) *dm.DeploymentsInsertCall {
@@ -20,6 +21,10 @@ func (m *MockDeploymentService) Insert(project string, deployment *dm.Deployment
 
 func (m *MockDeploymentService) Delete(project string, deployment string) *dm.DeploymentsDeleteCall {
 	return m.delete
+}
+
+func (m *MockDeploymentService) Get(project string, deployment string) *dm.DeploymentsGetCall {
+	return m.get
 }
 
 func TestExecute(t *testing.T) {

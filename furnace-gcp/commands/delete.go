@@ -2,7 +2,9 @@ package commands
 
 import (
 	"errors"
+	"fmt"
 	"log"
+	"net/http"
 	"os"
 
 	"github.com/Yitsushi/go-commander"
@@ -16,6 +18,7 @@ import (
 
 // Delete commands for google Deployment Manager
 type Delete struct {
+	client *http.Client
 }
 
 // Execute runs the create command
@@ -27,11 +30,8 @@ func (d *Delete) Execute(opts *commander.CommandHelper) {
 			handle.Fatal(configName, err)
 		}
 	}
-	ctx := context.Background()
-	client, err := google.DefaultClient(ctx, deploymentmanager.NdevCloudmanScope)
-	handle.Error(err)
-	ds := NewDeploymentService(client)
-	err = delete(ds)
+	ds := NewDeploymentService(d.client)
+	err := delete(ds)
 	handle.Error(err)
 	log.Println("Deleteing Deployment Under Project: ", keyName(fc.Config.Main.ProjectName))
 }
@@ -46,15 +46,20 @@ func delete(d DeploymentmanagerService) error {
 	if err != nil {
 		return err
 	}
-	waitForDeploymentToFinish(*d.Service, fc.Config.Main.ProjectName, fc.Config.Gcp.StackName)
+	fmt.Printf("d: %#v\n", d)
+	waitForDeploymentToFinish(d, fc.Config.Main.ProjectName, fc.Config.Gcp.StackName)
 	plugins.RunPostDeletePlugins(fc.Config.Gcp.StackName)
 	return nil
 }
 
 // NewDelete Create a new create command
 func NewDelete(appName string) *commander.CommandWrapper {
+	ctx := context.Background()
+	client, err := google.DefaultClient(ctx, deploymentmanager.NdevCloudmanScope)
+	handle.Error(err)
+	d := Delete{client: client}
 	return &commander.CommandWrapper{
-		Handler: &Delete{},
+		Handler: &d,
 		Help: &commander.CommandDescriptor{
 			Name:             "delete",
 			ShortDescription: "Delete a Google Deployment Manager",

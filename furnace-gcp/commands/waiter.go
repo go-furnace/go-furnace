@@ -8,7 +8,6 @@ import (
 	"github.com/fatih/color"
 	"github.com/go-furnace/go-furnace/config"
 	"github.com/go-furnace/go-furnace/handle"
-	dm "google.golang.org/api/deploymentmanager/v2"
 	"google.golang.org/api/googleapi"
 )
 
@@ -17,7 +16,7 @@ var yellow = color.New(color.FgYellow).SprintFunc()
 var red = color.New(color.FgRed).SprintFunc()
 
 // WaitForDeploymentToFinish waits for a google deployment to finish.
-func waitForDeploymentToFinish(d dm.Service, projectName string, deploymentName string) {
+func waitForDeploymentToFinish(d DeploymentmanagerService, projectName string, deploymentName string) {
 	project := d.Deployments.Get(projectName, deploymentName)
 	deploymentOp, err := project.Do()
 	if err != nil {

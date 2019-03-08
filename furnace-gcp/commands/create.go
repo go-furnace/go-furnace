@@ -26,6 +26,7 @@ type Create struct {
 type DeploymentService interface {
 	Insert(project string, deployment *dm.Deployment) *dm.DeploymentsInsertCall
 	Delete(project string, deployment string) *dm.DeploymentsDeleteCall
+	Get(project string, deployment string) *dm.DeploymentsGetCall
 }
 
 // DeploymentmanagerService defines a struct that we can use to mock GCP's
@@ -77,7 +78,7 @@ func insertDeployments(d DeploymentmanagerService, deployments *dm.Deployment, d
 	if err != nil {
 		return err
 	}
-	waitForDeploymentToFinish(*d.Service, fc.Config.Main.ProjectName, deploymentName)
+	waitForDeploymentToFinish(d, fc.Config.Main.ProjectName, deploymentName)
 	return nil
 }
 
