@@ -22,9 +22,6 @@ type Push struct {
 }
 
 var s3Deploy = false
-var codeDeployBucket string
-var s3Key string
-
 var gitRevision string
 var gitAccount string
 
@@ -160,9 +157,12 @@ func push(appName string, asg string, client *CDClient) {
 	resp, err := req.Send()
 	handle.Error(err)
 	waitForFunctionWithStatusOutput("SUCCEEDED", config.WAITFREQUENCY, func() {
-		client.Client.WaitUntilDeploymentSuccessful(&codedeploy.GetDeploymentInput{
+		err := client.Client.WaitUntilDeploymentSuccessful(&codedeploy.GetDeploymentInput{
 			DeploymentId: resp.DeploymentId,
 		})
+		if err != nil {
+			return
+		}
 	})
 	fmt.Println()
 	deploymentRequest := client.Client.GetDeploymentRequest(&codedeploy.GetDeploymentInput{

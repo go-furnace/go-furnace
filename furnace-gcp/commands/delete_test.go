@@ -13,8 +13,11 @@ func TestDelete(t *testing.T) {
 		Deployments: dm,
 	}
 	dir, _ := os.Getwd()
-	fc.LoadConfigFileIfExists(dir, "teststack")
-	err := delete(d)
+	err := fc.LoadConfigFileIfExists(dir, "teststack")
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = delete(d)
 	if err == nil {
 		t.Fatal("was expecting error. got nothing.")
 	}

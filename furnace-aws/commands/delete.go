@@ -55,7 +55,10 @@ func deleteStack(stackname string, cfClient *CFClient) {
 		StackName: aws.String(stackname),
 	}
 	waitForFunctionWithStatusOutput("DELETE_COMPLETE", config.WAITFREQUENCY, func() {
-		cfClient.Client.WaitUntilStackDeleteComplete(describeStackInput)
+		err := cfClient.Client.WaitUntilStackDeleteComplete(describeStackInput)
+		if err != nil {
+			return
+		}
 	})
 }
 

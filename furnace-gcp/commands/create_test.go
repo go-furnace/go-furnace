@@ -58,13 +58,16 @@ func TestExecute(t *testing.T) {
 		Deployments: dm,
 	}
 	dir, _ := os.Getwd()
-	fc.LoadConfigFileIfExists(dir, "teststack")
+	err := fc.LoadConfigFileIfExists(dir, "teststack")
+	if err != nil {
+		t.Fatal(err)
+	}
 	deploymentName := "teststack"
 	deployments := constructDeployment(deploymentName)
 	if !reflect.DeepEqual(expectedDeployments, deployments) {
 		t.Fatal("the expected deployment did not match the got deployments")
 	}
-	err := insertDeployments(d, deployments, deploymentName)
+	err = insertDeployments(d, deployments, deploymentName)
 	if err == nil {
 		t.Fatal("was expecting error. got nothing.")
 	}

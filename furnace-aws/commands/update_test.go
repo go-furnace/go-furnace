@@ -111,6 +111,7 @@ func TestUpdateExecute(t *testing.T) {
 	stackname := "NotEmptyStack"
 	client.Client = &fakeUpdateCFClient{err: nil, stackname: stackname}
 	opts := &commander.CommandHelper{}
+	opts.Args = append(opts.Args, "teststack")
 	update(opts, client, true)
 }
 
@@ -154,6 +155,7 @@ func TestUpdateExecuteEmptyStack(t *testing.T) {
 	stackname := "EmptyStack"
 	client.Client = &fakeUpdateCFClient{err: nil, stackname: stackname}
 	opts := &commander.CommandHelper{}
+	opts.Args = append(opts.Args, "teststack")
 	update(opts, client, true)
 	if !failed {
 		t.Error("Expected outcome to fail. Did not fail.")
@@ -168,6 +170,7 @@ func TestUpdateProcedure(t *testing.T) {
 	awsconfig.Config = awsconfig.Configuration{}
 	awsconfig.Config.Main.Stackname = "NotEmptyStack"
 	opts := &commander.CommandHelper{}
+
 	update(opts, client, true)
 }
 

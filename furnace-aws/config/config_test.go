@@ -31,8 +31,11 @@ aws:
     git_revision: b89451234...`)
 	location := os.TempDir()
 	location2 := filepath.Join(location, "temp2")
-	os.Mkdir(filepath.Join(location2), os.ModeDir)
-	err := ioutil.WriteFile(filepath.Join(location, ".testdiffdir.furnace"), []byte("testdiffdir.yaml"), os.ModePerm)
+	err := os.Mkdir(filepath.Join(location2), os.ModeDir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = ioutil.WriteFile(filepath.Join(location, ".testdiffdir.furnace"), []byte("testdiffdir.yaml"), os.ModePerm)
 	if err != nil {
 		t.Fatal("failed to create temporary file for testing: ", err)
 	}
