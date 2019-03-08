@@ -80,7 +80,10 @@ var getRequest = `{
       "location": "path",
       "pattern": "[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?",
       "required": true,
-      "type": "string"
+      "type": "string",
+	  "operation": {
+		  "status": "Done"
+	  }
     },
     "project": {
       "description": "The project ID for this request.",
@@ -88,7 +91,7 @@ var getRequest = `{
       "pattern": "(?:(?:[-a-z0-9]{1,63}\\.)*(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?):)?(?:[0-9]{1,19}|(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?))",
       "required": true,
       "type": "string"
-    }
+	}
   },
   "path": "{project}/global/deployments/{deployment}",
   "response": {
@@ -165,7 +168,7 @@ func TestDeleteExecute(t *testing.T) {
 			}
 		} else {
 			return &http.Response{
-				StatusCode: 404,
+				StatusCode: 200,
 				// Send response to be tested
 				Body: ioutil.NopCloser(bytes.NewBufferString(getRequest)),
 				// Must be set to non-nil value or it panics
