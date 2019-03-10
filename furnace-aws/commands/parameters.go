@@ -10,7 +10,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/cloudformation"
 	"github.com/fatih/color"
-	"github.com/go-furnace/go-furnace/handle"
 )
 
 func gatherParameters(source *os.File, params *cloudformation.ValidateTemplateOutput) []cloudformation.Parameter {
@@ -40,22 +39,4 @@ func readInputFrom(source *os.File) string {
 	reader := bufio.NewReader(source)
 	text, _ := reader.ReadString('\n')
 	return text
-}
-
-func (cf *CFClient) describeStacks(descStackInput *cloudformation.DescribeStacksInput) *cloudformation.DescribeStacksOutput {
-	req := cf.Client.DescribeStacksRequest(descStackInput)
-	descResp, err := req.Send()
-	handle.Error(err)
-	return descResp
-}
-
-func (cf *CFClient) validateTemplate(template []byte) *cloudformation.ValidateTemplateOutput {
-	log.Println("Validating template.")
-	validateParams := &cloudformation.ValidateTemplateInput{
-		TemplateBody: aws.String(string(template)),
-	}
-	req := cf.Client.ValidateTemplateRequest(validateParams)
-	resp, err := req.Send()
-	handle.Error(err)
-	return resp
 }

@@ -157,8 +157,6 @@ var deleteRequest = `
 
 func TestDeleteExecute(t *testing.T) {
 	client := NewTestClient(func(req *http.Request) *http.Response {
-		// Test request parameters
-		// equals(t, req.URL.String(), "http://example.com/some/path")
 		if req.Method == "DELETE" {
 			return &http.Response{
 				StatusCode: 200,
@@ -167,14 +165,13 @@ func TestDeleteExecute(t *testing.T) {
 				// Must be set to non-nil value or it panics
 				Header: make(http.Header),
 			}
-		} else {
-			return &http.Response{
-				StatusCode: 200,
-				// Send response to be tested
-				Body: ioutil.NopCloser(bytes.NewBufferString(getRequest)),
-				// Must be set to non-nil value or it panics
-				Header: make(http.Header),
-			}
+		}
+		return &http.Response{
+			StatusCode: 200,
+			// Send response to be tested
+			Body: ioutil.NopCloser(bytes.NewBufferString(getRequest)),
+			// Must be set to non-nil value or it panics
+			Header: make(http.Header),
 		}
 	})
 	d := Delete{
