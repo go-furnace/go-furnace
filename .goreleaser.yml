@@ -3,7 +3,6 @@
 before:
   hooks:
     - go mod download
-    - go generate ./...
 builds:
   - main: ./furnace-aws/main.go
     binary: furnace-aws
