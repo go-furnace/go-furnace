@@ -161,14 +161,6 @@ func (cf *CFClient) waitForStackUpdateComplete(stackname string) {
 	})
 }
 
-func (cf *CFClient) updateStack(stackInputParams *cloudformation.UpdateStackInput) *cloudformation.UpdateStackOutput {
-	log.Println("Updating Stack with name: ", keyName(*stackInputParams.StackName))
-	req := cf.Client.UpdateStackRequest(stackInputParams)
-	resp, err := req.Send()
-	handle.Error(err)
-	return resp
-}
-
 // NewUpdate Updates a new Update command.
 func NewUpdate(appName string) *commander.CommandWrapper {
 	return &commander.CommandWrapper{
