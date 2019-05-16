@@ -6,11 +6,19 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/cloudformation/cloudformationiface"
 	"github.com/aws/aws-sdk-go-v2/service/codedeploy/codedeployiface"
 	"github.com/aws/aws-sdk-go-v2/service/iam/iamiface"
+	"github.com/go-furnace/go-furnace/handle"
 )
 
 // CFClient abstraction for cloudFormation client.
 type CFClient struct {
 	Client cloudformationiface.CloudFormationAPI
+}
+
+func (cf *CFClient) describeStacks(descStackInput *cloudformation.DescribeStacksInput) *cloudformation.DescribeStacksOutput {
+	req := cf.Client.DescribeStacksRequest(descStackInput)
+	descResp, err := req.Send()
+	handle.Error(err)
+	return descResp
 }
 
 // CDClient abstraction for cloudFormation client.

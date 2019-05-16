@@ -9,7 +9,7 @@ import (
 	"reflect"
 	"testing"
 
-	commander "github.com/Yitsushi/go-commander"
+	"github.com/Yitsushi/go-commander"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/cloudformation"
 	"github.com/aws/aws-sdk-go-v2/service/cloudformation/cloudformationiface"
@@ -133,8 +133,8 @@ func TestCreateProcedure(t *testing.T) {
 	client := new(CFClient)
 	stackname := "NotEmptyStack"
 	client.Client = &fakeCreateCFClient{err: nil, stackname: stackname}
-	config := []byte("{}")
-	stacks := create(stackname, config, client)
+	template := []byte("{}")
+	stacks := create(stackname, template, client)
 	if len(stacks) == 0 {
 		t.Fatal("Stack was not returned by create.")
 	}
@@ -155,8 +155,8 @@ func TestCreateStackReturnsWithError(t *testing.T) {
 	client := new(CFClient)
 	stackname := "NotEmptyStack"
 	client.Client = &fakeCreateCFClient{err: errors.New(expectedMessage), stackname: stackname}
-	config := []byte("{}")
-	create(stackname, config, client)
+	template := []byte("{}")
+	create(stackname, template, client)
 	if !failed {
 		t.Error("Expected outcome to fail. Did not fail.")
 	}
@@ -178,8 +178,8 @@ func TestDescribeStackReturnsWithError(t *testing.T) {
 	client := new(CFClient)
 	stackname := "DescribeStackFailed"
 	client.Client = &fakeCreateCFClient{err: errors.New("failed describe stack"), stackname: stackname}
-	config := []byte("{}")
-	create(stackname, config, client)
+	template := []byte("{}")
+	create(stackname, template, client)
 	if !failed {
 		t.Error("Expected outcome to fail. Did not fail.")
 	}
@@ -202,8 +202,8 @@ func TestValidateReturnsWithError(t *testing.T) {
 	client := new(CFClient)
 	stackname := "ValidationError"
 	client.Client = &fakeCreateCFClient{err: errors.New(expectedMessage), stackname: stackname}
-	config := []byte("{}")
-	create(stackname, config, client)
+	template := []byte("{}")
+	create(stackname, template, client)
 	if !failed {
 		t.Error("Expected outcome to fail. Did not fail.")
 	}
@@ -217,8 +217,8 @@ func TestCreateReturnsEmptyStack(t *testing.T) {
 	client := new(CFClient)
 	stackname := "EmptyStack"
 	client.Client = &fakeCreateCFClient{err: nil, stackname: stackname}
-	config := []byte("{}")
-	stacks := create(stackname, config, client)
+	template := []byte("{}")
+	stacks := create(stackname, template, client)
 	if len(stacks) != 0 {
 		t.Fatal("Stack was not empty: ", stacks)
 	}
