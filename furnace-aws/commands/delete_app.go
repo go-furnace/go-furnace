@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"context"
 	"log"
 	"os"
 
@@ -45,7 +46,7 @@ func deleteApplication(appName string, client *CDClient) {
 	req := client.Client.DeleteApplicationRequest(&codedeploy.DeleteApplicationInput{
 		ApplicationName: aws.String(appName),
 	})
-	_, err := req.Send()
+	_, err := req.Send(context.Background())
 	handle.Error(err)
 }
 

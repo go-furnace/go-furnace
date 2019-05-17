@@ -2,6 +2,7 @@ package commands
 
 import (
 	"errors"
+	"net/http"
 	"reflect"
 	"testing"
 
@@ -22,8 +23,9 @@ type fakeDeleteAppCDClient struct {
 func (fd *fakeDeleteAppCDClient) DeleteApplicationRequest(*codedeploy.DeleteApplicationInput) codedeploy.DeleteApplicationRequest {
 	return codedeploy.DeleteApplicationRequest{
 		Request: &aws.Request{
-			Data:  &codedeploy.DeleteApplicationOutput{},
-			Error: fd.err,
+			Data:        &codedeploy.DeleteApplicationOutput{},
+			Error:       fd.err,
+			HTTPRequest: new(http.Request),
 		},
 	}
 }

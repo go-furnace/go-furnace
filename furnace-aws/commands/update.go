@@ -2,6 +2,7 @@ package commands
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -24,13 +25,13 @@ type Update struct {
 // DescribeChangeSetRequestSender describes a sender interface in order to mock
 // a support call to AWS directly from the constructed request object.
 type DescribeChangeSetRequestSender interface {
-	Send() (*cloudformation.DescribeChangeSetOutput, error)
+	Send(context.Context) (*cloudformation.DescribeChangeSetOutput, error)
 }
 
 // ExecuteChangeSetRequestSender describes a sender interface in order to mock
 // a support call to AWS directly from the constructed request object.
 type ExecuteChangeSetRequestSender interface {
-	Send() (*cloudformation.ExecuteChangeSetOutput, error)
+	Send(context.Context) (*cloudformation.ExecuteChangeSetOutput, error)
 }
 
 // Execute defines what this command does.
@@ -112,11 +113,11 @@ func update(opts *commander.CommandHelper, client *CFClient, override bool) {
 }
 
 func sendDescribeChangeSetRequest(send DescribeChangeSetRequestSender) (*cloudformation.DescribeChangeSetOutput, error) {
-	return send.Send()
+	return send.Send(context.Background())
 }
 
 func sendExecuteChangeSetRequestSender(send ExecuteChangeSetRequestSender) (*cloudformation.ExecuteChangeSetOutput, error) {
-	return send.Send()
+	return send.Send(context.Background())
 }
 
 func createChangeSet(stackname string, template []byte, cfClient *CFClient) string {
@@ -134,7 +135,7 @@ func createChangeSet(stackname string, template []byte, cfClient *CFClient) stri
 		ChangeSetType: cloudformation.ChangeSetTypeUpdate,
 	}
 	changeSetRequest := cfClient.Client.CreateChangeSetRequest(changeSetRequestInput)
-	_, err := changeSetRequest.Send()
+	_, err := changeSetRequest.Send(context.Background())
 	handle.Error(err)
 	return changeSetName.String()
 }
@@ -145,7 +146,7 @@ func (cf *CFClient) waitForChangeSetToBeApplied(stackname, changeSetName string)
 		StackName:     &stackname,
 	}
 	waitForFunctionWithStatusOutput("UPDATE_COMPLETE", config.WAITFREQUENCY, func() {
-		cf.Client.WaitUntilChangeSetCreateComplete(describeChangeInput)
+		cf.Client.WaitUntilChangeSetCreateComplete(context.Background(), describeChangeInput)
 	})
 }
 
@@ -154,7 +155,7 @@ func (cf *CFClient) waitForStackUpdateComplete(stackname string) {
 		StackName: aws.String(stackname),
 	}
 	waitForFunctionWithStatusOutput("UPDATE_COMPLETE", config.WAITFREQUENCY, func() {
-		err := cf.Client.WaitUntilStackUpdateComplete(describeStackInput)
+		err := cf.Client.WaitUntilStackUpdateComplete(context.Background(), describeStackInput)
 		if err != nil {
 			return
 		}

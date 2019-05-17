@@ -1,8 +1,10 @@
 package commands
 
 import (
+	"context"
 	"errors"
 	"log"
+	"net/http"
 	"os"
 	"reflect"
 	"testing"
@@ -49,6 +51,7 @@ func (fiam *fakePushIAMClient) GetRoleRequest(*iam.GetRoleInput) iam.GetRoleRequ
 					Arn: aws.String("CoolFakeRole"),
 				},
 			},
+			HTTPRequest: new(http.Request),
 		},
 	}
 }
@@ -68,7 +71,8 @@ func (fc *fakePushCFClient) ListStackResourcesRequest(input *cloudformation.List
 					},
 				},
 			},
-			Error: fc.err,
+			Error:       fc.err,
+			HTTPRequest: new(http.Request),
 		},
 	}
 }
@@ -80,8 +84,9 @@ func (fd *fakePushCDClient) CreateDeploymentGroupRequest(input *codedeploy.Creat
 	}
 	return codedeploy.CreateDeploymentGroupRequest{
 		Request: &aws.Request{
-			Data:  &codedeploy.CreateDeploymentGroupOutput{},
-			Error: err,
+			Data:        &codedeploy.CreateDeploymentGroupOutput{},
+			Error:       err,
+			HTTPRequest: new(http.Request),
 		},
 	}
 }
@@ -93,8 +98,9 @@ func (fd *fakePushCDClient) CreateApplicationRequest(input *codedeploy.CreateApp
 	}
 	return codedeploy.CreateApplicationRequest{
 		Request: &aws.Request{
-			Data:  &codedeploy.CreateApplicationOutput{},
-			Error: err,
+			Data:        &codedeploy.CreateApplicationOutput{},
+			Error:       err,
+			HTTPRequest: new(http.Request),
 		},
 	}
 }
@@ -105,11 +111,12 @@ func (fd *fakePushCDClient) CreateDeploymentRequest(input *codedeploy.CreateDepl
 			Data: &codedeploy.CreateDeploymentOutput{
 				DeploymentId: aws.String("fakeID"),
 			},
+			HTTPRequest: new(http.Request),
 		},
 	}
 }
 
-func (fd *fakePushCDClient) WaitUntilDeploymentSuccessful(input *codedeploy.GetDeploymentInput) error {
+func (fd *fakePushCDClient) WaitUntilDeploymentSuccessful(ctx context.Context, input *codedeploy.GetDeploymentInput, opts ...aws.WaiterOption) error {
 	return fd.err
 }
 
@@ -121,6 +128,7 @@ func (fd *fakePushCDClient) GetDeploymentRequest(input *codedeploy.GetDeployment
 					Status: codedeploy.DeploymentStatusCreated,
 				},
 			},
+			HTTPRequest: new(http.Request),
 		},
 	}
 }

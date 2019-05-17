@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -53,7 +54,7 @@ func (c *Status) Execute(opts *commander.CommandHelper) {
 
 func stackStatus(stackname string, cfClient *CFClient) *cloudformation.DescribeStacksOutput {
 	req := cfClient.Client.DescribeStacksRequest(&cloudformation.DescribeStacksInput{StackName: aws.String(stackname)})
-	descResp, err := req.Send()
+	descResp, err := req.Send(context.Background())
 	handle.Error(err)
 	fmt.Println()
 	return descResp
@@ -62,7 +63,7 @@ func stackStatus(stackname string, cfClient *CFClient) *cloudformation.DescribeS
 func stackResources(stackname string, cfClient *CFClient) []ResourceStatus {
 	resources := make([]ResourceStatus, 0)
 	req := cfClient.Client.DescribeStackResourcesRequest(&cloudformation.DescribeStackResourcesInput{StackName: aws.String(stackname)})
-	descResp, err := req.Send()
+	descResp, err := req.Send(context.Background())
 	handle.Error(err)
 	for _, r := range descResp.StackResources {
 		res := ResourceStatus{Status: r.ResourceStatus, PhysicalID: *r.PhysicalResourceId, LogicalID: *r.LogicalResourceId, Type: *r.ResourceType}

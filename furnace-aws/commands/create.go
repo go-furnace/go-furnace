@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -64,7 +65,7 @@ func create(stackname string, template []byte, cfClient *CFClient) []cloudformat
 	}
 	resp := cfClient.createStack(stackInputParams)
 	log.Println("Create stack response: ", resp)
-	cfClient.waitForStackCreateCompleteStatus(stackname)
+	cfClient.waitForStackCreateCompleteStatus(context.Background(), stackname)
 	descResp := cfClient.describeStacks(&cloudformation.DescribeStacksInput{StackName: aws.String(stackname)})
 	fmt.Println()
 	if descResp != nil {
@@ -73,12 +74,12 @@ func create(stackname string, template []byte, cfClient *CFClient) []cloudformat
 	return nil
 }
 
-func (cf *CFClient) waitForStackCreateCompleteStatus(stackname string) {
+func (cf *CFClient) waitForStackCreateCompleteStatus(ctx context.Context, stackname string) {
 	describeStackInput := &cloudformation.DescribeStacksInput{
 		StackName: aws.String(stackname),
 	}
 	waitForFunctionWithStatusOutput("CREATE_COMPLETE", config.WAITFREQUENCY, func() {
-		err := cf.Client.WaitUntilStackCreateComplete(describeStackInput)
+		err := cf.Client.WaitUntilStackCreateComplete(ctx, describeStackInput)
 		if err != nil {
 			return
 		}
@@ -88,7 +89,7 @@ func (cf *CFClient) waitForStackCreateCompleteStatus(stackname string) {
 func (cf *CFClient) createStack(stackInputParams *cloudformation.CreateStackInput) *cloudformation.CreateStackOutput {
 	log.Println("Creating Stack with name: ", keyName(*stackInputParams.StackName))
 	req := cf.Client.CreateStackRequest(stackInputParams)
-	resp, err := req.Send()
+	resp, err := req.Send(context.Background())
 	handle.Error(err)
 	return resp
 }

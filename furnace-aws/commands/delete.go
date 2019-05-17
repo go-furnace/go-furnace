@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"context"
 	"log"
 	"os"
 
@@ -48,14 +49,15 @@ func deleteStack(stackname string, cfClient *CFClient) {
 	params := &cloudformation.DeleteStackInput{
 		StackName: aws.String(stackname),
 	}
+	ctx := context.Background()
 	req := cfClient.Client.DeleteStackRequest(params)
-	_, err := req.Send()
+	_, err := req.Send(ctx)
 	handle.Error(err)
 	describeStackInput := &cloudformation.DescribeStacksInput{
 		StackName: aws.String(stackname),
 	}
 	waitForFunctionWithStatusOutput("DELETE_COMPLETE", config.WAITFREQUENCY, func() {
-		err := cfClient.Client.WaitUntilStackDeleteComplete(describeStackInput)
+		err := cfClient.Client.WaitUntilStackDeleteComplete(ctx, describeStackInput)
 		if err != nil {
 			return
 		}

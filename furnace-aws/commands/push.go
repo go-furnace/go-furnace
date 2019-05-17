@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -74,7 +75,7 @@ func createDeploymentGroup(appName string, role string, asg string, client *CDCl
 		},
 	}
 	req := client.Client.CreateDeploymentGroupRequest(params)
-	resp, err := req.Send()
+	resp, err := req.Send(context.Background())
 	if err != nil {
 		if awsErr, ok := err.(awserr.Error); ok {
 			if awsErr.Code() != codedeploy.ErrCodeDeploymentGroupAlreadyExistsException {
@@ -95,7 +96,7 @@ func createApplication(appName string, client *CDClient) error {
 		ApplicationName: aws.String(appName),
 	}
 	req := client.Client.CreateApplicationRequest(params)
-	resp, err := req.Send()
+	resp, err := req.Send(context.Background())
 	if err != nil {
 		if awsErr, ok := err.(awserr.Error); ok {
 			if awsErr.Code() != codedeploy.ErrCodeApplicationAlreadyExistsException {
@@ -154,10 +155,10 @@ func push(appName string, asg string, client *CDClient) {
 		UpdateOutdatedInstancesOnly: aws.Bool(false),
 	}
 	req := client.Client.CreateDeploymentRequest(params)
-	resp, err := req.Send()
+	resp, err := req.Send(context.Background())
 	handle.Error(err)
 	waitForFunctionWithStatusOutput("SUCCEEDED", config.WAITFREQUENCY, func() {
-		err := client.Client.WaitUntilDeploymentSuccessful(&codedeploy.GetDeploymentInput{
+		err := client.Client.WaitUntilDeploymentSuccessful(context.Background(), &codedeploy.GetDeploymentInput{
 			DeploymentId: resp.DeploymentId,
 		})
 		if err != nil {
@@ -168,7 +169,7 @@ func push(appName string, asg string, client *CDClient) {
 	deploymentRequest := client.Client.GetDeploymentRequest(&codedeploy.GetDeploymentInput{
 		DeploymentId: resp.DeploymentId,
 	})
-	deployment, err := deploymentRequest.Send()
+	deployment, err := deploymentRequest.Send(context.Background())
 	handle.Error(err)
 	log.Println("Deployment Status: ", deployment.DeploymentInfo.Status)
 }
@@ -178,7 +179,7 @@ func getAutoScalingGroupKey(client *CFClient) string {
 		StackName: aws.String(awsconfig.Config.Main.Stackname),
 	}
 	req := client.Client.ListStackResourcesRequest(params)
-	resp, err := req.Send()
+	resp, err := req.Send(context.Background())
 	handle.Error(err)
 	for _, r := range resp.StackResourceSummaries {
 		if *r.ResourceType == "AWS::AutoScaling::AutoScalingGroup" {
@@ -193,7 +194,7 @@ func getCodeDeployRoleARN(roleName string, client *IAMClient) string {
 		RoleName: aws.String(roleName),
 	}
 	req := client.Client.GetRoleRequest(params)
-	resp, err := req.Send()
+	resp, err := req.Send(context.Background())
 	handle.Error(err)
 	return *resp.Role.Arn
 }

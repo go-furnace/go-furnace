@@ -1,6 +1,8 @@
 package commands
 
 import (
+	"context"
+
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/cloudformation"
 	"github.com/aws/aws-sdk-go-v2/service/cloudformation/cloudformationiface"
@@ -16,7 +18,7 @@ type CFClient struct {
 
 func (cf *CFClient) describeStacks(descStackInput *cloudformation.DescribeStacksInput) *cloudformation.DescribeStacksOutput {
 	req := cf.Client.DescribeStacksRequest(descStackInput)
-	descResp, err := req.Send()
+	descResp, err := req.Send(context.Background())
 	handle.Error(err)
 	return descResp
 }

@@ -1,10 +1,12 @@
 package commands
 
 import (
+	"context"
 	"errors"
 	"io"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 	"reflect"
 	"testing"
@@ -31,8 +33,9 @@ func init() {
 func (fc *fakeCreateCFClient) ValidateTemplateRequest(input *cloudformation.ValidateTemplateInput) cloudformation.ValidateTemplateRequest {
 	return cloudformation.ValidateTemplateRequest{
 		Request: &aws.Request{
-			Data:  &cloudformation.ValidateTemplateOutput{},
-			Error: fc.err,
+			Data:        &cloudformation.ValidateTemplateOutput{},
+			Error:       fc.err,
+			HTTPRequest: new(http.Request),
 		},
 		Input: input,
 	}
@@ -44,14 +47,15 @@ func (fc *fakeCreateCFClient) CreateStackRequest(input *cloudformation.CreateSta
 			Data: &cloudformation.CreateStackOutput{
 				StackId: aws.String("DummyID"),
 			},
-			Error: fc.err,
+			Error:       fc.err,
+			HTTPRequest: new(http.Request),
 		},
 		Input: input,
 	}
 
 }
 
-func (fc *fakeCreateCFClient) WaitUntilStackCreateComplete(input *cloudformation.DescribeStacksInput) error {
+func (fc *fakeCreateCFClient) WaitUntilStackCreateComplete(ctx context.Context, input *cloudformation.DescribeStacksInput, opts ...aws.WaiterOption) error {
 	return nil
 }
 
@@ -59,14 +63,16 @@ func (fc *fakeCreateCFClient) DescribeStacksRequest(input *cloudformation.Descri
 	if fc.stackname == "NotEmptyStack" || fc.stackname == "DescribeStackFailed" {
 		return cloudformation.DescribeStacksRequest{
 			Request: &aws.Request{
-				Data:  &NotEmptyStack,
-				Error: fc.err,
+				Data:        &NotEmptyStack,
+				Error:       fc.err,
+				HTTPRequest: new(http.Request),
 			},
 		}
 	}
 	return cloudformation.DescribeStacksRequest{
 		Request: &aws.Request{
-			Data: &cloudformation.DescribeStacksOutput{},
+			Data:        &cloudformation.DescribeStacksOutput{},
+			HTTPRequest: new(http.Request),
 		},
 	}
 }

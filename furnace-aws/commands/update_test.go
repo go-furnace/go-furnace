@@ -1,8 +1,10 @@
 package commands
 
 import (
+	"context"
 	"errors"
 	"log"
+	"net/http"
 	"reflect"
 	"testing"
 
@@ -28,8 +30,9 @@ func init() {
 func (fc *fakeUpdateCFClient) ValidateTemplateRequest(input *cloudformation.ValidateTemplateInput) cloudformation.ValidateTemplateRequest {
 	return cloudformation.ValidateTemplateRequest{
 		Request: &aws.Request{
-			Data:  &cloudformation.ValidateTemplateOutput{},
-			Error: fc.err,
+			Data:        &cloudformation.ValidateTemplateOutput{},
+			Error:       fc.err,
+			HTTPRequest: new(http.Request),
 		},
 		Input: input,
 	}
@@ -41,7 +44,8 @@ func (fc *fakeUpdateCFClient) CreateChangeSetRequest(input *cloudformation.Creat
 			Data: &cloudformation.CreateChangeSetOutput{
 				StackId: aws.String("DummyID"),
 			},
-			Error: fc.err,
+			Error:       fc.err,
+			HTTPRequest: new(http.Request),
 		},
 		Input: input,
 	}
@@ -50,18 +54,19 @@ func (fc *fakeUpdateCFClient) CreateChangeSetRequest(input *cloudformation.Creat
 func (fc *fakeUpdateCFClient) ExecuteChangeSetRequest(input *cloudformation.ExecuteChangeSetInput) cloudformation.ExecuteChangeSetRequest {
 	return cloudformation.ExecuteChangeSetRequest{
 		Request: &aws.Request{
-			Data:  &cloudformation.ExecuteChangeSetOutput{},
-			Error: fc.err,
+			Data:        &cloudformation.ExecuteChangeSetOutput{},
+			Error:       fc.err,
+			HTTPRequest: new(http.Request),
 		},
 		Input: input,
 	}
 }
 
-func (fc *fakeUpdateCFClient) WaitUntilStackUpdateComplete(input *cloudformation.DescribeStacksInput) error {
+func (fc *fakeUpdateCFClient) WaitUntilStackUpdateComplete(ctx context.Context, input *cloudformation.DescribeStacksInput, opts ...aws.WaiterOption) error {
 	return nil
 }
 
-func (fc *fakeUpdateCFClient) WaitUntilChangeSetCreateComplete(input *cloudformation.DescribeChangeSetInput) error {
+func (fc *fakeUpdateCFClient) WaitUntilChangeSetCreateComplete(ctx context.Context, input *cloudformation.DescribeChangeSetInput, opts ...aws.WaiterOption) error {
 	return nil
 }
 
@@ -69,14 +74,16 @@ func (fc *fakeUpdateCFClient) DescribeStacksRequest(input *cloudformation.Descri
 	if fc.stackname == "NotEmptyStack" {
 		return cloudformation.DescribeStacksRequest{
 			Request: &aws.Request{
-				Data:  &NotEmptyStack,
-				Error: fc.err,
+				Data:        &NotEmptyStack,
+				Error:       fc.err,
+				HTTPRequest: new(http.Request),
 			},
 		}
 	}
 	return cloudformation.DescribeStacksRequest{
 		Request: &aws.Request{
-			Data: &cloudformation.DescribeStacksOutput{},
+			Data:        &cloudformation.DescribeStacksOutput{},
+			HTTPRequest: new(http.Request),
 		},
 	}
 }
@@ -99,8 +106,9 @@ var notEmptyChangeSetOutput = cloudformation.DescribeChangeSetOutput{
 func (fc *fakeUpdateCFClient) DescribeChangeSetRequest(input *cloudformation.DescribeChangeSetInput) cloudformation.DescribeChangeSetRequest {
 	return cloudformation.DescribeChangeSetRequest{
 		Request: &aws.Request{
-			Data:  &notEmptyChangeSetOutput,
-			Error: fc.err,
+			Data:        &notEmptyChangeSetOutput,
+			Error:       fc.err,
+			HTTPRequest: new(http.Request),
 		},
 	}
 }

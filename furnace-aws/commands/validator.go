@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"context"
 	"log"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -14,7 +15,7 @@ func (cf *CFClient) validateTemplate(template []byte) *cloudformation.ValidateTe
 		TemplateBody: aws.String(string(template)),
 	}
 	req := cf.Client.ValidateTemplateRequest(validateParams)
-	resp, err := req.Send()
+	resp, err := req.Send(context.Background())
 	handle.Error(err)
 	return resp
 }

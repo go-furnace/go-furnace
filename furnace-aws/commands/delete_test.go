@@ -1,6 +1,8 @@
 package commands
 
 import (
+	"context"
+	"net/http"
 	"reflect"
 	"testing"
 
@@ -23,12 +25,13 @@ type fakeDeleteCFClient struct {
 func (fc *fakeDeleteCFClient) DeleteStackRequest(*cloudformation.DeleteStackInput) cloudformation.DeleteStackRequest {
 	return cloudformation.DeleteStackRequest{
 		Request: &aws.Request{
-			Data: &cloudformation.DeleteStackOutput{},
+			Data:        &cloudformation.DeleteStackOutput{},
+			HTTPRequest: new(http.Request),
 		},
 	}
 }
 
-func (fc *fakeDeleteCFClient) WaitUntilStackDeleteComplete(input *cloudformation.DescribeStacksInput) error {
+func (fc *fakeDeleteCFClient) WaitUntilStackDeleteComplete(ctx context.Context, input *cloudformation.DescribeStacksInput, opts ...aws.WaiterOption) error {
 	return fc.err
 }
 
