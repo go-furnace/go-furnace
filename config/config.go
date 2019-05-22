@@ -20,9 +20,6 @@ var Spinners = []string{`←↖↑↗→↘↓↙`,
 // WAITFREQUENCY global wait frequency default.
 var WAITFREQUENCY = 1
 
-// STACKNAME is the default name for a stack.
-var STACKNAME = "FurnaceStack"
-
 // SPINNER is the index of which spinner to use. Defaults to 7.
 var SPINNER = 7
 
