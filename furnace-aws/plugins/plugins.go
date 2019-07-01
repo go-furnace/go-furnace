@@ -35,10 +35,11 @@ func RunPreCreatePlugins(stackname string) {
 	}
 
 	for _, v := range ps {
-		raw := getRawForPlugin(pluginMap, v)
+		raw, client := getRawForPlugin(pluginMap, v)
 
 		p := raw.(sdk.PreCreate)
 		ret := p.Execute(stackname)
+		client.Kill()
 		if !ret {
 			log.Printf("A plugin with name '%s' prevented create to run.\n", v)
 			err := errors.New("plugin prevented create to run")
@@ -59,10 +60,11 @@ func RunPostCreatePlugins(stackname string) {
 	}
 
 	for _, v := range ps {
-		raw := getRawForPlugin(pluginMap, v)
+		raw, client := getRawForPlugin(pluginMap, v)
 
 		p := raw.(sdk.PostCreate)
 		p.Execute(stackname)
+		client.Kill()
 	}
 }
 
@@ -78,10 +80,11 @@ func RunPreDeletePlugins(stackname string) {
 	}
 
 	for _, v := range ps {
-		raw := getRawForPlugin(pluginMap, v)
+		raw, client := getRawForPlugin(pluginMap, v)
 
 		p := raw.(sdk.PreDelete)
 		ret := p.Execute(stackname)
+		client.Kill()
 		if !ret {
 			log.Printf("A plugin with name '%s' prevented delete to run.\n", v)
 			err := errors.New("plugin prevented delete to run")
@@ -102,14 +105,15 @@ func RunPostDeletePlugins(stackname string) {
 	}
 
 	for _, v := range ps {
-		raw := getRawForPlugin(pluginMap, v)
+		raw, client := getRawForPlugin(pluginMap, v)
 
 		p := raw.(sdk.PostDelete)
 		p.Execute(stackname)
+		client.Kill()
 	}
 }
 
-func getRawForPlugin(pluginMap map[string]plugin.Plugin, v string) interface{} {
+func getRawForPlugin(pluginMap map[string]plugin.Plugin, v string) (interface{}, *plugin.Client) {
 	var cmd *exec.Cmd
 	ext := filepath.Ext(v)
 	switch ext {
@@ -145,7 +149,7 @@ func getRawForPlugin(pluginMap map[string]plugin.Plugin, v string) interface{} {
 		fmt.Println("Error:", err.Error())
 		os.Exit(1)
 	}
-	return raw
+	return raw, client
 }
 
 func discoverPlugins(postfix string) (p []string, err error) {
