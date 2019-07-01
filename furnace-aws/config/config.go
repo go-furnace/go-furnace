@@ -2,6 +2,7 @@ package config
 
 import (
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -85,7 +86,7 @@ func (c *Configuration) LoadConfiguration(configFile string) {
 // returns an error if the file is not found.
 func LoadConfigFileIfExists(dir string, file string) error {
 	separatorIndex := strings.LastIndex(dir, "/")
-	for separatorIndex != 0 {
+	for separatorIndex > 0 {
 		if _, err := os.Stat(filepath.Join(dir, "."+file+".furnace")); err == nil {
 			configLocation, _ := ioutil.ReadFile(filepath.Join(dir, "."+file+".furnace"))
 			configPath = dir
@@ -95,6 +96,7 @@ func LoadConfigFileIfExists(dir string, file string) error {
 			return nil
 		}
 		separatorIndex = strings.LastIndex(dir, string(os.PathSeparator))
+		fmt.Println("Debug: ", separatorIndex, dir, file)
 		dir = dir[0:separatorIndex]
 	}
 

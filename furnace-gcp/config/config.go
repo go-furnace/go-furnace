@@ -67,7 +67,7 @@ func (c *Configuration) LoadConfiguration(configFile string) {
 // returns an error if the file is not found.
 func LoadConfigFileIfExists(dir string, file string) error {
 	separatorIndex := strings.LastIndex(dir, "/")
-	for separatorIndex != 0 {
+	for separatorIndex > 0 {
 		if _, err := os.Stat(filepath.Join(dir, "."+file+".furnace")); err == nil {
 			configLocation, _ := ioutil.ReadFile(filepath.Join(dir, "."+file+".furnace"))
 			configPath = dir

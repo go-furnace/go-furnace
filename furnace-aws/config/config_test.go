@@ -29,9 +29,9 @@ aws:
     code_deploy_s3_key: furnace_deploy_app
     git_account: Skarlso/furnace-codedeploy-app
     git_revision: b89451234...`)
-	location := os.TempDir()
+	location, _ := ioutil.TempDir("", "TestLoadConfigFileIfExistsOutSideTheCurrentDir")
 	location2 := filepath.Join(location, "temp2")
-	err := os.Mkdir(filepath.Join(location2), os.ModeDir)
+	err := os.Mkdir(location2, os.ModeDir)
 	if err != nil {
 		t.Fatal(err)
 	}
