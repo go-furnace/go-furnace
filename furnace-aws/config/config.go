@@ -2,7 +2,6 @@ package config
 
 import (
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -96,7 +95,6 @@ func LoadConfigFileIfExists(dir string, file string) error {
 			return nil
 		}
 		separatorIndex = strings.LastIndex(dir, string(os.PathSeparator))
-		fmt.Println("Debug: ", separatorIndex, dir, file)
 		dir = dir[0:separatorIndex]
 	}
 
