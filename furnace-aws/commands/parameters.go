@@ -10,6 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/cloudformation"
 	"github.com/fatih/color"
+	awsconfig "github.com/go-furnace/go-furnace/furnace-aws/config"
 )
 
 func gatherParameters(source *os.File, params *cloudformation.ValidateTemplateOutput) []cloudformation.Parameter {
@@ -22,7 +23,10 @@ func gatherParameters(source *os.File, params *cloudformation.ValidateTemplateOu
 	for _, v := range params.Parameters {
 		var param cloudformation.Parameter
 		fmt.Printf("%s - '%s'(%s):", aws.StringValue(v.Description), keyName(aws.StringValue(v.ParameterKey)), defaultValue(aws.StringValue(v.DefaultValue)))
-		text := readInputFrom(source)
+		var text string
+		if !awsconfig.Config.Main.UseDefaults {
+			text = readInputFrom(source)
+		}
 		param.ParameterKey = v.ParameterKey
 		text = strings.Trim(text, "\n")
 		if len(text) > 0 {

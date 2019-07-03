@@ -28,7 +28,7 @@ var Handshake = plugin.HandshakeConfig{
 // PreCreate plugins: `*-furnace-precreate.*`
 func RunPreCreatePlugins(stackname string) {
 	ps, _ := discoverPlugins("*-furnace-precreate*")
-	pluginMap := make(map[string]plugin.Plugin, 0)
+	pluginMap := make(map[string]plugin.Plugin)
 	for _, v := range ps {
 		pluginName := filepath.Base(v)
 		pluginMap[pluginName] = &sdk.PreCreateGRPCPlugin{}
@@ -53,7 +53,7 @@ func RunPreCreatePlugins(stackname string) {
 // PostCreate plugins: `*-furnace-postcreate`
 func RunPostCreatePlugins(stackname string) {
 	ps, _ := discoverPlugins("*-furnace-postcreate*")
-	pluginMap := make(map[string]plugin.Plugin, 0)
+	pluginMap := make(map[string]plugin.Plugin)
 	for _, v := range ps {
 		pluginName := filepath.Base(v)
 		pluginMap[pluginName] = &sdk.PostCreateGRPCPlugin{}
@@ -73,7 +73,7 @@ func RunPostCreatePlugins(stackname string) {
 // PreDelete plugins: `*-furnace-predelete*`
 func RunPreDeletePlugins(stackname string) {
 	ps, _ := discoverPlugins("*-furnace-predelete*")
-	pluginMap := make(map[string]plugin.Plugin, 0)
+	pluginMap := make(map[string]plugin.Plugin)
 	for _, v := range ps {
 		pluginName := filepath.Base(v)
 		pluginMap[pluginName] = &sdk.PreDeleteGRPCPlugin{}
@@ -98,7 +98,7 @@ func RunPreDeletePlugins(stackname string) {
 // PostDelete plugins: `*-furnace-postdelete`
 func RunPostDeletePlugins(stackname string) {
 	ps, _ := discoverPlugins("*-furnace-postdelete*")
-	pluginMap := make(map[string]plugin.Plugin, 0)
+	pluginMap := make(map[string]plugin.Plugin)
 	for _, v := range ps {
 		pluginName := filepath.Base(v)
 		pluginMap[pluginName] = &sdk.PostDeleteGRPCPlugin{}
@@ -135,7 +135,6 @@ func getRawAndClientForPlugin(pluginMap map[string]plugin.Plugin, v string) (int
 			plugin.ProtocolGRPC},
 	})
 
-	defer client.Kill()
 	grpcClient, err := client.Client()
 	if err != nil {
 		fmt.Println("Error:", err.Error())

@@ -41,7 +41,6 @@ func createExecute(opts *commander.CommandHelper, client *CFClient) {
 	}
 	stackname := awsconfig.Config.Main.Stackname
 	template := awsconfig.LoadCFStackConfig()
-	plugins.RunPreCreatePlugins(stackname)
 	stacks := create(stackname, template, client)
 	plugins.RunPostCreatePlugins(stackname)
 	var red = color.New(color.FgRed).SprintFunc()
@@ -63,6 +62,7 @@ func create(stackname string, template []byte, cfClient *CFClient) []cloudformat
 		Parameters:   stackParameters,
 		TemplateBody: aws.String(string(template)),
 	}
+	plugins.RunPreCreatePlugins(stackname)
 	resp := cfClient.createStack(stackInputParams)
 	log.Println("Create stack response: ", resp)
 	cfClient.waitForStackCreateCompleteStatus(context.Background(), stackname)

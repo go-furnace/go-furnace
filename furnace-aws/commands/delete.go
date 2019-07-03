@@ -40,7 +40,6 @@ func deleteExecute(opts *commander.CommandHelper, client *CFClient) {
 	stackname := awsconfig.Config.Main.Stackname
 	cyan := color.New(color.FgCyan).SprintFunc()
 	log.Printf("Deleting CloudFormation stack with name: %s\n", cyan(stackname))
-	plugins.RunPreDeletePlugins(stackname)
 	deleteStack(stackname, client)
 	plugins.RunPostDeletePlugins(stackname)
 }
@@ -51,6 +50,7 @@ func deleteStack(stackname string, cfClient *CFClient) {
 	}
 	ctx := context.Background()
 	req := cfClient.Client.DeleteStackRequest(params)
+	plugins.RunPreDeletePlugins(stackname)
 	_, err := req.Send(ctx)
 	handle.Error(err)
 	describeStackInput := &cloudformation.DescribeStacksInput{

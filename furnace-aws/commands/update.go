@@ -146,7 +146,7 @@ func (cf *CFClient) waitForChangeSetToBeApplied(stackname, changeSetName string)
 		StackName:     &stackname,
 	}
 	waitForFunctionWithStatusOutput("UPDATE_COMPLETE", config.WAITFREQUENCY, func() {
-		cf.Client.WaitUntilChangeSetCreateComplete(context.Background(), describeChangeInput)
+		_ = cf.Client.WaitUntilChangeSetCreateComplete(context.Background(), describeChangeInput)
 	})
 }
 

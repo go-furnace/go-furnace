@@ -33,7 +33,7 @@ func (d *Delete) Execute(opts *commander.CommandHelper) {
 	ds := NewDeploymentService(d.client)
 	err := delete(ds)
 	handle.Error(err)
-	log.Println("Deleteing Deployment Under Project: ", keyName(fc.Config.Main.ProjectName))
+	log.Println("Deleting Deployment Under Project: ", keyName(fc.Config.Main.ProjectName))
 }
 
 func delete(d DeploymentmanagerService) error {

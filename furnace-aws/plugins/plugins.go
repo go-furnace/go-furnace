@@ -35,7 +35,7 @@ func RunPreCreatePlugins(stackname string) {
 	}
 
 	for _, v := range ps {
-		raw, client := getRawForPlugin(pluginMap, v)
+		raw, client := getRawAndClientForPlugin(pluginMap, v)
 
 		p := raw.(sdk.PreCreate)
 		ret := p.Execute(stackname)
@@ -60,7 +60,7 @@ func RunPostCreatePlugins(stackname string) {
 	}
 
 	for _, v := range ps {
-		raw, client := getRawForPlugin(pluginMap, v)
+		raw, client := getRawAndClientForPlugin(pluginMap, v)
 
 		p := raw.(sdk.PostCreate)
 		p.Execute(stackname)
@@ -80,7 +80,7 @@ func RunPreDeletePlugins(stackname string) {
 	}
 
 	for _, v := range ps {
-		raw, client := getRawForPlugin(pluginMap, v)
+		raw, client := getRawAndClientForPlugin(pluginMap, v)
 
 		p := raw.(sdk.PreDelete)
 		ret := p.Execute(stackname)
@@ -105,7 +105,7 @@ func RunPostDeletePlugins(stackname string) {
 	}
 
 	for _, v := range ps {
-		raw, client := getRawForPlugin(pluginMap, v)
+		raw, client := getRawAndClientForPlugin(pluginMap, v)
 
 		p := raw.(sdk.PostDelete)
 		p.Execute(stackname)
@@ -113,7 +113,7 @@ func RunPostDeletePlugins(stackname string) {
 	}
 }
 
-func getRawForPlugin(pluginMap map[string]plugin.Plugin, v string) (interface{}, *plugin.Client) {
+func getRawAndClientForPlugin(pluginMap map[string]plugin.Plugin, v string) (interface{}, *plugin.Client) {
 	var cmd *exec.Cmd
 	ext := filepath.Ext(v)
 	switch ext {
@@ -135,7 +135,6 @@ func getRawForPlugin(pluginMap map[string]plugin.Plugin, v string) (interface{},
 			plugin.ProtocolGRPC},
 	})
 
-	defer client.Kill()
 	grpcClient, err := client.Client()
 	if err != nil {
 		fmt.Println("Error:", err.Error())

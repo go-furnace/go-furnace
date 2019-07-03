@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 	"reflect"
 	"testing"
 
@@ -268,7 +267,7 @@ func TestGatheringParametersWithUserInputShouldUseInput(t *testing.T) {
 		t.Fatal(err)
 	}
 	// Set the starting point for the next read to be the beginning of the file
-	_, err = in.Seek(0, os.SEEK_SET)
+	_, err = in.Seek(0, io.SeekStart)
 	if err != nil {
 		t.Fatal(err)
 	}
