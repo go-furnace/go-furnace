@@ -33,7 +33,7 @@ func (s *Status) Execute(opts *commander.CommandHelper) {
 	ctx := context.Background()
 	client, err := google.DefaultClient(ctx, dm.NdevCloudmanScope)
 	handle.Error(err)
-	d, _ := dm.New(client)
+	d := NewDeploymentService(client)
 	project := d.Deployments.Get(fc.Config.Main.ProjectName, deploymentName)
 	p, err := project.Do()
 	if err != nil {
@@ -52,7 +52,6 @@ func (s *Status) Execute(opts *commander.CommandHelper) {
 	log.Println("Labels: ", p.Labels)
 	log.Println("Selflink: ", p.SelfLink)
 	log.Println("Layout: \n", m.Layout)
-	// Consider getting every resource status?
 }
 
 // NewStatus Creates a new status command

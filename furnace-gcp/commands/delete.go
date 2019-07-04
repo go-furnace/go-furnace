@@ -31,15 +31,15 @@ func (d *Delete) Execute(opts *commander.CommandHelper) {
 		}
 	}
 	ds := NewDeploymentService(d.client)
-	err := delete(ds)
+	err := deleteDeployment(ds)
 	handle.Error(err)
 	log.Println("Deleting Deployment Under Project: ", keyName(fc.Config.Main.ProjectName))
 }
 
-func delete(d DeploymentmanagerService) error {
+func deleteDeployment(d DeploymentmanagerService) error {
 	ret := d.Deployments.Delete(fc.Config.Main.ProjectName, fc.Config.Gcp.StackName)
 	if ret == nil {
-		return errors.New("return of delete was nil")
+		return errors.New("return of deleteDeployment was nil")
 	}
 	plugins.RunPreDeletePlugins(fc.Config.Gcp.StackName)
 	_, err := ret.Do()
@@ -61,7 +61,7 @@ func NewDelete(appName string) *commander.CommandWrapper {
 	return &commander.CommandWrapper{
 		Handler: &d,
 		Help: &commander.CommandDescriptor{
-			Name:             "delete",
+			Name:             "deleteDeployment",
 			ShortDescription: "Delete a Google Deployment Manager",
 			LongDescription:  `Delete a deployment under a given project id.`,
 			Arguments:        "custom-config",

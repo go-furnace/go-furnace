@@ -14,7 +14,8 @@ import (
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2/google"
 	dm "google.golang.org/api/deploymentmanager/v2"
-	yaml "gopkg.in/yaml.v1"
+	"google.golang.org/api/option"
+	"gopkg.in/yaml.v1"
 )
 
 // Create commands for google Deployment Manager
@@ -39,7 +40,8 @@ type DeploymentmanagerService struct {
 // NewDeploymentService will return a deployment manager service that
 // can be used as a mock for the GCP deployment manager.
 func NewDeploymentService(client *http.Client) DeploymentmanagerService {
-	d, _ := dm.New(client)
+	ctx := context.Background()
+	d, _ := dm.NewService(ctx, option.WithHTTPClient(client))
 
 	return DeploymentmanagerService{
 		Deployments: d.Deployments,

@@ -21,11 +21,11 @@ func TestDelete(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = delete(d)
+	err = deleteDeployment(d)
 	if err == nil {
 		t.Fatal("was expecting error. got nothing.")
 	}
-	if err.Error() != "return of delete was nil" {
+	if err.Error() != "return of deleteDeployment was nil" {
 		t.Fatal("wrong error message. got: ", err.Error())
 	}
 }
@@ -41,12 +41,12 @@ func TestDeleteFails(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = delete(d)
+	err = deleteDeployment(d)
 	if err == nil {
 		t.Fatal("was expecting error. got nothing")
 	}
-	want := "return of delete was nil"
-	if err.Error() != "return of delete was nil" {
+	want := "return of deleteDeployment was nil"
+	if err.Error() != "return of deleteDeployment was nil" {
 		t.Fatalf("did not get expected error of '%s'. got: %s", want, err.Error())
 	}
 }
@@ -59,7 +59,7 @@ func (f RoundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
 	return f(req), nil
 }
 
-//NewTestClient returns *http.Client with Transport replaced to avoid making real calls
+// NewTestClient returns *http.Client with Transport replaced to avoid making real calls
 func NewTestClient(fn RoundTripFunc) *http.Client {
 	return &http.Client{
 		Transport: RoundTripFunc(fn),
