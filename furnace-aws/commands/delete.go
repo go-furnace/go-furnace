@@ -18,18 +18,11 @@ import (
 
 // Delete command.
 type Delete struct {
+	client *CFClient
 }
 
 // Execute defines what this command does.
-func (c *Delete) Execute(opts *commander.CommandHelper) {
-	cfg, err := external.LoadDefaultAWSConfig()
-	handle.Error(err)
-	cfClient := cloudformation.New(cfg)
-	client := CFClient{cfClient}
-	deleteExecute(opts, &client)
-}
-
-func deleteExecute(opts *commander.CommandHelper, client *CFClient) {
+func (d *Delete) Execute(opts *commander.CommandHelper) {
 	configName := opts.Arg(0)
 	if len(configName) > 0 {
 		dir, _ := os.Getwd()
@@ -40,7 +33,7 @@ func deleteExecute(opts *commander.CommandHelper, client *CFClient) {
 	stackname := awsconfig.Config.Main.Stackname
 	cyan := color.New(color.FgCyan).SprintFunc()
 	log.Printf("Deleting CloudFormation stack with name: %s\n", cyan(stackname))
-	deleteStack(stackname, client)
+	deleteStack(stackname, d.client)
 	plugins.RunPostDeletePlugins(stackname)
 }
 
@@ -66,8 +59,13 @@ func deleteStack(stackname string, cfClient *CFClient) {
 
 // NewDelete Creates a new Delete command.
 func NewDelete(appName string) *commander.CommandWrapper {
+	cfg, err := external.LoadDefaultAWSConfig()
+	handle.Error(err)
+	cfClient := cloudformation.New(cfg)
+	client := CFClient{cfClient}
+	d := Delete{&client}
 	return &commander.CommandWrapper{
-		Handler: &Delete{},
+		Handler: &d,
 		Help: &commander.CommandDescriptor{
 			Name:             "delete",
 			ShortDescription: "Delete a stack",

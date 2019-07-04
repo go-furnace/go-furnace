@@ -49,7 +49,10 @@ func TestDeleteExecute(t *testing.T) {
 	stackname := "ToDeleteStack"
 	client.Client = &fakeDeleteCFClient{err: nil, stackname: stackname}
 	opts := &commander.CommandHelper{}
-	deleteExecute(opts, client)
+	d := Delete{
+		client: client,
+	}
+	d.Execute(opts)
 }
 
 func TestDeleteExecuteWithExtraStack(t *testing.T) {
@@ -59,7 +62,10 @@ func TestDeleteExecuteWithExtraStack(t *testing.T) {
 	client.Client = &fakeDeleteCFClient{err: nil, stackname: stackname}
 	opts := &commander.CommandHelper{}
 	opts.Args = append(opts.Args, "teststack")
-	deleteExecute(opts, client)
+	d := Delete{
+		client: client,
+	}
+	d.Execute(opts)
 	if awsconfig.Config.Main.Stackname != "MyStack" {
 		t.Fatal("test did not load the file requested.")
 	}
@@ -76,7 +82,10 @@ func TestDeleteExecuteWithExtraStackNotFound(t *testing.T) {
 	client.Client = &fakeDeleteCFClient{err: nil, stackname: stackname}
 	opts := &commander.CommandHelper{}
 	opts.Args = append(opts.Args, "notfound")
-	deleteExecute(opts, client)
+	d := Delete{
+		client: client,
+	}
+	d.Execute(opts)
 	if !failed {
 		t.Error("Expected outcome to fail. Did not fail.")
 	}
