@@ -84,7 +84,10 @@ func TestCreateExecute(t *testing.T) {
 	opts := &commander.CommandHelper{}
 	opts.Args = make([]string, 0)
 	opts.Args = append(opts.Args, "teststack")
-	createExecute(opts, client)
+	c := Create{
+		client: client,
+	}
+	c.Execute(opts)
 }
 
 func TestCreateExecuteWithStackFile(t *testing.T) {
@@ -94,7 +97,10 @@ func TestCreateExecuteWithStackFile(t *testing.T) {
 	client.Client = &fakeCreateCFClient{err: nil, stackname: stackname}
 	opts := &commander.CommandHelper{}
 	opts.Args = append(opts.Args, "teststack")
-	createExecute(opts, client)
+	c := Create{
+		client: client,
+	}
+	c.Execute(opts)
 	if awsconfig.Config.Main.Stackname != "MyStack" {
 		t.Fatal("test did not load the file requested.")
 	}
@@ -111,7 +117,10 @@ func TestCreateExecuteWithStackFileNotFound(t *testing.T) {
 	client.Client = &fakeCreateCFClient{err: nil, stackname: stackname}
 	opts := &commander.CommandHelper{}
 	opts.Args = append(opts.Args, "notpresent")
-	createExecute(opts, client)
+	c := Create{
+		client: client,
+	}
+	c.Execute(opts)
 	if !failed {
 		t.Error("Expected outcome to fail. Did not fail.")
 	}
@@ -127,7 +136,10 @@ func TestCreateExecuteEmptyStack(t *testing.T) {
 	stackname := "EmptyStack"
 	client.Client = &fakeCreateCFClient{err: nil, stackname: stackname}
 	opts := &commander.CommandHelper{}
-	createExecute(opts, client)
+	c := Create{
+		client: client,
+	}
+	c.Execute(opts)
 	if !failed {
 		t.Error("Expected outcome to fail. Did not fail.")
 	}

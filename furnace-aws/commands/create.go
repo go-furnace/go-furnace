@@ -6,9 +6,10 @@ import (
 	"log"
 	"os"
 
+	"github.com/aws/aws-sdk-go-v2/aws/external"
+
 	"github.com/Yitsushi/go-commander"
 	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/aws/external"
 	"github.com/aws/aws-sdk-go-v2/service/cloudformation"
 	"github.com/fatih/color"
 	"github.com/go-furnace/go-furnace/config"
@@ -19,19 +20,11 @@ import (
 
 // Create command.
 type Create struct {
+	client *CFClient
 }
 
 // Execute defines what this command does.
 func (c *Create) Execute(opts *commander.CommandHelper) {
-	log.Println("Creating cloud formation session.")
-	cfg, err := external.LoadDefaultAWSConfig()
-	handle.Error(err)
-	cfClient := cloudformation.New(cfg)
-	client := CFClient{cfClient}
-	createExecute(opts, &client)
-}
-
-func createExecute(opts *commander.CommandHelper, client *CFClient) {
 	configName := opts.Arg(0)
 	if len(configName) > 0 {
 		dir, _ := os.Getwd()
@@ -41,7 +34,7 @@ func createExecute(opts *commander.CommandHelper, client *CFClient) {
 	}
 	stackname := awsconfig.Config.Main.Stackname
 	template := awsconfig.LoadCFStackConfig()
-	stacks := create(stackname, template, client)
+	stacks := create(stackname, template, c.client)
 	plugins.RunPostCreatePlugins(stackname)
 	var red = color.New(color.FgRed).SprintFunc()
 	if stacks != nil {
@@ -96,8 +89,14 @@ func (cf *CFClient) createStack(stackInputParams *cloudformation.CreateStackInpu
 
 // NewCreate Creates a new Create command.
 func NewCreate(appName string) *commander.CommandWrapper {
+	log.Println("Creating cloud formation session.")
+	cfg, err := external.LoadDefaultAWSConfig()
+	handle.Error(err)
+	cfClient := cloudformation.New(cfg)
+	c := Create{}
+	c.client = &CFClient{cfClient}
 	return &commander.CommandWrapper{
-		Handler: &Create{},
+		Handler: &c,
 		Help: &commander.CommandDescriptor{
 			Name:             "create",
 			ShortDescription: "Create a stack",
