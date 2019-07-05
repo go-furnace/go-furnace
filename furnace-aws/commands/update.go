@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"github.com/fatih/color"
 	"log"
 	"os"
 
@@ -11,15 +12,15 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/aws/external"
 	"github.com/aws/aws-sdk-go-v2/service/cloudformation"
-	"github.com/fatih/color"
 	"github.com/go-furnace/go-furnace/config"
 	awsconfig "github.com/go-furnace/go-furnace/furnace-aws/config"
 	"github.com/go-furnace/go-furnace/handle"
-	uuid "github.com/google/uuid"
+	"github.com/google/uuid"
 )
 
 // Update command.
 type Update struct {
+	client *CFClient
 }
 
 // DescribeChangeSetRequestSender describes a sender interface in order to mock
@@ -35,22 +36,8 @@ type ExecuteChangeSetRequestSender interface {
 }
 
 // Execute defines what this command does.
-func (c *Update) Execute(opts *commander.CommandHelper) {
-	log.Println("Creating cloud formation session.")
-	cfg, err := external.LoadDefaultAWSConfig()
-	handle.Error(err)
-	cfClient := cloudformation.New(cfg)
-	client := CFClient{cfClient}
+func (u *Update) Execute(opts *commander.CommandHelper) {
 	override := opts.Flag("y")
-	update(opts, &client, override)
-}
-
-// Todo the CFClient needs an inner property
-// DescribeSender
-// ExecuteSender
-// And use those in the sender parameter.
-// Block that later on.
-func update(opts *commander.CommandHelper, client *CFClient, override bool) {
 	configName := opts.Arg(0)
 	if len(configName) > 0 {
 		dir, _ := os.Getwd()
@@ -60,13 +47,13 @@ func update(opts *commander.CommandHelper, client *CFClient, override bool) {
 	}
 	stackname := awsconfig.Config.Main.Stackname
 	template := awsconfig.LoadCFStackConfig()
-	changeSetName := createChangeSet(stackname, template, client)
-	client.waitForChangeSetToBeApplied(stackname, changeSetName)
+	changeSetName := createChangeSet(stackname, template, u.client)
+	u.client.waitForChangeSetToBeApplied(stackname, changeSetName)
 	describeChangeInput := &cloudformation.DescribeChangeSetInput{
 		ChangeSetName: &changeSetName,
 		StackName:     &stackname,
 	}
-	changes := client.Client.DescribeChangeSetRequest(describeChangeInput)
+	changes := u.client.Client.DescribeChangeSetRequest(describeChangeInput)
 	resp, err := sendDescribeChangeSetRequest(changes)
 	handle.Error(err)
 
@@ -97,11 +84,11 @@ func update(opts *commander.CommandHelper, client *CFClient, override bool) {
 		ClientRequestToken: resp.NextToken,
 		StackName:          &stackname,
 	}
-	executeChangeRequest := client.Client.ExecuteChangeSetRequest(&executeChangeInput)
+	executeChangeRequest := u.client.Client.ExecuteChangeSetRequest(&executeChangeInput)
 	_, err = sendExecuteChangeSetRequestSender(executeChangeRequest)
 	handle.Error(err)
-	client.waitForStackUpdateComplete(stackname)
-	descResp := client.describeStacks(&cloudformation.DescribeStacksInput{StackName: aws.String(stackname)})
+	u.client.waitForStackUpdateComplete(stackname)
+	descResp := u.client.describeStacks(&cloudformation.DescribeStacksInput{StackName: aws.String(stackname)})
 	fmt.Println()
 	stacks := descResp.Stacks
 	var red = color.New(color.FgRed).SprintFunc()
@@ -164,8 +151,16 @@ func (cf *CFClient) waitForStackUpdateComplete(stackname string) {
 
 // NewUpdate Updates a new Update command.
 func NewUpdate(appName string) *commander.CommandWrapper {
+	log.Println("Creating cloud formation session.")
+	cfg, err := external.LoadDefaultAWSConfig()
+	handle.Error(err)
+	cfClient := cloudformation.New(cfg)
+	client := CFClient{cfClient}
+	u := Update{
+		client: &client,
+	}
 	return &commander.CommandWrapper{
-		Handler: &Update{},
+		Handler: &u,
 		Help: &commander.CommandDescriptor{
 			Name:             "update",
 			ShortDescription: "Update a stack",

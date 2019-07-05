@@ -144,7 +144,12 @@ func TestPushExecute(t *testing.T) {
 	cfClient := new(CFClient)
 	cfClient.Client = &fakePushCFClient{err: nil}
 	opts := &commander.CommandHelper{}
-	pushExecute(opts, cfClient, cdClient, iamClient)
+	p := Push{
+		cfClient: cfClient,
+		cdClient: cdClient,
+		iamClient: iamClient,
+	}
+	p.Execute(opts)
 }
 
 func TestPushExecuteWithStackConfig(t *testing.T) {
@@ -159,7 +164,12 @@ func TestPushExecuteWithStackConfig(t *testing.T) {
 	cfClient.Client = &fakePushCFClient{err: nil}
 	opts := &commander.CommandHelper{}
 	opts.Args = append(opts.Args, "teststack")
-	pushExecute(opts, cfClient, cdClient, iamClient)
+	p := Push{
+		cfClient: cfClient,
+		cdClient: cdClient,
+		iamClient: iamClient,
+	}
+	p.Execute(opts)
 	if awsconfig.Config.Main.Stackname != "MyStack" {
 		t.Fatal("test did not load the file requested.")
 	}
@@ -181,7 +191,12 @@ func TestPushExecuteWithStackConfigNotFound(t *testing.T) {
 	cfClient.Client = &fakePushCFClient{err: nil}
 	opts := &commander.CommandHelper{}
 	opts.Args = append(opts.Args, "notfound")
-	pushExecute(opts, cfClient, cdClient, iamClient)
+	p := Push{
+		cfClient: cfClient,
+		cdClient: cdClient,
+		iamClient: iamClient,
+	}
+	p.Execute(opts)
 	if !failed {
 		t.Error("Expected outcome to fail. Did not fail.")
 	}

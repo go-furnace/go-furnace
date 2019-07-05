@@ -3,9 +3,6 @@ package commands
 import (
 	"context"
 	"fmt"
-	"log"
-	"os"
-
 	"github.com/Yitsushi/go-commander"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/aws/awserr"
@@ -16,10 +13,15 @@ import (
 	"github.com/go-furnace/go-furnace/config"
 	awsconfig "github.com/go-furnace/go-furnace/furnace-aws/config"
 	"github.com/go-furnace/go-furnace/handle"
+	"log"
+	"os"
 )
 
 // Push command.
 type Push struct {
+	cdClient *CDClient
+	cfClient *CFClient
+	iamClient *IAMClient
 }
 
 var s3Deploy = false
@@ -27,19 +29,7 @@ var gitRevision string
 var gitAccount string
 
 // Execute defines what this command does.
-func (c *Push) Execute(opts *commander.CommandHelper) {
-	cfg, err := external.LoadDefaultAWSConfig()
-	handle.Error(err)
-	cd := codedeploy.New(cfg)
-	cdClient := CDClient{cd}
-	cf := cloudformation.New(cfg)
-	cfClient := CFClient{cf}
-	iam := iam.New(cfg)
-	iamClient := IAMClient{iam}
-	pushExecute(opts, &cfClient, &cdClient, &iamClient)
-}
-
-func pushExecute(opts *commander.CommandHelper, cfClient *CFClient, cdClient *CDClient, iamClient *IAMClient) {
+func (p *Push) Execute(opts *commander.CommandHelper) {
 	configName := opts.Arg(0)
 	if len(configName) > 0 {
 		dir, _ := os.Getwd()
@@ -49,13 +39,13 @@ func pushExecute(opts *commander.CommandHelper, cfClient *CFClient, cdClient *CD
 	}
 	appName := awsconfig.Config.Aws.AppName
 	s3Deploy = opts.Flags["s3"]
-	asgName := getAutoScalingGroupKey(cfClient)
-	role := getCodeDeployRoleARN(awsconfig.Config.Aws.CodeDeployRole, iamClient)
-	err := createApplication(appName, cdClient)
+	asgName := getAutoScalingGroupKey(p.cfClient)
+	role := getCodeDeployRoleARN(awsconfig.Config.Aws.CodeDeployRole, p.iamClient)
+	err := createApplication(appName, p.cdClient)
 	handle.Error(err)
-	err = createDeploymentGroup(appName, role, asgName, cdClient)
+	err = createDeploymentGroup(appName, role, asgName, p.cdClient)
 	handle.Error(err)
-	push(appName, asgName, cdClient)
+	push(appName, asgName, p.cdClient)
 }
 
 func createDeploymentGroup(appName string, role string, asg string, client *CDClient) error {
@@ -201,8 +191,21 @@ func getCodeDeployRoleARN(roleName string, client *IAMClient) string {
 
 // NewPush Creates a new Push command.
 func NewPush(appName string) *commander.CommandWrapper {
+	cfg, err := external.LoadDefaultAWSConfig()
+	handle.Error(err)
+	cd := codedeploy.New(cfg)
+	cdClient := CDClient{cd}
+	cf := cloudformation.New(cfg)
+	cfClient := CFClient{cf}
+	iam := iam.New(cfg)
+	iamClient := IAMClient{iam}
+	p := Push{
+		cdClient: &cdClient,
+		cfClient: &cfClient,
+		iamClient: &iamClient,
+	}
 	return &commander.CommandWrapper{
-		Handler: &Push{},
+		Handler: &p,
 		Help: &commander.CommandDescriptor{
 			Name:             "push",
 			ShortDescription: "Push to stack",

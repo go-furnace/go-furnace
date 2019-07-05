@@ -39,9 +39,8 @@ func (s *Status) Execute(opts *commander.CommandHelper) {
 	if err != nil {
 		if err.(*googleapi.Error).Code != 404 {
 			handle.Fatal("error while getting deployment: ", err)
-		} else {
-			handle.Fatal("Stack not found!", nil)
 		}
+		handle.Fatal("Stack not found!", nil)
 	}
 	manifestID := p.Manifest[strings.LastIndex(p.Manifest, "/")+1 : len(p.Manifest)]
 	manifest := d.Manifests.Get(fc.Config.Main.ProjectName, deploymentName, manifestID)

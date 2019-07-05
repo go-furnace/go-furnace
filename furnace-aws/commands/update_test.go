@@ -120,7 +120,12 @@ func TestUpdateExecute(t *testing.T) {
 	client.Client = &fakeUpdateCFClient{err: nil, stackname: stackname}
 	opts := &commander.CommandHelper{}
 	opts.Args = append(opts.Args, "teststack")
-	update(opts, client, true)
+	opts.Flags = make(map[string]bool)
+	opts.Flags["y"] = true
+	u := Update{
+		client: client,
+	}
+	u.Execute(opts)
 }
 
 func TestUpdateExecuteWitCustomStack(t *testing.T) {
@@ -130,7 +135,12 @@ func TestUpdateExecuteWitCustomStack(t *testing.T) {
 	client.Client = &fakeUpdateCFClient{err: nil, stackname: stackname}
 	opts := &commander.CommandHelper{}
 	opts.Args = append(opts.Args, "teststack")
-	update(opts, client, true)
+	opts.Flags = make(map[string]bool)
+	opts.Flags["y"] = true
+	u := Update{
+		client: client,
+	}
+	u.Execute(opts)
 	if awsconfig.Config.Main.Stackname != "MyStack" {
 		t.Fatal("test did not load the file requested.")
 	}
@@ -147,7 +157,12 @@ func TestUpdateExecuteWitCustomStackNotFound(t *testing.T) {
 	client.Client = &fakeUpdateCFClient{err: nil, stackname: stackname}
 	opts := &commander.CommandHelper{}
 	opts.Args = append(opts.Args, "notfound")
-	update(opts, client, true)
+	opts.Flags = make(map[string]bool)
+	opts.Flags["y"] = true
+	u := Update{
+		client: client,
+	}
+	u.Execute(opts)
 	if !failed {
 		t.Error("Expected outcome to fail. Did not fail.")
 	}
@@ -164,7 +179,12 @@ func TestUpdateExecuteEmptyStack(t *testing.T) {
 	client.Client = &fakeUpdateCFClient{err: nil, stackname: stackname}
 	opts := &commander.CommandHelper{}
 	opts.Args = append(opts.Args, "teststack")
-	update(opts, client, true)
+	opts.Flags = make(map[string]bool)
+	opts.Flags["y"] = true
+	u := Update{
+		client: client,
+	}
+	u.Execute(opts)
 	if !failed {
 		t.Error("Expected outcome to fail. Did not fail.")
 	}
@@ -178,8 +198,12 @@ func TestUpdateProcedure(t *testing.T) {
 	awsconfig.Config = awsconfig.Configuration{}
 	awsconfig.Config.Main.Stackname = "NotEmptyStack"
 	opts := &commander.CommandHelper{}
-
-	update(opts, client, true)
+	opts.Flags = make(map[string]bool)
+	opts.Flags["y"] = true
+	u := Update{
+		client: client,
+	}
+	u.Execute(opts)
 }
 
 func TestUpdateStackReturnsWithError(t *testing.T) {
@@ -197,7 +221,12 @@ func TestUpdateStackReturnsWithError(t *testing.T) {
 	awsconfig.Config = awsconfig.Configuration{}
 	awsconfig.Config.Main.Stackname = "NotEmptyStack"
 	opts := &commander.CommandHelper{}
-	update(opts, client, true)
+	opts.Flags = make(map[string]bool)
+	opts.Flags["y"] = true
+	u := Update{
+		client: client,
+	}
+	u.Execute(opts)
 	if !failed {
 		t.Error("Expected outcome to fail. Did not fail.")
 	}
