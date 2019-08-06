@@ -136,6 +136,7 @@
                 },
                 "MinSize": "1",
                 "MaxSize": "1",
+                "DesiredCapacity": "1",
                 "HealthCheckGracePeriod" : "300",
                 "HealthCheckType" : "ELB",
                 "LoadBalancerNames": [
@@ -154,10 +155,19 @@
                     }
                 ]
             },
+            "CreationPolicy": {
+                "ResourceSignal": {
+                    "Count": 1,
+                    "Timeout": "PT10M"
+                }
+            },
             "UpdatePolicy": {
                 "AutoScalingRollingUpdate": {
                     "MinInstancesInService": "1",
-                    "MaxBatchSize": "1"
+                    "MaxBatchSize": "1",
+                    "PauseTime": "PT10M",
+                    "SuspendProcesses": ["AlarmNotification"],
+                    "WaitOnResourceSignals": true,
                 }
             }
         },
