@@ -17,9 +17,10 @@ Here is a very short description of what Furnace does in a handy IKEA manual for
 
 ## In More Depth
 
-AWS Cloud Formation hosting with Go. This project utilizes the power of AWS CloudFormation and CodeDeploy in order to
-simply deploy an application into a robust, self-healing, redundant environment. The environment is configurable through
-the CloudFormation Template. A sample can be found in the `templates` folder.
+AWS Cloud Formation, Google Cloud Platform, or DigitalOcean hosting with Go. This project utilizes the power of
+AWS CloudFormation and CodeDeploy, or DeploymentManager and Git support in GCP in order to simply deploy an application
+into a robust, self-healing, redundant environment. The environment is configurable through the CloudFormation Template or
+GCPs jinja files. A sample can be found in the `templates` folder.
 
 The application to be deployed is handled via GitHub, or S3.
 
