@@ -208,7 +208,8 @@
                         "sudo service codedeploy-agent start",
                         "sudo yum -y install httpd",
                         "echo '<html><body>healthy</body></html>' >> /var/www/html/healthy.html",
-                        "sudo service httpd start"
+                        "sudo service httpd start",
+                        "/opt/aws/bin/cfn-signal -e 0 --region ", {"Ref": "AWS::Region"}, " --stack ", {"Ref": "AWS::StackName"}, " --resource AutoScalingGroup", "\n"
                     ] ] }
                 }
             }
