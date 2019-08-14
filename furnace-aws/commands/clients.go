@@ -13,17 +13,17 @@ import (
 
 // CFClient abstraction for cloudFormation client.
 type CFClient struct {
-	Client cloudformationiface.CloudFormationAPI
+	Client cloudformationiface.ClientAPI
 }
 
-func (cf *CFClient) describeStacks(descStackInput *cloudformation.DescribeStacksInput) *cloudformation.DescribeStacksOutput {
+func (cf *CFClient) describeStacks(descStackInput *cloudformation.DescribeStacksInput) *cloudformation.DescribeStacksResponse {
 	req := cf.Client.DescribeStacksRequest(descStackInput)
 	descResp, err := req.Send(context.Background())
 	handle.Error(err)
 	return descResp
 }
 
-func (cf *CFClient) validateTemplate(template []byte) *cloudformation.ValidateTemplateOutput {
+func (cf *CFClient) validateTemplate(template []byte) *cloudformation.ValidateTemplateResponse {
 	log.Println("Validating template.")
 	validateParams := &cloudformation.ValidateTemplateInput{
 		TemplateBody: aws.String(string(template)),
@@ -36,12 +36,12 @@ func (cf *CFClient) validateTemplate(template []byte) *cloudformation.ValidateTe
 
 // CDClient abstraction for cloudFormation client.
 type CDClient struct {
-	Client codedeployiface.CodeDeployAPI
+	Client codedeployiface.ClientAPI
 }
 
 // IAMClient abstraction for cloudFormation client.
 type IAMClient struct {
-	Client iamiface.IAMAPI
+	Client iamiface.ClientAPI
 }
 
 // NotEmptyStack test structs which defines a non-empty stack.

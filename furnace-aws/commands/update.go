@@ -3,6 +3,7 @@ package commands
 import (
 	"bufio"
 	"context"
+	"errors"
 	"fmt"
 	"github.com/fatih/color"
 	"log"
@@ -26,13 +27,13 @@ type Update struct {
 // DescribeChangeSetRequestSender describes a sender interface in order to mock
 // a support call to AWS directly from the constructed request object.
 type DescribeChangeSetRequestSender interface {
-	Send(context.Context) (*cloudformation.DescribeChangeSetOutput, error)
+	Send(context.Context) (*cloudformation.DescribeChangeSetResponse, error)
 }
 
 // ExecuteChangeSetRequestSender describes a sender interface in order to mock
 // a support call to AWS directly from the constructed request object.
 type ExecuteChangeSetRequestSender interface {
-	Send(context.Context) (*cloudformation.ExecuteChangeSetOutput, error)
+	Send(context.Context) (*cloudformation.ExecuteChangeSetResponse, error)
 }
 
 // Execute defines what this command does.
@@ -48,6 +49,9 @@ func (u *Update) Execute(opts *commander.CommandHelper) {
 	stackname := awsconfig.Config.Main.Stackname
 	template := awsconfig.LoadCFStackConfig()
 	changeSetName := createChangeSet(stackname, template, u.client)
+	if changeSetName == "" {
+		handle.Fatal("Change set name was empty.", errors.New("change set was empty"))
+	}
 	u.client.waitForChangeSetToBeApplied(stackname, changeSetName)
 	describeChangeInput := &cloudformation.DescribeChangeSetInput{
 		ChangeSetName: &changeSetName,
@@ -64,7 +68,7 @@ func (u *Update) Execute(opts *commander.CommandHelper) {
 
 	for i, change := range resp.Changes {
 		fmt.Printf("=====  Begin Change Number %s =====\n", keyName(i))
-		fmt.Println(change.ResourceChange.GoString())
+		fmt.Println(change.ResourceChange.String())
 		fmt.Printf("===== End of Change Number %s =====\n", keyName(i))
 	}
 
@@ -99,18 +103,22 @@ func (u *Update) Execute(opts *commander.CommandHelper) {
 	}
 }
 
-func sendDescribeChangeSetRequest(send DescribeChangeSetRequestSender) (*cloudformation.DescribeChangeSetOutput, error) {
+func sendDescribeChangeSetRequest(send DescribeChangeSetRequestSender) (*cloudformation.DescribeChangeSetResponse, error) {
 	return send.Send(context.Background())
 }
 
-func sendExecuteChangeSetRequestSender(send ExecuteChangeSetRequestSender) (*cloudformation.ExecuteChangeSetOutput, error) {
+func sendExecuteChangeSetRequestSender(send ExecuteChangeSetRequestSender) (*cloudformation.ExecuteChangeSetResponse, error) {
 	return send.Send(context.Background())
 }
 
 func createChangeSet(stackname string, template []byte, cfClient *CFClient) string {
 	changeSetName, _ := uuid.NewUUID()
 	validResp := cfClient.validateTemplate(template)
-	stackParameters := gatherParameters(os.Stdin, validResp)
+	if validResp == nil {
+		log.Println("The response from AWS to validate was nil.")
+		return ""
+	}
+	stackParameters := gatherParameters(os.Stdin, validResp.ValidateTemplateOutput)
 	changeSetRequestInput := &cloudformation.CreateChangeSetInput{
 		StackName: aws.String(stackname),
 		Capabilities: []cloudformation.Capability{

@@ -48,7 +48,11 @@ func (c *Create) Execute(opts *commander.CommandHelper) {
 // the create command.
 func create(stackname string, template []byte, cfClient *CFClient) []cloudformation.Stack {
 	validResp := cfClient.validateTemplate(template)
-	stackParameters := gatherParameters(os.Stdin, validResp)
+	if validResp == nil {
+		log.Println("The response from AWS to validate was nil.")
+		return nil
+	}
+	stackParameters := gatherParameters(os.Stdin, validResp.ValidateTemplateOutput)
 	stackInputParams := &cloudformation.CreateStackInput{
 		StackName:    aws.String(stackname),
 		Capabilities: []cloudformation.Capability{cloudformation.CapabilityCapabilityIam},
@@ -57,6 +61,10 @@ func create(stackname string, template []byte, cfClient *CFClient) []cloudformat
 	}
 	plugins.RunPreCreatePlugins(stackname)
 	resp := cfClient.createStack(stackInputParams)
+	if resp == nil {
+		log.Println("The response to create stack from AWS was nil.")
+		return nil
+	}
 	log.Println("Create stack response: ", resp)
 	cfClient.waitForStackCreateCompleteStatus(context.Background(), stackname)
 	descResp := cfClient.describeStacks(&cloudformation.DescribeStacksInput{StackName: aws.String(stackname)})
@@ -79,7 +87,7 @@ func (cf *CFClient) waitForStackCreateCompleteStatus(ctx context.Context, stackn
 	})
 }
 
-func (cf *CFClient) createStack(stackInputParams *cloudformation.CreateStackInput) *cloudformation.CreateStackOutput {
+func (cf *CFClient) createStack(stackInputParams *cloudformation.CreateStackInput) *cloudformation.CreateStackResponse {
 	log.Println("Creating Stack with name: ", keyName(*stackInputParams.StackName))
 	req := cf.Client.CreateStackRequest(stackInputParams)
 	resp, err := req.Send(context.Background())

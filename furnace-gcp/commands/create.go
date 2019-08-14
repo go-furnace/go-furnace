@@ -111,7 +111,7 @@ func constructDeployment(deploymentName string) *dm.Deployment {
 	// Load templates and all .schema files that might accompany them.
 	if len(imps.Paths) > 0 {
 		log.Println("Found the following import files: ", imps.Paths)
-		imports := []*dm.ImportFile{}
+		var imports []*dm.ImportFile
 		for _, temp := range imps.Paths {
 			templateContent := fc.LoadImportFileContent(temp.Path)
 			name := filepath.Base(temp.Path)

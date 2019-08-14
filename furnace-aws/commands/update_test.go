@@ -18,7 +18,7 @@ import (
 )
 
 type fakeUpdateCFClient struct {
-	cloudformationiface.CloudFormationAPI
+	cloudformationiface.ClientAPI
 	stackname string
 	err       error
 }
