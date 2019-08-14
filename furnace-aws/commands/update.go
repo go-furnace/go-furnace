@@ -3,6 +3,7 @@ package commands
 import (
 	"bufio"
 	"context"
+	"errors"
 	"fmt"
 	"github.com/fatih/color"
 	"log"
@@ -48,6 +49,9 @@ func (u *Update) Execute(opts *commander.CommandHelper) {
 	stackname := awsconfig.Config.Main.Stackname
 	template := awsconfig.LoadCFStackConfig()
 	changeSetName := createChangeSet(stackname, template, u.client)
+	if changeSetName == "" {
+		handle.Fatal("Change set name was empty.", errors.New("change set was empty"))
+	}
 	u.client.waitForChangeSetToBeApplied(stackname, changeSetName)
 	describeChangeInput := &cloudformation.DescribeChangeSetInput{
 		ChangeSetName: &changeSetName,
@@ -110,7 +114,11 @@ func sendExecuteChangeSetRequestSender(send ExecuteChangeSetRequestSender) (*clo
 func createChangeSet(stackname string, template []byte, cfClient *CFClient) string {
 	changeSetName, _ := uuid.NewUUID()
 	validResp := cfClient.validateTemplate(template)
-	stackParameters := gatherParameters(os.Stdin, validResp)
+	if validResp == nil {
+		log.Println("The response from AWS to validate was nil.")
+		return ""
+	}
+	stackParameters := gatherParameters(os.Stdin, validResp.ValidateTemplateOutput)
 	changeSetRequestInput := &cloudformation.CreateChangeSetInput{
 		StackName: aws.String(stackname),
 		Capabilities: []cloudformation.Capability{

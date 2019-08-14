@@ -2,7 +2,6 @@ package commands
 
 import (
 	"context"
-	"errors"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/cloudformation"
 	"github.com/aws/aws-sdk-go-v2/service/cloudformation/cloudformationiface"
@@ -17,18 +16,14 @@ type CFClient struct {
 	Client cloudformationiface.ClientAPI
 }
 
-func (cf *CFClient) describeStacks(descStackInput *cloudformation.DescribeStacksInput) *cloudformation.DescribeStacksOutput {
+func (cf *CFClient) describeStacks(descStackInput *cloudformation.DescribeStacksInput) *cloudformation.DescribeStacksResponse {
 	req := cf.Client.DescribeStacksRequest(descStackInput)
 	descResp, err := req.Send(context.Background())
 	handle.Error(err)
-	if descResp == nil {
-		handle.Fatal("the response was nil: ", errors.New("the response was nil"))
-		return nil
-	}
-	return descResp.DescribeStacksOutput
+	return descResp
 }
 
-func (cf *CFClient) validateTemplate(template []byte) *cloudformation.ValidateTemplateOutput {
+func (cf *CFClient) validateTemplate(template []byte) *cloudformation.ValidateTemplateResponse {
 	log.Println("Validating template.")
 	validateParams := &cloudformation.ValidateTemplateInput{
 		TemplateBody: aws.String(string(template)),
@@ -36,11 +31,7 @@ func (cf *CFClient) validateTemplate(template []byte) *cloudformation.ValidateTe
 	req := cf.Client.ValidateTemplateRequest(validateParams)
 	resp, err := req.Send(context.Background())
 	handle.Error(err)
-	if resp == nil {
-		handle.Fatal("the response was nil: ", errors.New("the response was nil"))
-		return nil
-	}
-	return resp.ValidateTemplateOutput
+	return resp
 }
 
 // CDClient abstraction for cloudFormation client.
