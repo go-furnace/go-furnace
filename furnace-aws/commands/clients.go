@@ -2,6 +2,7 @@ package commands
 
 import (
 	"context"
+	"errors"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/cloudformation"
 	"github.com/aws/aws-sdk-go-v2/service/cloudformation/cloudformationiface"
@@ -20,6 +21,10 @@ func (cf *CFClient) describeStacks(descStackInput *cloudformation.DescribeStacks
 	req := cf.Client.DescribeStacksRequest(descStackInput)
 	descResp, err := req.Send(context.Background())
 	handle.Error(err)
+	if descResp == nil {
+		handle.Fatal("the response was nil: ", errors.New("the response was nil"))
+		return nil
+	}
 	return descResp.DescribeStacksOutput
 }
 
@@ -31,6 +36,10 @@ func (cf *CFClient) validateTemplate(template []byte) *cloudformation.ValidateTe
 	req := cf.Client.ValidateTemplateRequest(validateParams)
 	resp, err := req.Send(context.Background())
 	handle.Error(err)
+	if resp == nil {
+		handle.Fatal("the response was nil: ", errors.New("the response was nil"))
+		return nil
+	}
 	return resp.ValidateTemplateOutput
 }
 

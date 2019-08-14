@@ -15,7 +15,7 @@ import (
 )
 
 type fakeDeleteAppCDClient struct {
-	codedeployiface.CodeDeployAPI
+	codedeployiface.ClientAPI
 	err    error
 	awsErr awserr.Error
 }

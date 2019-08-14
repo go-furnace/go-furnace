@@ -24,17 +24,17 @@ import (
 )
 
 type fakePushCFClient struct {
-	cloudformationiface.CloudFormationAPI
+	cloudformationiface.ClientAPI
 	err error
 }
 
 type fakePushIAMClient struct {
-	iamiface.IAMAPI
+	iamiface.ClientAPI
 	err error
 }
 
 type fakePushCDClient struct {
-	codedeployiface.CodeDeployAPI
+	codedeployiface.ClientAPI
 	err    error
 	awsErr awserr.Error
 }

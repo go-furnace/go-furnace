@@ -20,7 +20,7 @@ import (
 )
 
 type fakeCreateCFClient struct {
-	cloudformationiface.CloudFormationAPI
+	cloudformationiface.ClientAPI
 	stackname string
 	err       error
 }
@@ -162,7 +162,7 @@ func TestCreateProcedure(t *testing.T) {
 
 func TestCreateStackReturnsWithError(t *testing.T) {
 	failed := false
-	expectedMessage := "failed to create stack"
+	expectedMessage := "the response was nil"
 	var message string
 	handle.LogFatalf = func(s string, a ...interface{}) {
 		failed = true
@@ -184,6 +184,7 @@ func TestCreateStackReturnsWithError(t *testing.T) {
 
 func TestDescribeStackReturnsWithError(t *testing.T) {
 	failed := false
+	expected := "the response was nil"
 	var message string
 	handle.LogFatalf = func(s string, a ...interface{}) {
 		failed = true
@@ -194,20 +195,20 @@ func TestDescribeStackReturnsWithError(t *testing.T) {
 	config.WAITFREQUENCY = 0
 	client := new(CFClient)
 	stackname := "DescribeStackFailed"
-	client.Client = &fakeCreateCFClient{err: errors.New("failed describe stack"), stackname: stackname}
+	client.Client = &fakeCreateCFClient{err: errors.New(expected), stackname: stackname}
 	template := []byte("{}")
 	create(stackname, template, client)
 	if !failed {
 		t.Error("Expected outcome to fail. Did not fail.")
 	}
-	if message != "failed describe stack" {
-		t.Error("message did not equal expected message of 'failed describe stack', was:", message)
+	if message != expected {
+		t.Error("message did not equal expected message of 'the response was nil', was:", message)
 	}
 }
 
 func TestValidateReturnsWithError(t *testing.T) {
 	failed := false
-	expectedMessage := "validation error occurred"
+	expectedMessage := "the response was nil"
 	var message string
 	handle.LogFatalf = func(s string, a ...interface{}) {
 		failed = true

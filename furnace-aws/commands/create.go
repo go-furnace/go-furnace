@@ -2,6 +2,7 @@ package commands
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -84,6 +85,10 @@ func (cf *CFClient) createStack(stackInputParams *cloudformation.CreateStackInpu
 	req := cf.Client.CreateStackRequest(stackInputParams)
 	resp, err := req.Send(context.Background())
 	handle.Error(err)
+	if resp == nil {
+		handle.Fatal("the response was nil: ", errors.New("the response was nil"))
+		return nil
+	}
 	return resp.CreateStackOutput
 }
 
