@@ -47,7 +47,7 @@ func (c *Status) Execute(opts *commander.CommandHelper) {
 	client := CFClient{cfClient}
 	stack := stackStatus(stackname, &client)
 	info := color.New(color.FgWhite, color.Bold).SprintFunc()
-	log.Println("Stack state is: ", info(stack.Stacks[0].GoString()))
+	log.Println("Stack state is: ", info(stack.Stacks[0].String()))
 	stackResources := stackResources(stackname, &client)
 	printStackResources(stackResources)
 }
@@ -57,7 +57,7 @@ func stackStatus(stackname string, cfClient *CFClient) *cloudformation.DescribeS
 	descResp, err := req.Send(context.Background())
 	handle.Error(err)
 	fmt.Println()
-	return descResp
+	return descResp.DescribeStacksOutput
 }
 
 func stackResources(stackname string, cfClient *CFClient) []ResourceStatus {

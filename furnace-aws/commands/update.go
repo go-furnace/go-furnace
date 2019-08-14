@@ -26,13 +26,13 @@ type Update struct {
 // DescribeChangeSetRequestSender describes a sender interface in order to mock
 // a support call to AWS directly from the constructed request object.
 type DescribeChangeSetRequestSender interface {
-	Send(context.Context) (*cloudformation.DescribeChangeSetOutput, error)
+	Send(context.Context) (*cloudformation.DescribeChangeSetResponse, error)
 }
 
 // ExecuteChangeSetRequestSender describes a sender interface in order to mock
 // a support call to AWS directly from the constructed request object.
 type ExecuteChangeSetRequestSender interface {
-	Send(context.Context) (*cloudformation.ExecuteChangeSetOutput, error)
+	Send(context.Context) (*cloudformation.ExecuteChangeSetResponse, error)
 }
 
 // Execute defines what this command does.
@@ -64,7 +64,7 @@ func (u *Update) Execute(opts *commander.CommandHelper) {
 
 	for i, change := range resp.Changes {
 		fmt.Printf("=====  Begin Change Number %s =====\n", keyName(i))
-		fmt.Println(change.ResourceChange.GoString())
+		fmt.Println(change.ResourceChange.String())
 		fmt.Printf("===== End of Change Number %s =====\n", keyName(i))
 	}
 
@@ -99,11 +99,11 @@ func (u *Update) Execute(opts *commander.CommandHelper) {
 	}
 }
 
-func sendDescribeChangeSetRequest(send DescribeChangeSetRequestSender) (*cloudformation.DescribeChangeSetOutput, error) {
+func sendDescribeChangeSetRequest(send DescribeChangeSetRequestSender) (*cloudformation.DescribeChangeSetResponse, error) {
 	return send.Send(context.Background())
 }
 
-func sendExecuteChangeSetRequestSender(send ExecuteChangeSetRequestSender) (*cloudformation.ExecuteChangeSetOutput, error) {
+func sendExecuteChangeSetRequestSender(send ExecuteChangeSetRequestSender) (*cloudformation.ExecuteChangeSetResponse, error) {
 	return send.Send(context.Background())
 }
 

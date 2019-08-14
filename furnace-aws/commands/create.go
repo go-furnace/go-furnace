@@ -84,7 +84,7 @@ func (cf *CFClient) createStack(stackInputParams *cloudformation.CreateStackInpu
 	req := cf.Client.CreateStackRequest(stackInputParams)
 	resp, err := req.Send(context.Background())
 	handle.Error(err)
-	return resp
+	return resp.CreateStackOutput
 }
 
 // NewCreate Creates a new Create command.
