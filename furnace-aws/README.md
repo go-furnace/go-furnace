@@ -164,6 +164,9 @@ two things. AutoScaling groups provided by the CloudFormation stack plus Tags th
 
 Push works with two revision locations.
 
+For push to work, the CodeDeploy agent must be active on the instance. This is done by employing `UserData` specification
+in the template. Please refer to this documentation: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/user-data.html
+
 ##### GitHub
 
 The default for a push is to locate a sample application on Github which will then be deployed.

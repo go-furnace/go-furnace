@@ -35,7 +35,19 @@
                 "Key" : "fu_stage",
                 "Value" : { "Ref": "AWS::StackName" }
             }
-        ]
+        ],
+        "UserData" : {
+          "Fn::Base64" : { "Fn::Join" : [ "\n", [
+              "#!/bin/bash -v",
+              "sudo yum -y update",
+              "sudo yum -y install ruby wget",
+              "cd /home/ec2-user/",
+              "wget https://aws-codedeploy-eu-central-1.s3.amazonaws.com/latest/install",
+              "chmod +x ./install",
+              "sudo ./install auto",
+              "sudo service codedeploy-agent start",
+          ] ] }
+        }
       }
     },
 
