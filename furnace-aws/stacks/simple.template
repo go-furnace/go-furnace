@@ -1,86 +1,181 @@
 {
-  "AWSTemplateFormatVersion" : "2010-09-09",
-
-  "Description" : "AWS CloudFormation Sample Template EC2InstanceWithSecurityGroupSample: Create an Amazon EC2 instance running the Amazon Linux AMI. The AMI is chosen based on the region in which the stack is run. This example creates an EC2 security group for the instance to give you SSH access. **WARNING** This template creates an Amazon EC2 instance. You will be billed for the AWS resources used if you create a stack from this template.",
-
-  "Parameters" : {
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "AWS CloudFormation Sample Template EC2InstanceWithSecurityGroupSample: Create an Amazon EC2 instance running the Amazon Linux AMI. The AMI is chosen based on the region in which the stack is run. This example creates an EC2 security group for the instance to give you SSH access. **WARNING** This template creates an Amazon EC2 instance. You will be billed for the AWS resources used if you create a stack from this template.",
+  "Parameters": {
     "KeyName": {
-      "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instance",
+      "Description": "Name of an existing EC2 KeyPair to enable SSH access to the instance",
       "Type": "AWS::EC2::KeyPair::KeyName",
-      "ConstraintDescription" : "must be the name of an existing EC2 KeyPair.",
+      "ConstraintDescription": "must be the name of an existing EC2 KeyPair.",
       "Default": "NonExisting"
     },
-
-    "SSHLocation" : {
-      "Description" : "The IP address range that can be used to SSH to the EC2 instances",
+    "SSHLocation": {
+      "Description": "The IP address range that can be used to SSH to the EC2 instances",
       "Type": "String",
       "MinLength": "9",
       "MaxLength": "18",
       "Default": "0.0.0.0/0",
       "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
       "ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
-   }
+    },
+    "CodeDeployBucket" : {
+      "Type" : "String",
+      "Description" : "The S3 bucket for CodeDeploy to deploy from.",
+      "Default": "None"
+    }
   },
-
-  "Resources" : {
-    "EC2Instance" : {
-      "Type" : "AWS::EC2::Instance",
-      "Properties" : {
-        "InstanceType" : "t2.micro",
-        "SecurityGroups" : [ { "Ref" : "InstanceSecurityGroup" } ],
-        "KeyName" : { "Ref" : "KeyName" },
-        "ImageId" : "ami-0cc293023f983ed53",
-        "Tags" : [
+  "Resources": {
+    "InstanceProfile": {
+      "Type": "AWS::IAM::InstanceProfile",
+      "Properties": {
+        "Path": "/",
+        "Roles": [
+          {
+            "Ref": "Role"
+          }
+        ]
+      }
+    },
+    "Role": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "Path": "/",
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
             {
-                "Key" : "fu_stage",
-                "Value" : { "Ref": "AWS::StackName" }
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "ec2.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
             }
+          ]
+        },
+        "Policies": [
+          {
+            "PolicyName": "CodeDeployS3Access",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "s3:GetObject"
+                  ],
+                  "Resource": {
+                    "Fn::Join": [
+                      "",
+                      [
+                        "arn:aws:s3:::",
+                        {
+                          "Ref": "CodeDeployBucket"
+                        },
+                        "/*"
+                      ]
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "EC2Instance": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "IamInstanceProfile" : { "Ref" : "InstanceProfile" },
+        "InstanceType": "t2.micro",
+        "SecurityGroups": [
+          {
+            "Ref": "InstanceSecurityGroup"
+          }
         ],
-        "UserData" : {
-          "Fn::Base64" : { "Fn::Join" : [ "\n", [
-              "#!/bin/bash -v",
-              "sudo yum -y update",
-              "sudo yum -y install ruby wget",
-              "cd /home/ec2-user/",
-              "wget https://aws-codedeploy-eu-central-1.s3.amazonaws.com/latest/install",
-              "chmod +x ./install",
-              "sudo ./install auto",
-              "sudo service codedeploy-agent start",
-          ] ] }
+        "KeyName": {
+          "Ref": "KeyName"
+        },
+        "ImageId": "ami-0cc293023f983ed53",
+        "Tags": [
+          {
+            "Key": "fu_stage",
+            "Value": {
+              "Ref": "AWS::StackName"
+            }
+          }
+        ],
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "\n",
+              [
+                "#!/bin/bash -v",
+                "sudo yum -y update",
+                "sudo yum -y install ruby wget",
+                "cd /home/ec2-user/",
+                "wget https://aws-codedeploy-eu-central-1.s3.amazonaws.com/latest/install",
+                "chmod +x ./install",
+                "sudo ./install auto",
+                "sudo service codedeploy-agent start",
+              ]
+            ]
+          }
         }
       }
     },
-
-    "InstanceSecurityGroup" : {
-      "Type" : "AWS::EC2::SecurityGroup",
-      "Properties" : {
-        "GroupDescription" : "Enable SSH access via port 22",
-        "SecurityGroupIngress" : [ {
-          "IpProtocol" : "tcp",
-          "FromPort" : "22",
-          "ToPort" : "22",
-          "CidrIp" : { "Ref" : "SSHLocation"}
-        } ]
+    "InstanceSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Enable SSH access via port 22",
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "22",
+            "ToPort": "22",
+            "CidrIp": {
+              "Ref": "SSHLocation"
+            }
+          }
+        ]
       }
     }
   },
-
-  "Outputs" : {
-    "InstanceId" : {
-      "Description" : "InstanceId of the newly created EC2 instance",
-      "Value" : { "Ref" : "EC2Instance" }
+  "Outputs": {
+    "InstanceId": {
+      "Description": "InstanceId of the newly created EC2 instance",
+      "Value": {
+        "Ref": "EC2Instance"
+      }
     },
-    "AZ" : {
-      "Description" : "Availability Zone of the newly created EC2 instance",
-      "Value" : { "Fn::GetAtt" : [ "EC2Instance", "AvailabilityZone" ] }
+    "AZ": {
+      "Description": "Availability Zone of the newly created EC2 instance",
+      "Value": {
+        "Fn::GetAtt": [
+          "EC2Instance",
+          "AvailabilityZone"
+        ]
+      }
     },
-    "PublicDNS" : {
-      "Description" : "Public DNSName of the newly created EC2 instance",
-      "Value" : { "Fn::GetAtt" : [ "EC2Instance", "PublicDnsName" ] }
+    "PublicDNS": {
+      "Description": "Public DNSName of the newly created EC2 instance",
+      "Value": {
+        "Fn::GetAtt": [
+          "EC2Instance",
+          "PublicDnsName"
+        ]
+      }
     },
-    "PublicIP" : {
-      "Description" : "Public IP address of the newly created EC2 instance",
-      "Value" : { "Fn::GetAtt" : [ "EC2Instance", "PublicIp" ] }
+    "PublicIP": {
+      "Description": "Public IP address of the newly created EC2 instance",
+      "Value": {
+        "Fn::GetAtt": [
+          "EC2Instance",
+          "PublicIp"
+        ]
+      }
     }
   }
 }
