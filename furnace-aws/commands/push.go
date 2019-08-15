@@ -3,6 +3,9 @@ package commands
 import (
 	"context"
 	"fmt"
+	"log"
+	"os"
+
 	"github.com/Yitsushi/go-commander"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/aws/awserr"
@@ -13,14 +16,12 @@ import (
 	"github.com/go-furnace/go-furnace/config"
 	awsconfig "github.com/go-furnace/go-furnace/furnace-aws/config"
 	"github.com/go-furnace/go-furnace/handle"
-	"log"
-	"os"
 )
 
 // Push command.
 type Push struct {
-	cdClient *CDClient
-	cfClient *CFClient
+	cdClient  *CDClient
+	cfClient  *CFClient
 	iamClient *IAMClient
 }
 
@@ -45,17 +46,19 @@ func (p *Push) Execute(opts *commander.CommandHelper) {
 	handle.Error(err)
 	err = createDeploymentGroup(appName, role, asgName, p.cdClient)
 	handle.Error(err)
-	push(appName, asgName, p.cdClient)
+	push(appName, asgName, awsconfig.Config.Main.Stackname, p.cdClient)
 }
 
 func createDeploymentGroup(appName string, role string, asg string, client *CDClient) error {
+	var asgs []string
+	if len(asg) > 0 {
+		asgs = append(asgs, asg)
+	}
 	params := &codedeploy.CreateDeploymentGroupInput{
 		ApplicationName:     aws.String(appName),
 		DeploymentGroupName: aws.String(appName + "DeploymentGroup"),
 		ServiceRoleArn:      aws.String(role),
-		AutoScalingGroups: []string{
-			asg,
-		},
+		AutoScalingGroups:   asgs,
 		LoadBalancerInfo: &codedeploy.LoadBalancerInfo{
 			ElbInfoList: []codedeploy.ELBInfo{
 				{
@@ -123,22 +126,24 @@ func revisionLocation() *codedeploy.RevisionLocation {
 	}
 }
 
-func push(appName string, asg string, client *CDClient) {
-	log.Println("Stackname: ", appName)
+func push(appName, asg, stackname string, client *CDClient) {
+	log.Println("Stackname: ", stackname)
+	var asgs []string
+	if len(asg) > 0 {
+		asgs = append(asgs, asg)
+	}
 	params := &codedeploy.CreateDeploymentInput{
 		ApplicationName:               aws.String(appName),
 		IgnoreApplicationStopFailures: aws.Bool(true),
 		DeploymentGroupName:           aws.String(appName + "DeploymentGroup"),
 		Revision:                      revisionLocation(),
 		TargetInstances: &codedeploy.TargetInstances{
-			AutoScalingGroups: []string{
-				asg,
-			},
+			AutoScalingGroups: asgs,
 			TagFilters: []codedeploy.EC2TagFilter{
 				{
 					Key:   aws.String("fu_stage"),
 					Type:  "KEY_AND_VALUE",
-					Value: aws.String(appName),
+					Value: aws.String(stackname),
 				},
 			},
 		},
@@ -200,8 +205,8 @@ func NewPush(appName string) *commander.CommandWrapper {
 	iam := iam.New(cfg)
 	iamClient := IAMClient{iam}
 	p := Push{
-		cdClient: &cdClient,
-		cfClient: &cfClient,
+		cdClient:  &cdClient,
+		cfClient:  &cfClient,
 		iamClient: &iamClient,
 	}
 	return &commander.CommandWrapper{
