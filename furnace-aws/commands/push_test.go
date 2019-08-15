@@ -145,8 +145,8 @@ func TestPushExecute(t *testing.T) {
 	cfClient.Client = &fakePushCFClient{err: nil}
 	opts := &commander.CommandHelper{}
 	p := Push{
-		cfClient: cfClient,
-		cdClient: cdClient,
+		cfClient:  cfClient,
+		cdClient:  cdClient,
 		iamClient: iamClient,
 	}
 	p.Execute(opts)
@@ -165,8 +165,8 @@ func TestPushExecuteWithStackConfig(t *testing.T) {
 	opts := &commander.CommandHelper{}
 	opts.Args = append(opts.Args, "teststack")
 	p := Push{
-		cfClient: cfClient,
-		cdClient: cdClient,
+		cfClient:  cfClient,
+		cdClient:  cdClient,
 		iamClient: iamClient,
 	}
 	p.Execute(opts)
@@ -192,8 +192,8 @@ func TestPushExecuteWithStackConfigNotFound(t *testing.T) {
 	opts := &commander.CommandHelper{}
 	opts.Args = append(opts.Args, "notfound")
 	p := Push{
-		cfClient: cfClient,
-		cdClient: cdClient,
+		cfClient:  cfClient,
+		cdClient:  cdClient,
 		iamClient: iamClient,
 	}
 	p.Execute(opts)
@@ -205,7 +205,7 @@ func TestPushExecuteWithStackConfigNotFound(t *testing.T) {
 func TestCreateDeploymentGroupSuccess(t *testing.T) {
 	client := new(CDClient)
 	client.Client = &fakePushCDClient{err: nil, awsErr: nil}
-	err := createDeploymentGroup("dummyApp", "dummyRole", "dummyAsg", client)
+	err := createDeploymentGroup("dummyApp", "dummyRole", "dummyAsg", "mystack", client)
 	if err != nil {
 		t.Fatal("error was not nil: ", err)
 	}
@@ -214,7 +214,7 @@ func TestCreateDeploymentGroupSuccess(t *testing.T) {
 func TestCreateDeploymentGroupAlreadyExists(t *testing.T) {
 	client := new(CDClient)
 	client.Client = &fakePushCDClient{err: nil, awsErr: awserr.New(codedeploy.ErrCodeDeploymentGroupAlreadyExistsException, "DeploymentGroup already exists", nil)}
-	err := createDeploymentGroup("dummyApp", "dummyRole", "dummyAsg", client)
+	err := createDeploymentGroup("dummyApp", "dummyRole", "dummyAsg", "mystack", client)
 	if err != nil {
 		t.Fatal("error was not nil: ", err)
 	}
@@ -223,7 +223,7 @@ func TestCreateDeploymentGroupAlreadyExists(t *testing.T) {
 func TestCreateDeploymentGroupFailsOnDifferentError(t *testing.T) {
 	client := new(CDClient)
 	client.Client = &fakePushCDClient{err: nil, awsErr: awserr.New(codedeploy.ErrCodeDeploymentGroupNameRequiredException, "Different error", nil)}
-	err := createDeploymentGroup("dummyApp", "dummyRole", "dummyAsg", client)
+	err := createDeploymentGroup("dummyApp", "dummyRole", "dummyAsg", "mystack", client)
 	if err == nil {
 		t.Fatal("error was nil: ", err)
 	}
@@ -232,7 +232,7 @@ func TestCreateDeploymentGroupFailsOnDifferentError(t *testing.T) {
 func TestCreateDeploymentGroupFailsOnNonAWSError(t *testing.T) {
 	client := new(CDClient)
 	client.Client = &fakePushCDClient{err: errors.New("non aws error"), awsErr: nil}
-	err := createDeploymentGroup("dummyApp", "dummyRole", "dummyAsg", client)
+	err := createDeploymentGroup("dummyApp", "dummyRole", "dummyAsg", "mystack", client)
 	if err == nil {
 		t.Fatal("error was nil: ", err)
 	}
@@ -317,7 +317,7 @@ func TestPushBasic(t *testing.T) {
 	config.WAITFREQUENCY = 0
 	client := new(CDClient)
 	client.Client = &fakePushCDClient{err: nil, awsErr: nil}
-	push("fakeApp", "fakeASG", client)
+	push("fakeApp", "fakeASG", "mystack", client)
 }
 
 func TestGetAutoScalingGroupKeyIfASGExists(t *testing.T) {
