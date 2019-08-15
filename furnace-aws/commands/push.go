@@ -39,17 +39,18 @@ func (p *Push) Execute(opts *commander.CommandHelper) {
 		}
 	}
 	appName := awsconfig.Config.Aws.AppName
+	stackname := awsconfig.Config.Main.Stackname
 	s3Deploy = opts.Flags["s3"]
 	asgName := getAutoScalingGroupKey(p.cfClient)
 	role := getCodeDeployRoleARN(awsconfig.Config.Aws.CodeDeployRole, p.iamClient)
 	err := createApplication(appName, p.cdClient)
 	handle.Error(err)
-	err = createDeploymentGroup(appName, role, asgName, p.cdClient)
+	err = createDeploymentGroup(appName, role, asgName, stackname, p.cdClient)
 	handle.Error(err)
-	push(appName, asgName, awsconfig.Config.Main.Stackname, p.cdClient)
+	push(appName, asgName, stackname, p.cdClient)
 }
 
-func createDeploymentGroup(appName string, role string, asg string, client *CDClient) error {
+func createDeploymentGroup(appName string, role string, asg string, stackname string, client *CDClient) error {
 	var asgs []string
 	if len(asg) > 0 {
 		asgs = append(asgs, asg)
@@ -64,6 +65,13 @@ func createDeploymentGroup(appName string, role string, asg string, client *CDCl
 				{
 					Name: aws.String("ElasticLoadBalancer"),
 				},
+			},
+		},
+		Ec2TagFilters: []codedeploy.EC2TagFilter{
+			{
+				Key:   aws.String("fu_stage"),
+				Type:  "KEY_AND_VALUE",
+				Value: aws.String(stackname),
 			},
 		},
 	}
