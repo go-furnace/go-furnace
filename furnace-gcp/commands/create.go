@@ -28,6 +28,7 @@ type DeploymentService interface {
 	Insert(project string, deployment *dm.Deployment) *dm.DeploymentsInsertCall
 	Delete(project string, deployment string) *dm.DeploymentsDeleteCall
 	Get(project string, deployment string) *dm.DeploymentsGetCall
+	Update(project string, deployment string, deployment2 *dm.Deployment) *dm.DeploymentsUpdateCall
 }
 
 // DeploymentmanagerService defines a struct that we can use to mock GCP's

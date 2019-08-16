@@ -42,9 +42,9 @@ func TestExecute(t *testing.T) {
 			},
 		},
 	}
-	dm := new(MockDeploymentService)
+	mockDm := new(MockDeploymentService)
 	d := DeploymentmanagerService{
-		Deployments: dm,
+		Deployments: mockDm,
 	}
 	dir, _ := os.Getwd()
 	err := fc.LoadConfigFileIfExists(dir, "teststack")
