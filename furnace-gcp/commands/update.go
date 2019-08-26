@@ -22,7 +22,8 @@ func (u *Update) Execute(opts *commander.CommandHelper) {
 			handle.Fatal(configName, err)
 		}
 	}
-	log.Println("Creating Deployment under project name: .", keyName(fc.Config.Main.ProjectName))
+	log.Println("Creating Deployment update under project name: .", keyName(fc.Config.Main.ProjectName))
+
 }
 
 // NewUpdate creates a new update command
