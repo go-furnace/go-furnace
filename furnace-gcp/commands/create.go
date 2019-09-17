@@ -35,7 +35,7 @@ func (c *Create) Execute(opts *commander.CommandHelper) {
 	ctx := context.Background()
 	client, err := google.DefaultClient(ctx, dm.NdevCloudmanScope)
 	handle.Error(err)
-	d := NewDeploymentService(client)
+	d := NewDeploymentService(ctx, client)
 	deployments := constructDeployment(deploymentName)
 	plugins.RunPreCreatePlugins(deploymentName)
 	err = insertDeployments(d, deployments, deploymentName)
@@ -91,11 +91,11 @@ func constructDeployment(deploymentName string) *dm.Deployment {
 				name = temp.Name
 			}
 			log.Println("Adding template name: ", name)
-			templateFile := &dm.ImportFile{Content: string(templateContent), Name: name}
-			imports = append(imports, templateFile)
+			templateFile := dm.ImportFile{Content: string(templateContent), Name: name}
+			imports = append(imports, &templateFile)
 			if ok, schema := fc.LoadSchemaForPath(temp.Path); ok {
-				f := &dm.ImportFile{Content: string(schema)}
-				imports = append(imports, f)
+				f := dm.ImportFile{Content: string(schema)}
+				imports = append(imports, &f)
 			}
 		}
 		targetConfiguration.Imports = imports

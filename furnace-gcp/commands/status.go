@@ -33,7 +33,7 @@ func (s *Status) Execute(opts *commander.CommandHelper) {
 	ctx := context.Background()
 	client, err := google.DefaultClient(ctx, dm.NdevCloudmanScope)
 	handle.Error(err)
-	d := NewDeploymentService(client)
+	d := NewDeploymentService(ctx, client)
 	project := d.Deployments.Get(fc.Config.Main.ProjectName, deploymentName)
 	p, err := project.Do()
 	if err != nil {

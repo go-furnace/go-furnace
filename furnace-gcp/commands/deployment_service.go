@@ -26,8 +26,7 @@ type DeploymentmanagerService struct {
 
 // NewDeploymentService will return a deployment manager service that
 // can be used as a mock for the GCP deployment manager.
-func NewDeploymentService(client *http.Client) DeploymentmanagerService {
-	ctx := context.Background()
+func NewDeploymentService(ctx context.Context, client *http.Client) DeploymentmanagerService {
 	d, _ := dm.NewService(ctx, option.WithHTTPClient(client))
 
 	return DeploymentmanagerService{

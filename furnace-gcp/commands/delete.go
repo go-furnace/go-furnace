@@ -19,6 +19,7 @@ import (
 // Delete commands for google Deployment Manager
 type Delete struct {
 	client *http.Client
+	ctx    context.Context
 }
 
 // Execute runs the create command
@@ -30,7 +31,7 @@ func (d *Delete) Execute(opts *commander.CommandHelper) {
 			handle.Fatal(configName, err)
 		}
 	}
-	ds := NewDeploymentService(d.client)
+	ds := NewDeploymentService(d.ctx, d.client)
 	err := deleteDeployment(ds)
 	handle.Error(err)
 	log.Println("Deleting Deployment Under Project: ", keyName(fc.Config.Main.ProjectName))
@@ -57,7 +58,7 @@ func NewDelete(appName string) *commander.CommandWrapper {
 	ctx := context.Background()
 	client, err := google.DefaultClient(ctx, deploymentmanager.NdevCloudmanScope)
 	handle.Error(err)
-	d := Delete{client: client}
+	d := Delete{client: client, ctx: ctx}
 	return &commander.CommandWrapper{
 		Handler: &d,
 		Help: &commander.CommandDescriptor{

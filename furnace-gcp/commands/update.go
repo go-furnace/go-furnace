@@ -2,10 +2,13 @@ package commands
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 
 	"golang.org/x/oauth2/google"
+	"gopkg.in/yaml.v1"
 
 	"github.com/Yitsushi/go-commander"
 	fc "github.com/go-furnace/go-furnace/furnace-gcp/config"
@@ -39,9 +42,66 @@ func update(projectName string) error {
 	if err != nil {
 		return err
 	}
-	d := NewDeploymentService(client)
-	d.Deployments.Update(projectName, deploymentName, &dm.Deployment{})
+	d := NewDeploymentService(ctx, client)
+	targetConfiguration := constructTargetConfiguration()
+	deployments := dm.Deployment{
+		Name:   deploymentName,
+		Target: &targetConfiguration,
+	}
+	updateCall := d.Deployments.Update(projectName, deploymentName, &deployments)
+
+	return cancelOrInsertUpdate(updateCall)
+}
+
+func cancelOrInsertUpdate(call *dm.DeploymentsUpdateCall) error {
+	call.Preview(true)
+	op, err := call.Do()
+	if err != nil {
+		return err
+	}
+	b, err := op.MarshalJSON()
+	if err != nil {
+		return err
+	}
+	fmt.Println(string(b))
 	return nil
+}
+
+func constructTargetConfiguration() dm.TargetConfiguration {
+	gConfig := fc.LoadGoogleStackConfig()
+	configFile := dm.ConfigFile{
+		Content: string(gConfig),
+	}
+	targetConfiguration := dm.TargetConfiguration{
+		Config: &configFile,
+	}
+
+	imps := Imports{}
+	err := yaml.Unmarshal(gConfig, &imps)
+	handle.Error(err)
+
+	// Load templates and all .schema files that might accompany them.
+	if len(imps.Paths) > 0 {
+		log.Println("Found the following import files: ", imps.Paths)
+		var imports []*dm.ImportFile
+		for _, temp := range imps.Paths {
+			templateContent := fc.LoadImportFileContent(temp.Path)
+			name := filepath.Base(temp.Path)
+			if len(temp.Name) > 0 {
+				name = temp.Name
+			}
+			log.Println("Adding template name: ", name)
+			templateFile := dm.ImportFile{Content: string(templateContent), Name: name}
+			imports = append(imports, &templateFile)
+			if ok, schema := fc.LoadSchemaForPath(temp.Path); ok {
+				f := dm.ImportFile{Content: string(schema)}
+				imports = append(imports, &f)
+			}
+		}
+		targetConfiguration.Imports = imports
+	}
+
+	return targetConfiguration
 }
 
 // NewUpdate creates a new update command
