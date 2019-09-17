@@ -17,11 +17,17 @@ type DeploymentService interface {
 	Update(project string, deployment string, deployment2 *dm.Deployment) *dm.DeploymentsUpdateCall
 }
 
+// ManifestsService defines a service which implements Get for manifests.
+type ManifestsService interface {
+	Get(project string, deployment string, manifest string) *dm.ManifestsGetCall
+}
+
 // DeploymentmanagerService defines a struct that we can use to mock GCP's
 // deploymentmanager/v2 API.
 type DeploymentmanagerService struct {
 	*dm.Service
 	Deployments DeploymentService
+	Manifests   ManifestsService
 }
 
 // NewDeploymentService will return a deployment manager service that
@@ -31,5 +37,6 @@ func NewDeploymentService(ctx context.Context, client *http.Client) Deploymentma
 
 	return DeploymentmanagerService{
 		Deployments: d.Deployments,
+		Manifests:   d.Manifests,
 	}
 }

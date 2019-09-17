@@ -1,0 +1,18 @@
+resources:
+  - name: "simple-compute-vm"
+    type: compute.v1.instance
+    properties:
+      zone: "europe-west3-a"
+      machineType: "https://www.googleapis.com/compute/v1/projects/furnace-253212/zones/europe-west3-a/machineTypes/n1-standard-1"
+      disks:
+        - deviceName: boot
+          type: PERSISTENT
+          boot: true
+          autoDelete: true
+          initializeParams:
+            sourceImage: "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/family/debian-9"
+      networkInterfaces:
+        - network: "https://www.googleapis.com/compute/v1/projects/furnace-253212/global/networks/default"
+          accessConfigs:
+            - type: ONE_TO_ONE_NAT
+              name: External NAT
