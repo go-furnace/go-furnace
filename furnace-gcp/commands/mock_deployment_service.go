@@ -4,9 +4,11 @@ import dm "google.golang.org/api/deploymentmanager/v2"
 
 // MockDeploymentService is a mock for deployment service.
 type MockDeploymentService struct {
-	insert *dm.DeploymentsInsertCall
-	delete *dm.DeploymentsDeleteCall
-	get    *dm.DeploymentsGetCall
+	insert        *dm.DeploymentsInsertCall
+	delete        *dm.DeploymentsDeleteCall
+	get           *dm.DeploymentsGetCall
+	update        *dm.DeploymentsUpdateCall
+	cancelPreview *dm.DeploymentsCancelPreviewCall
 }
 
 // Insert inserts a deployment into a given project.
@@ -22,4 +24,14 @@ func (m *MockDeploymentService) Delete(project string, deployment string) *dm.De
 // Get retrieves a deployment from a given project.
 func (m *MockDeploymentService) Get(project string, deployment string) *dm.DeploymentsGetCall {
 	return m.get
+}
+
+// Update updates a deployment for a given project.
+func (m *MockDeploymentService) Update(project string, deployment string, deployment2 *dm.Deployment) *dm.DeploymentsUpdateCall {
+	return m.update
+}
+
+// CancelPreview cancels a preview created by an update.
+func (m *MockDeploymentService) CancelPreview(project string, deployment string, deploymentscancelpreviewrequest *dm.DeploymentsCancelPreviewRequest) *dm.DeploymentsCancelPreviewCall {
+	return m.cancelPreview
 }

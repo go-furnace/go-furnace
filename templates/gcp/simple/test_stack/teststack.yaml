@@ -1,6 +1,6 @@
 main:
-  project_name: testplatform-1234
+  project_name: furnace-253212
   spinner: 1
 gcp:
   template_name: google_template.yaml
-  stack_name: test-stack
+  stack_name: furnace-stack

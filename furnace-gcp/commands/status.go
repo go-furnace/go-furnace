@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"errors"
 	"log"
 	"os"
 	"strings"
@@ -28,12 +29,16 @@ func (s *Status) Execute(opts *commander.CommandHelper) {
 		}
 	}
 	log.Println("Looking for Deployment under project name: .", keyName(fc.Config.Main.ProjectName))
+	status()
+}
+
+func status() {
 	deploymentName := fc.Config.Gcp.StackName
 	log.Println("Deployment name is: ", keyName(deploymentName))
 	ctx := context.Background()
 	client, err := google.DefaultClient(ctx, dm.NdevCloudmanScope)
 	handle.Error(err)
-	d := NewDeploymentService(client)
+	d := NewDeploymentService(ctx, client)
 	project := d.Deployments.Get(fc.Config.Main.ProjectName, deploymentName)
 	p, err := project.Do()
 	if err != nil {
@@ -41,6 +46,9 @@ func (s *Status) Execute(opts *commander.CommandHelper) {
 			handle.Fatal("error while getting deployment: ", err)
 		}
 		handle.Fatal("Stack not found!", nil)
+	}
+	if len(p.Manifest) < 1 {
+		handle.Fatal("manifest is empty. this usually means that the deployment failed...", errors.New("manifest is empty"))
 	}
 	manifestID := p.Manifest[strings.LastIndex(p.Manifest, "/")+1 : len(p.Manifest)]
 	manifest := d.Manifests.Get(fc.Config.Main.ProjectName, deploymentName, manifestID)

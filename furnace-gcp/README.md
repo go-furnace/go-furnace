@@ -40,7 +40,18 @@ If deployed successfully, you should be able to access it like this:
 
 The second example can be located in `./templates/google_template.bookshelf.yaml`. This example deploys Google's sample Python App located here: [Python Getting Started](https://github.com/GoogleCloudPlatform/getting-started-python/tree/master/7-gce).
 
-In order to use the templates, name the main template `google_template.yaml` and copy it into the Furnace configuration folder under `~/.config/go-furnace`. In the future, Furnace will have this configurable. Maybe :).
+### Furnace Config
+
+In order to tell furnace which template to use, simply create the following configuration file structure...
+
+```
+.
+├── stacks
+│   ├── google_template.yaml
+│   ├── simple_template.jinja
+│   └── gcp_furnace_config.yaml
+└── .teststack.furnace
+```
 
 ### Configuring a Deployment
 

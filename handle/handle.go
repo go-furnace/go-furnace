@@ -1,6 +1,8 @@
 package handle
 
-import "log"
+import (
+	"log"
+)
 
 // LogFatalf is used to define the fatal error handler function. In unit tests, this is used to
 // mock out fatal errors so we can test for them.
