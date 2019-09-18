@@ -1,11 +1,13 @@
 package commands
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"google.golang.org/api/googleapi"
 
@@ -26,6 +28,7 @@ type Update struct {
 
 // Execute runs the create command
 func (u *Update) Execute(opts *commander.CommandHelper) {
+	override := opts.Flag("y")
 	configName := opts.Arg(0)
 	if len(configName) > 0 {
 		dir, _ := os.Getwd()
@@ -33,11 +36,11 @@ func (u *Update) Execute(opts *commander.CommandHelper) {
 			handle.Fatal(configName, err)
 		}
 	}
-	err := update(fc.Config.Main.ProjectName)
+	err := update(fc.Config.Main.ProjectName, override)
 	handle.Error(err)
 }
 
-func update(projectName string) error {
+func update(projectName string, override bool) error {
 	log.Println("Creating Deployment update under project name: .", keyName(projectName))
 
 	deploymentName := fc.Config.Gcp.StackName
@@ -53,16 +56,36 @@ func update(projectName string) error {
 	}
 
 	targetConfiguration := constructTargetConfiguration()
-	deployments := dm.Deployment{
+	previewDeployments := dm.Deployment{
 		Name:        deploymentName,
 		Target:      &targetConfiguration,
 		Fingerprint: fingerPrint,
 	}
-	updateCall := d.Deployments.Update(projectName, deploymentName, &deployments)
-	err = cancelOrInsertUpdate(updateCall)
-	if err != nil {
-		return errors.Wrap(err, "error in update function while calling cancelOrInsertUpdate")
+	updateCall := d.Deployments.Update(projectName, deploymentName, &previewDeployments)
+
+	if v, err := doPreview(d, updateCall, override); err != nil {
+		return errors.Wrap(err, "failed doing preview for deployment")
+	} else if !v { // the preview was cancelled
+		return nil
 	}
+
+	// Getting the new fingerprint of the deployment in preview state
+	fingerPrint, err = getFingerPrintForDeployment(d, deploymentName)
+	if err != nil {
+		return errors.Wrap(err, "failed to get fingerprint for deployment")
+	}
+
+	// Construct a new update request to finalise the update process. Target configuration must be left out.
+	updateDeployments := dm.Deployment{
+		Name:        deploymentName,
+		Fingerprint: fingerPrint,
+	}
+	updateCall = d.Deployments.Update(projectName, deploymentName, &updateDeployments)
+	err = doUpdate(d, updateCall)
+	if err != nil {
+		return errors.Wrap(err, "error in update function while calling doUpdate")
+	}
+	log.Println("Update done. Bye.")
 	return nil
 }
 
@@ -78,16 +101,58 @@ func getFingerPrintForDeployment(d DeploymentmanagerService, deploymentName stri
 	return p.Fingerprint, nil
 }
 
-func cancelOrInsertUpdate(call *dm.DeploymentsUpdateCall) error {
-	// TODO: Make this work as a preview.
-	//call.Preview(true)
+func doPreview(d DeploymentmanagerService, call *dm.DeploymentsUpdateCall, override bool) (bool, error) {
+	// Setup update policies and initiate preview
+	call.Preview(true)
+	deploymentName := fc.Config.Gcp.StackName
+	// Do the preview call
+	_, err := call.Do()
+	if err != nil {
+		return false, errors.Wrap(err, "error in cancelOrDoUpdate Do call")
+	}
+	waitForDeploymentToFinish(d, fc.Config.Main.ProjectName, deploymentName)
+
+	log.Println("Please review the preview data.")
+
+	if !override {
+		reader := bufio.NewReader(os.Stdin)
+		fmt.Print("Would you like to apply the changes? (y/N):")
+		confirm, _ := reader.ReadString('\n')
+		confirm = strings.TrimSuffix(confirm, "\n")
+		if confirm != "y" {
+			log.Println("Cancelling without applying change set.")
+			fingerPrint, err := getFingerPrintForDeployment(d, deploymentName)
+			if err != nil {
+				return false, errors.Wrap(err, "failed to get fingerprint for cancelling")
+			}
+			cancelCall := d.Deployments.CancelPreview(fc.Config.Main.ProjectName, deploymentName, &dm.DeploymentsCancelPreviewRequest{
+				Fingerprint: fingerPrint,
+			})
+			_, err = cancelCall.Do()
+			return false, errors.Wrap(err, "cancel preview call")
+		}
+	}
+
+	return true, nil
+}
+
+// doUpdate will finalise the update process by submitting the same update request
+// but without preview and without the target configuration.
+func doUpdate(d DeploymentmanagerService, call *dm.DeploymentsUpdateCall) error {
+	// Setup update policies
+	call.CreatePolicy(fc.Config.Gcp.CreatePolicy)
+	call.DeletePolicy(fc.Config.Gcp.DeletePolicy)
+
+	// Do the preview call
 	op, err := call.Do()
 	if err != nil {
-		return errors.Wrap(err, "error in cancelOrInsertUpdate Do call")
+		return errors.Wrap(err, "error in cancelOrDoUpdate Do call")
 	}
+	waitForDeploymentToFinish(d, fc.Config.Main.ProjectName, fc.Config.Gcp.StackName)
+
 	b, err := op.MarshalJSON()
 	if err != nil {
-		return errors.Wrap(err, "error in cancelOrInsertUpdate MarshalJSON")
+		return errors.Wrap(err, "error in cancelOrDoUpdate MarshalJSON")
 	}
 	fmt.Println(string(b))
 	return nil
@@ -138,7 +203,7 @@ func NewUpdate(appName string) *commander.CommandWrapper {
 			Name:             "update",
 			ShortDescription: "Update updates a Google Deployment",
 			LongDescription:  `Using a pre-configured yaml file, update a collection of resources using Deployment Manager Service.`,
-			Arguments:        "custom-config",
+			Arguments:        "custom-config [-y]",
 			Examples:         []string{"", "custom-config"},
 		},
 	}

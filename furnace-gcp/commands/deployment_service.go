@@ -15,6 +15,7 @@ type DeploymentService interface {
 	Delete(project string, deployment string) *dm.DeploymentsDeleteCall
 	Get(project string, deployment string) *dm.DeploymentsGetCall
 	Update(project string, deployment string, deployment2 *dm.Deployment) *dm.DeploymentsUpdateCall
+	CancelPreview(project string, deployment string, deploymentscancelpreviewrequest *dm.DeploymentsCancelPreviewRequest) *dm.DeploymentsCancelPreviewCall
 }
 
 // ManifestsService defines a service which implements Get for manifests.

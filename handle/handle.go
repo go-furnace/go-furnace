@@ -1,6 +1,9 @@
 package handle
 
-import "log"
+import (
+	"errors"
+	"log"
+)
 
 // LogFatalf is used to define the fatal error handler function. In unit tests, this is used to
 // mock out fatal errors so we can test for them.
@@ -10,6 +13,7 @@ var LogFatalf = log.Fatalf
 // the defined fatal error handler function.
 func Error(err error) {
 	if err != nil {
+		err = errors.Unwrap(err)
 		Fatal("Error occurred:", err)
 	}
 }

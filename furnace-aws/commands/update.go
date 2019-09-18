@@ -5,9 +5,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/fatih/color"
 	"log"
 	"os"
+	"strings"
+
+	"github.com/fatih/color"
 
 	"github.com/Yitsushi/go-commander"
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -77,6 +79,7 @@ func (u *Update) Execute(opts *commander.CommandHelper) {
 		reader := bufio.NewReader(os.Stdin)
 		fmt.Print("Would you like to apply the changes? (y/N):")
 		confirm, _ := reader.ReadString('\n')
+		confirm = strings.TrimSuffix(confirm, "\n")
 		if confirm != "y" {
 			log.Println("Cancelling without applying change set.")
 			return

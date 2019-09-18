@@ -24,6 +24,8 @@ type Configuration struct {
 	Gcp struct {
 		TemplateName string `yaml:"template_name"`
 		StackName    string `yaml:"stack_name"`
+		CreatePolicy string `yaml:"create_policy"`
+		DeletePolicy string `yaml:"delete_policy"`
 	} `yaml:"gcp"`
 }
 

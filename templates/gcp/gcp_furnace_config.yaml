@@ -4,3 +4,5 @@ main:
 gcp:
   template_name: google_template.yaml
   stack_name: test-stack
+  create_policy: CREATE_OR_ACQUIRE
+  delete_policy: DELETE
