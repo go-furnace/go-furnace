@@ -7,7 +7,7 @@ before_install:
     - go get github.com/mattn/goveralls
     - mkdir -p $HOME/.config/go-furnace
     - cp $TRAVIS_BUILD_DIR/templates/aws/aws_furnace_config.yaml $HOME/.config/go-furnace
-    - cp $TRAVIS_BUILD_DIR/templates/gcp/cloud_formation.template $HOME/.config/go-furnace
+    - cp $TRAVIS_BUILD_DIR/templates/aws/cloud_formation.template $HOME/.config/go-furnace
 
 install: make get-deps-all
 
