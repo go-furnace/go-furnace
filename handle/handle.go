@@ -1,7 +1,6 @@
 package handle
 
 import (
-	"errors"
 	"log"
 )
 
@@ -13,7 +12,6 @@ var LogFatalf = log.Fatalf
 // the defined fatal error handler function.
 func Error(err error) {
 	if err != nil {
-		err = errors.Unwrap(err)
 		Fatal("Error occurred:", err)
 	}
 }
