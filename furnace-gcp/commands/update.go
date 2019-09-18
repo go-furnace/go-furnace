@@ -7,6 +7,10 @@ import (
 	"os"
 	"path/filepath"
 
+	"google.golang.org/api/googleapi"
+
+	"github.com/pkg/errors"
+
 	"golang.org/x/oauth2/google"
 	"gopkg.in/yaml.v1"
 
@@ -40,28 +44,50 @@ func update(projectName string) error {
 	ctx := context.Background()
 	client, err := google.DefaultClient(ctx, dm.NdevCloudmanScope)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "error in updater function while creating google client")
 	}
 	d := NewDeploymentService(ctx, client)
+	fingerPrint, err := getFingerPrintForDeployment(d, deploymentName)
+	if err != nil {
+		return errors.Wrap(err, "failed to get fingerprint for deployment")
+	}
+
 	targetConfiguration := constructTargetConfiguration()
 	deployments := dm.Deployment{
-		Name:   deploymentName,
-		Target: &targetConfiguration,
+		Name:        deploymentName,
+		Target:      &targetConfiguration,
+		Fingerprint: fingerPrint,
 	}
 	updateCall := d.Deployments.Update(projectName, deploymentName, &deployments)
+	err = cancelOrInsertUpdate(updateCall)
+	if err != nil {
+		return errors.Wrap(err, "error in update function while calling cancelOrInsertUpdate")
+	}
+	return nil
+}
 
-	return cancelOrInsertUpdate(updateCall)
+func getFingerPrintForDeployment(d DeploymentmanagerService, deploymentName string) (string, error) {
+	project := d.Deployments.Get(fc.Config.Main.ProjectName, deploymentName)
+	p, err := project.Do()
+	if err != nil {
+		if err.(*googleapi.Error).Code != 404 {
+			return "", errors.Wrap(err, "failed to get deployment")
+		}
+		return "", errors.Wrap(err, "Stack not found!")
+	}
+	return p.Fingerprint, nil
 }
 
 func cancelOrInsertUpdate(call *dm.DeploymentsUpdateCall) error {
-	call.Preview(true)
+	// TODO: Make this work as a preview.
+	//call.Preview(true)
 	op, err := call.Do()
 	if err != nil {
-		return err
+		return errors.Wrap(err, "error in cancelOrInsertUpdate Do call")
 	}
 	b, err := op.MarshalJSON()
 	if err != nil {
-		return err
+		return errors.Wrap(err, "error in cancelOrInsertUpdate MarshalJSON")
 	}
 	fmt.Println(string(b))
 	return nil
