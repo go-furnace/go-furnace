@@ -6,10 +6,11 @@ Currently the supported and fully functional commands are:
 
 ```bash
 ❯ ./furnace-gcp help
-delete custom-config           Delete a Google Deployment Manager
-status [--config=configFile]   Get the status of an existing Deployment Management group.
-create custom-config           Create a Google Deployment Manager
-help [command]                 Display this help or a command specific help
+create custom-config             Create a Google Deployment Manager
+deleteDeployment custom-config   Delete a Google Deployment Manager
+status [--config=configFile]     Get the status of an existing Deployment Management group.
+update custom-config [-y]        Update updates a Google Deployment
+help [command]                   Display this help or a command specific help
 ```
 
 ## Authentication with Google
@@ -107,6 +108,51 @@ This will display information like this:
 2017/11/03 07:14:47 Schema to look for is:  /Users/hannibal/.config/go-furnace/simple_template.jinja.schema
 [/] Waiting for state: DONE
 ```
+
+## Update a Deployment
+
+Updating a deployment happens by calling `update stackname`. This will being the update process of a deployment.
+
+It will put the deployment into the `Preview` state first. At this stage, nothing is comited yet. You have the option
+to view the would be created resources and after you find that everything is in order, hit `y` and apply the changes.
+
+For further details, please consult this document [GCP Update Deployment](https://cloud.google.com/deployment-manager/docs/deployments/updating-deployments).
+
+```bash
+./furnace-gcp update
+```
+
+This will display information like this:
+
+```bash
+ $ ./furnace-gcp update teststack
+
+  _______  ____  ____   _______   _____  ___        __       ______    _______
+ /"     "|("  _||_ " | /"      \ (\"   \|"  \      /""\     /" _  "\  /"     "|
+(: ______)|   (  ) : ||:        ||.\\   \    |    /    \   (: ( \___)(: ______)
+ \/    |  (:  |  | . )|_____/   )|: \.   \\  |   /' /\  \   \/ \      \/    |
+ // ___)   \\ \__/ //  //      / |.  \    \. |  //  __'  \  //  \ _   // ___)_
+(:  (      /\\ __ //\ |:  __   \ |    \    \ | /   /  \\  \(:   _) \ (:      "|
+ \__/     (__________)|__|  \___) \___|\____\)(___/    \___)\_______) \_______)
+
+
+  _______    ______     _______
+ /" _   "|  /" _  "\   |   __ "\
+(: ( \___) (: ( \___)  (. |__) :)
+ \/ \       \/ \       |:  ____/
+ //  \ ___  //  \ _    (|  /
+(:   _(  _|(:   _) \  /|__/ \
+ \_______)  \_______)(_______)
+
+2019/09/18 22:28:56 Creating Deployment update under project name: . furnace-253212
+[\] Waiting for state: DONE
+2019/09/18 22:29:12 Please review the preview data.
+Would you like to apply the changes? (y/N):y
+[/] Waiting for state: DONE
+{"id":"1234",....}
+```
+
+If n is choosen on the update, the Preview will be cancelled and the deployment is put back into running state.
 
 ## Deleting a Deployment
 

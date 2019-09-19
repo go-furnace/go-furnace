@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -24,6 +25,8 @@ import (
 
 // Update defines and update command struct.
 type Update struct {
+	client *http.Client
+	ctx    context.Context
 }
 
 // Execute runs the create command
@@ -36,20 +39,16 @@ func (u *Update) Execute(opts *commander.CommandHelper) {
 			handle.Fatal(configName, err)
 		}
 	}
-	err := update(fc.Config.Main.ProjectName, override)
+	d := NewDeploymentService(u.ctx, u.client)
+	err := update(d, fc.Config.Main.ProjectName, override)
 	handle.Error(err)
 }
 
-func update(projectName string, override bool) error {
+func update(d DeploymentmanagerService, projectName string, override bool) error {
 	log.Println("Creating Deployment update under project name: .", keyName(projectName))
 
 	deploymentName := fc.Config.Gcp.StackName
-	ctx := context.Background()
-	client, err := google.DefaultClient(ctx, dm.NdevCloudmanScope)
-	if err != nil {
-		return errors.Wrap(err, "error in updater function while creating google client")
-	}
-	d := NewDeploymentService(ctx, client)
+
 	fingerPrint, err := getFingerPrintForDeployment(d, deploymentName)
 	if err != nil {
 		return errors.Wrap(err, "failed to get fingerprint for deployment")
@@ -197,8 +196,12 @@ func constructTargetConfiguration() dm.TargetConfiguration {
 
 // NewUpdate creates a new update command
 func NewUpdate(appName string) *commander.CommandWrapper {
+	ctx := context.Background()
+	client, err := google.DefaultClient(ctx, dm.NdevCloudmanScope)
+	handle.Error(err)
+	u := Update{client: client, ctx: ctx}
 	return &commander.CommandWrapper{
-		Handler: &Update{},
+		Handler: &u,
 		Help: &commander.CommandDescriptor{
 			Name:             "update",
 			ShortDescription: "Update updates a Google Deployment",
